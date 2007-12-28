@@ -25,6 +25,8 @@
 
 #include <linux/videodev2.h>
 
+#include "graph.h" 
+
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
 typedef enum {
@@ -36,12 +38,6 @@ typedef enum {
 struct buffer {
     void *                  start;
     size_t                  length;
-};
-
-struct pixel {
-    int row;
-    int col;
-    char Y;
 };
 
 static char *           dev_name        = NULL;
@@ -67,7 +63,7 @@ static int xioctl(int fd, int request, void *arg)
     return r;
 }
 
-void find_brightest_spot (const void *p, const size_t length, struct pixel *brightest)
+/*void find_brightest_spot (const void *p, const size_t length, struct pixel *brightest)
 {
     int i, j;
     char *image;
@@ -85,20 +81,26 @@ void find_brightest_spot (const void *p, const size_t length, struct pixel *brig
             brightest->col = j % 640;
         }
     }
-}
+}*/
 
 static void process_image (const void *p, const size_t length)
 {
     int i,j;
     int width, height, n;
     int *c;
-    struct pixel *bright_spot;
+    //struct pixel *bright_spot;
     
     n = 0;
     height = 480;
     width = 640;
+
+    printf("Clustering...");
+    fflush(stdout);
+    apply_highpass_Y_YUYV((char *)p, width, height, 100);
+    printf("Finished\n");
+    fflush(stdout);
     
-    bright_spot = malloc(sizeof(struct pixel));
+    /*bright_spot = malloc(sizeof(struct pixel));
     find_brightest_spot(p, length, bright_spot);
     printf("Brightest Spot: Y = %d\tRow = %d\tCol = %d\n",
             bright_spot->Y, 
@@ -106,10 +108,8 @@ static void process_image (const void *p, const size_t length)
             bright_spot->col
             );
             
-    //printf("%d\n",length);
-    //fputc('.', stdout);
-    //fflush(stdout);
-    free(bright_spot);
+    fflush(stdout);
+    free(bright_spot);*/
 }
 
 static int read_frame (void)
