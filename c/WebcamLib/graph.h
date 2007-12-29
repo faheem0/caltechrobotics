@@ -17,9 +17,9 @@ extern "C" {
 
 	typedef char BOOL;
 	typedef struct pixel {
-		char Y;
-		char Cr;
-		char Cb;
+		unsigned char Y;
+		unsigned char Cr;
+		unsigned char Cb;
 		int row;
 		int col;
 	} pixel_t;
@@ -38,8 +38,7 @@ extern "C" {
 		struct pixel_clstr_lst * next;
 	} pixel_clstr_lst_t;
 
-	pixel_clstr_lst_t* apply_highpass_Y_YUYV(char *, int, int, char);
-
+	void get_clstrs(int *, int , int , int );
 #ifdef	__cplusplus
 }
 #endif

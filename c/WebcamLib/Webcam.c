@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <stdio.h>
 #include "capture.h"
+#include "graph.h"
 #include "Webcam.h"
 
 JNIEXPORT void JNICALL Java_webcamjava_Webcam_start_1camera
@@ -21,6 +22,18 @@ JNIEXPORT void JNICALL Java_webcamjava_Webcam_capture_1frame
 	my_image= (*env)->GetIntArrayElements(env, image, 0);
 
 	capture_frame(my_image);
+
+	(*env)->ReleaseIntArrayElements(env, image, my_image, 0);
+}
+
+JNIEXPORT void JNICALL Java_webcamjava_Webcam_get_1clstrs
+  (JNIEnv *env, jclass class, jintArray image, jint width, jint height, jint threshold)
+{
+	jint *my_image;
+
+	my_image= (*env)->GetIntArrayElements(env, image, 0);
+
+	get_clstrs(my_image, width, height, threshold);
 
 	(*env)->ReleaseIntArrayElements(env, image, my_image, 0);
 }
