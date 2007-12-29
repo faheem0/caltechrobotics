@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_webcamjava_Webcam_capture_1frame
 
 /*
  * Class:     webcamjava_Webcam
+ * Method:    get_clstrs
+ * Signature: ([IIII)V
+ */
+JNIEXPORT void JNICALL Java_webcamjava_Webcam_get_1clstrs
+  (JNIEnv *, jclass, jintArray, jint, jint, jint);
+
+/*
+ * Class:     webcamjava_Webcam
  * Method:    stop_camera
  * Signature: ()V
  */

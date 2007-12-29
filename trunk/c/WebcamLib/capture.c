@@ -40,11 +40,13 @@ struct buffer {
     size_t                  length;
 };
 
-static char *           dev_name        = NULL;
+static char		*dev_name        = NULL;
 static io_method	io		= IO_METHOD_MMAP;
 static int              fd              = -1;
-struct buffer *         buffers         = NULL;
+struct buffer		*buffers         = NULL;
 static unsigned int     n_buffers       = 0;
+
+unsigned char		*clip_buffer	= NULL;
 
 static void errno_exit(const char *           s) {
     fprintf(stderr, "%s error %d, %s\n",
@@ -65,41 +67,14 @@ static int xioctl(int fd, int request, void *arg)
 
 static void process_image (const void *p, const size_t length, int *image)
 {
-    int i,j,max,min,diff;
-    int width, height, n;
-    int *c;
+    int i,j;
     unsigned char *v_buffer;
-    //struct pixel *bright_spot;
-    
-    n = 0;
-    height = 480;
-    width = 640;
 
-    /*printf("Clustering...");
-    fflush(stdout);
-    apply_highpass_Y_YUYV((char *)p, width, height, 100);
-    printf("Finished\n");
-    fflush(stdout);
-    */
-    //printf("Processing Image...");
-    //fflush(stdout);
     v_buffer = (unsigned char *)p;
-    max = 0;
-    min = 255;
+    memcpy(clip_buffer, v_buffer, length);
     for(i = 0, j = 0; i < length; i += 2, j++){
 	image[j] = (int)v_buffer[i];
-	max = (image[j] > max) ? image[j] : max;
-	min = (image[j] < min) ? image[j] : min;
     }
-    diff = max - min;
-    //printf("Min: %d\nMax: %d\n",min,max);
-    for(i = 0, j = 0; i < length; i += 2, j++){
-	    image[j] = (image[j] - min) * 255;
-	    image[j] /= diff;
-	    //printf("%d : %d\n",j,image[j]);
-    }
-    //printf("Finished\n");
-    //fflush(stdout);
 }
 
 static int read_frame (int *image)
@@ -363,7 +338,8 @@ static void init_device (int width, int height)
     min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
     if (fmt.fmt.pix.sizeimage < min)
         fmt.fmt.pix.sizeimage = min;
-    
+
+    clip_buffer = (char *)malloc(2*width*height*sizeof(char));
     init_mmap();
 }
 
