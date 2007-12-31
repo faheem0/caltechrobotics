@@ -6,7 +6,98 @@
 
 extern unsigned char *clip_buffer;
 
-static void dfs_traverse(pixel_node_t * curr_node, BOOL traverse_mark, 
+typedef enum Stack_Operation_e {
+	PUSH,
+	POP,
+	TOP,
+	CLEAR
+} Stack_Operation_t;
+/*Optimize Later*/
+static pixel_node_t *dfs_stack(Stack_Operation_t op, pixel_node_t *pnode)
+{
+	static pixel_node_t **pnode_stack = NULL;
+	static int pos = -1;
+	static int stack_size = 0;
+	static int stack_base_size = 512;
+
+	if (pnode_stack == NULL){
+		stack_size = stack_base_size;
+		pnode_stack = (pixel_node_t **)malloc(stack_size*sizeof(pixel_node_t *));
+	}
+
+	switch(op){
+		case PUSH:
+			pos++;
+			if (pos == stack_size){
+				stack_size *= 2;
+				pnode_stack = (pixel_node_t **)realloc(pnode_stack,
+						stack_size*sizeof(pixel_node_t *));
+			}
+			pnode_stack[pos] = pnode;
+			return NULL;
+			break;
+		case POP:
+			if (pos < 0) return NULL;
+			pos--;
+			return pnode_stack[pos+1];
+			break;
+		case TOP:
+			if (pos < 0) return NULL;
+			return pnode_stack[pos];
+			break;
+		case CLEAR:
+			pos = -1;
+			if (pnode_stack != NULL)
+				free(pnode_stack);
+			pnode_stack = NULL;
+			return NULL;
+			break;
+		default:
+			return NULL;
+	}
+}
+
+
+
+static void dfs_traverse(pixel_node_t * pnode, BOOL traverse_mark, 
+		void (*func)(pixel_node_t *, unsigned char *), unsigned char *image)
+{
+	pixel_node_t *curr_node;
+
+	dfs_stack(PUSH,pnode);
+
+	while((curr_node = dfs_stack(TOP,NULL)) != NULL){
+		if (curr_node->traversed == traverse_mark){
+			dfs_stack(POP,NULL);
+			if(func != NULL) (*func)(curr_node, image);
+			continue;
+		}
+		curr_node->traversed = traverse_mark;
+		if(curr_node->up != NULL
+			&& curr_node->up->traversed != traverse_mark){
+			dfs_stack(PUSH,curr_node->up);
+			continue;
+		}
+		else if(curr_node->right != NULL
+			&& curr_node->right->traversed != traverse_mark){
+			dfs_stack(PUSH,curr_node->right);
+			continue;
+		}
+		else if(curr_node->down != NULL
+			&& curr_node->down->traversed != traverse_mark){
+			dfs_stack(PUSH,curr_node->down);
+			continue;
+		}
+		else if(curr_node->left != NULL
+			&& curr_node->left->traversed != traverse_mark){
+			dfs_stack(PUSH,curr_node->left);
+			continue;
+		}
+	}
+}	
+
+
+static void dfs_traverse1(pixel_node_t * curr_node, BOOL traverse_mark, 
 		void (*func)(pixel_node_t *, unsigned char *), unsigned char *image)
 {
 	if(curr_node == NULL) return;
@@ -94,13 +185,12 @@ pixel_clstr_lst_t* apply_highpass_Y_YUYV
 						p_node->pixel->col){
 						/*link these two nodes:*/
 						//Crashes when both links are connected: Error
-						//prev_row_lst->p_clstr->down = p_node;
+						prev_row_lst->p_clstr->down = p_node;
 						p_node->up = prev_row_lst->p_clstr;
-
 						prev_row_lst = prev_row_lst->next;
 					}
 					break;
-				} 
+				}
 			}
 		}
 		
@@ -112,10 +202,11 @@ pixel_clstr_lst_t* apply_highpass_Y_YUYV
 	prev_clstr = clstr_lst;
 	clstr = clstr_lst->next;
 	while(clstr != NULL){
-		if (clstr->p_clstr->traversed){
+		if (clstr->p_clstr->traversed == TRUE){
 			prev_clstr->next = clstr->next;
 			free(clstr);
 			clstr = prev_clstr->next;
+
 		} else {
 			dfs_traverse(clstr->p_clstr, TRUE, NULL, NULL);
 			prev_clstr = clstr;
