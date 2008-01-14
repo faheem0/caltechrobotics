@@ -112,6 +112,43 @@ static void dfs_traverse1(pixel_node_t * curr_node, BOOL traverse_mark,
 
 static unsigned char get_Y_YUYV(unsigned char *image, int pixel_index)
 {
+	int p,b,r;
+	double R,G,B,Y,Cb,Cr;
+	
+	p = (pixel_index >> 1) << 1;
+	Y = (double) image[pixel_index*2];
+	p *= 2; 
+	b = p + 1;
+	r = p + 3;
+	Cb = (double) image[b];
+	Cr = (double) image[r];
+	//Cb = (Cb - 16.0)*240.0/255.0;
+	//Cr = (Cr - 16.0)*240.0/255.0;
+	
+	/*printf("Y:%d\t%f\n",image[pixel_index*2],Y);
+	printf("Cb:%d\t%f\n",image[b],Cb);
+	printf("Cr:%d\t%f\n",image[r],Cr);*/
+
+	/*R = -461.845 + 3.97025*Cr - 2.89652*Y;
+	G = 133.87+ 0.507479*Cb - 2.02233*Cr + 3.75195*Y;
+	B = 358.596- 2.613*Cb - 1.50828*Y;*/
+	R = -179.456 + 1.402*Cr + 1.0*Y;
+	G = 135.459- 0.344136*Cb - 0.714136*Cr + 1.0*Y;
+	B = -226.816 + 1.772*Cb + 1.0*Y;
+
+	//R = -461.845 - 0.0000215442*Cb + 3.97025*Cr - 2.89652*Y;
+	//G = 133.87+ 0.507479*Cb - 2.02233*Cr + 3.75195*Y;
+	//B = 358.596- 2.613*Cb + 5.87408*10^-6*Cr - 1.50828*Y;
+
+	/*R = Y + 1.140*(double)image[r];
+	G = Y - 0.395*(double)image[b] - 0.581*(double)image[r];
+	B = Y + 2.032*(double)image[b];*/
+	//printf("R:%f,G:%f,B:%f\n",R,G,B);
+	//fflush(stdout);
+	if (R > 250.0 && B < 255.0 && G < 255.0)
+		return image[pixel_index*2];
+	else return 0;
+
 	return image[pixel_index*2];
 }
 
