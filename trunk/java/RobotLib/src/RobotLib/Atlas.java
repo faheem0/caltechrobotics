@@ -101,7 +101,6 @@ public class Atlas extends Robot{
             
             t = new Thread(this, tName);
             t.start();
-            System.out.println(Thread.activeCount());
         }
         /**
          *Stops the thread
@@ -127,7 +126,8 @@ public class Atlas extends Robot{
             int bytesRead = -1;
             int ir, gps, us, compass;
             int bound1, bound2, bound3, bound4;
-            int i,c;
+            int i,c,j;
+	    j = 0;
             System.out.println("Running Loops ...");
             while (!stop){
                 ir = -1;
@@ -139,7 +139,8 @@ public class Atlas extends Robot{
                     //for (int x = 0; x < buffer.length; x++){
                         //buffer[x] = in.read();
                         //System.out.print(buffer[x]);
-                        System.out.print(in.read() + " ");
+			int x = in.read();
+                        System.out.println(x);
                     //}
                     //System.out.println(in.read());
                 } catch(IOException e){
