@@ -47,18 +47,21 @@ public class Main {
 
 	    //Connect to Robot
 	    Color c = new Color(0,255,0);
-	    Robot r = new Robot("COM5");
+	    Robot r = new Robot("COM2");
 	    InputStream in = r.getInputStream();
+            
 	    int byte_read;
 	    int time = 0;
 	    int radar_time = 1;
 	    while(true){
 		try{
-			byte_read = in.read();
+			byte_read =  in.read();
+                        
 			if (byte_read == -1) continue;
-			System.out.println(time + "\t" + byte_read);
-			byte_read -= 128;
-			if(byte_read < 0 ) byte_read = -1*(128+byte_read);
+                        //if (byte_read>127)
+                        //    byte_read= -1*(256-byte_read);
+                        byte_read=convertTwosComplement(byte_read);
+			System.out.println("Time: "+time + "\t"+"Byte read: " + byte_read);			
 			p.drawVerticalLine(radar_time, Color.CYAN);
 			p.drawVerticalLine(time, Color.BLACK);
 			p.plotPoint(time, byte_read, c);
@@ -71,6 +74,16 @@ public class Main {
 
 	    }
 
+    }
+    /**
+     * Basically, this function takes a number and converts it into
+     * 8-bit two's complement.  The number it takes has unknown format,
+     * it could be unsigned or 16-bit signed.  It just works.
+     */
+    public static int convertTwosComplement(int num) {
+        if(num>127)
+            return -1*(256-num);
+        return num;
     }
 
 }

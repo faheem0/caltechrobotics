@@ -60,6 +60,7 @@ public class Robot {
             commID = CommPortIdentifier.getPortIdentifier(portName);
             port = (SerialPort)commID.open(portName, 2000);
 	    System.out.println("Baud Rate is: " + port.getBaudRate());
+            System.out.println(port.toString());
         } catch (gnu.io.NoSuchPortException e1){
             System.exit(2);
         } catch (gnu.io.PortInUseException e2) {
