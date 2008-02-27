@@ -20,6 +20,7 @@ public class Main {
         // TODO code application logic here
 	    Webcam cam = new Webcam(FrameGrabber.DEFAULT_DEV_NAME);
 	    CamFrame frame = new CamFrame(cam);
+	    frame.setVisible(true);
 	    //for(int i = 0; i < image.length; i++) System.out.println(i%256+":" + (byte)image[i]);
     }
 
