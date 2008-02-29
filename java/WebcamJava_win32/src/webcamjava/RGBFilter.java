@@ -19,6 +19,8 @@ public class RGBFilter implements CamFilter{
 	private int BlueLow, BlueHigh;
 	private int RedLow, RedHigh;
 	private int GreenLow, GreenHigh;
+	private final int RGB_MAX = 255;
+	private final int RGB_MIN = 0;
 	
 	public RGBFilter(int red, int green, int blue, int tolerance){
 		RedThreshold = red;
@@ -31,6 +33,15 @@ public class RGBFilter implements CamFilter{
 		RedHigh = RedThreshold + Tolerance;
 		GreenLow = GreenThreshold - Tolerance;
 		GreenHigh = GreenThreshold + Tolerance;
+
+		if (BlueHigh > RGB_MAX) BlueHigh = RGB_MAX;
+		if (GreenHigh > RGB_MAX) GreenHigh = RGB_MAX;
+		if (RedHigh > RGB_MAX) RedHigh = RGB_MAX;
+
+		if (BlueLow < RGB_MIN) BlueLow = RGB_MIN;
+		if (GreenLow < RGB_MIN) GreenLow = RGB_MIN;
+		if (RedLow < RGB_MIN) RedLow = RGB_MIN;
+
 		System.out.println("Red Range: " + RedLow + " " + RedHigh);
 		System.out.println("Blue Range: " + BlueLow + " " + BlueHigh);
 		System.out.println("Green Range: " + GreenLow + " " + GreenHigh);
