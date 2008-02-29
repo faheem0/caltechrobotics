@@ -14,11 +14,12 @@ import java.awt.Color;
  *
  * @author tonyfwu
  */
-public class CamFrame extends Frame{
+public class CamFrame extends Frame implements Runnable {
 	private Image myImage;
 	private Webcam cam;
 	private static int camNumber = 0;
 	private CamFilter myFilter;
+        private int refreshRate;
 	public CamFrame(Webcam w){
 		cam = w;
 		myImage = cam.getImage();
@@ -28,7 +29,11 @@ public class CamFrame extends Frame{
 		setTitle("Cam " + camNumber);
 		camNumber++;
 		myFilter = null;
+                refreshRate = 10;
 	}
+        public void setRefresh(int r){
+                refreshRate = r;
+        }
 	public void setFilter(CamFilter f){
 		myFilter = f;
 	}
@@ -48,6 +53,17 @@ public class CamFrame extends Frame{
 	public void update(Graphics g) {
 		paint(g);
 	}
+        public void run(){
+            while (true){
+		updateImage();
+		repaint();
+		try {
+			Thread.sleep(refreshRate);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+            }
+        }
 	class WindowListener extends WindowAdapter {
 		public void windowClosing(WindowEvent e) {
 			System.exit(0);
