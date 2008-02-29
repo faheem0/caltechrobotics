@@ -13,14 +13,9 @@ import java.awt.Image;
 public class Webcam {
 	private FrameGrabber vision;
 
-	public Webcam(String deviceName){
-		try {
-			vision = new FrameGrabber(deviceName);
-			vision.start();
-		}
-		catch(FrameGrabberException fge) {
-			System.out.println(fge.getMessage());
-		}	
+	public Webcam(String deviceName) throws FrameGrabberException{
+		vision = new FrameGrabber(deviceName);
+		vision.start();
 	}
 	public Image getImage()
 	{
@@ -29,9 +24,5 @@ public class Webcam {
 	public BufferedImage getFrame()
 	{
 		return vision.getBufferedImage();
-	}
-	public void Destroy()
-	{
-		vision.destroy();
 	}
 }

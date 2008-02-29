@@ -69,7 +69,7 @@ public class FrameGrabber extends Thread implements ControllerListener {
      */
     String videoPropFile =
       System.getProperty("video.properties", "video.properties");
-
+    System.out.println("Property Read: " + videoPropFile);
     setup(videoPropFile, devName);
   }
 
@@ -105,8 +105,6 @@ public class FrameGrabber extends Thread implements ControllerListener {
     Dimension viewSize = null;
     int viewDepth = 0;
 
-    //String cameraDevice =
-     // videoProperties.getProperty("device-name", DEFAULT_DEV_NAME);
     String cameraDevice =
       videoProperties.getProperty("device-name", devName);
 
@@ -296,7 +294,7 @@ public class FrameGrabber extends Thread implements ControllerListener {
      *  method.  If this is false we wait until the run method notifies us
      *  that there is an image to collect
      */
-    while (threadRunning == false) {
+    while (!threadRunning) {
       synchronized (runLock) {
         try {
           runLock.wait();
