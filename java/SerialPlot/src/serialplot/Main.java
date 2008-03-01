@@ -21,7 +21,9 @@ public class Main {
      */
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
-
+    
+    public static final int NEXT_TIME_BYTE = 254; //defined in protocol w/MCU
+    
     public static void main(String[] args) {
 	
 
@@ -39,34 +41,36 @@ public class Main {
 
 	    //Plot a function
 	    //y = x^2;
-	    /*
-	    Color c = new Color(0,255,0);
+	    
+	    /*Color c = new Color(0,255,0);
 	    for (int x = -10; x <= 10; x++){
 		p.plotPoint(5*x, x*x, c);
-	    }*/
-
+	    }
+            while(true); */
 	    //Connect to Robot
 	    Color c = new Color(0,255,0);
-	    Robot r = new Robot("COM2");
+	    Robot r = new Robot("COM1");
 	    InputStream in = r.getInputStream();
             
 	    int byte_read;
 	    int time = 0;
-	    int radar_time = 1;
+	    
 	    while(true){
 		try{
 			byte_read =  in.read();
                         
 			if (byte_read == -1) continue;
-                        //if (byte_read>127)
-                        //    byte_read= -1*(256-byte_read);
-                        byte_read=convertTwosComplement(byte_read);
-			System.out.println("Time: "+time + "\t"+"Byte read: " + byte_read);			
-			p.drawVerticalLine(radar_time, Color.CYAN);
-			p.drawVerticalLine(time, Color.BLACK);
-			p.plotPoint(time, byte_read, c);
-			time = (time+1) % PLOT_WIDTH;
-			radar_time = (radar_time+1) % PLOT_WIDTH;
+                        if(byte_read == NEXT_TIME_BYTE) {
+                            time = (time+1) % PLOT_WIDTH;
+                            p.drawVerticalLine(((time+1) % PLOT_WIDTH), Color.CYAN);
+                            p.drawVerticalLine(time, Color.BLACK);
+                            
+                        }
+                        else {                            
+                            byte_read=convertTwosComplement(byte_read);
+                            System.out.println("Time: "+time + "\t"+"Byte read: " + byte_read);		
+                            p.plotPoint(time, byte_read, c);
+                        }			
 			panel.repaint();
 		} catch (IOException e){
 			e.printStackTrace();
