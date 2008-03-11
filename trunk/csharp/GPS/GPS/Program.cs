@@ -10,7 +10,9 @@ namespace GPS
         static void Main(string[] args)
         {
             AC12GPS myGPS = new AC12GPS("COM1");
-            Console.WriteLine("Hello, World!");
+            
+            System.Threading.Thread.Sleep(60000);
+            myGPS.Destroy();
         }
     }
 }
