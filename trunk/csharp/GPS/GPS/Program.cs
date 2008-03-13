@@ -10,9 +10,17 @@ namespace GPS
         static void Main(string[] args)
         {
             AC12GPS myGPS = new AC12GPS("COM1");
-            
-            System.Threading.Thread.Sleep(60000);
-            myGPS.Destroy();
+            myGPS.enableAutoUpdate();
+            while (true)
+            {
+                Console.WriteLine("UTM E: " + myGPS.getEastUTM() + "m N: " + myGPS.getNorthUTM() + "m");
+                Console.WriteLine("Number of Satellites: " + myGPS.getSatUTM());
+                Console.WriteLine("UTC Timestamp: " + myGPS.getTimestampUTM());
+                System.Threading.Thread.Sleep(100);
+                Console.Clear();
+            }
+            //System.Threading.Thread.Sleep(5*60000);
+            //myGPS.Destroy();
         }
     }
 }
