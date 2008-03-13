@@ -1,9 +1,19 @@
 ﻿using System;
 
-public interface IGPS
+namespace GPS
 {
-    double getEastUTM();
-    double getNorthUTM();
-    double getLongitude();
-    double getLatitude();
+    public interface IGPS
+    {
+        double getEastUTM();
+        double getNorthUTM();
+        int getSatUTM();
+        double getTimestampUTM();
+    }
+    struct UTMData
+    {
+        public double East;
+        public double North;
+        public int NumSat;
+        public double Timestamp;
+    }
 }
