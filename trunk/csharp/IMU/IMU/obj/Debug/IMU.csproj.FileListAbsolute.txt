@@ -8,3 +8,8 @@ F:\Documents\Visual Studio 2008\Projects\IMU\IMU\obj\Debug\ConsoleApplication1.p
 F:\Documents\Visual Studio 2008\Projects\IMU\IMU\bin\Debug\ConsoleApplication1.exe
 F:\Documents\Visual Studio 2008\Projects\IMU\IMU\bin\Debug\ConsoleApplication1.pdb
 F:\Documents\Visual Studio 2008\Projects\IMU\IMU\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Sam\Documents\Visual Studio 2008\Projects\IMU workin\IMU\obj\Debug\ConsoleApplication1.exe
+C:\Users\Sam\Documents\Visual Studio 2008\Projects\IMU workin\IMU\obj\Debug\ConsoleApplication1.pdb
+C:\Users\Sam\Documents\Visual Studio 2008\Projects\IMU workin\IMU\bin\Debug\ConsoleApplication1.exe
+C:\Users\Sam\Documents\Visual Studio 2008\Projects\IMU workin\IMU\bin\Debug\ConsoleApplication1.pdb
+C:\Users\Sam\Documents\Visual Studio 2008\Projects\IMU workin\IMU\obj\Debug\ResolveAssemblyReference.cache
