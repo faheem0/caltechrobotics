@@ -9,7 +9,7 @@ namespace IMU
     {
         static void Main(string[] args)
         {
-            CristaIMU imu = new CristaIMU("COM6");
+            CristaIMU imu = new CristaIMU("COM2");
             imu.autoupdate();
         }
     }

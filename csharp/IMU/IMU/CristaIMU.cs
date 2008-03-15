@@ -56,7 +56,6 @@ namespace IMU
             temp1 = 0.0;
             temp2 = 0;
 
-            
 
             EmptyPacket = new byte[PACKET_BUFFER_SIZE];
 
@@ -157,7 +156,7 @@ namespace IMU
             {
                 if (PendingPacket.contents[0] == HI_SPEED_SERIAL_MSG)
                 {
-                    Console.Clear();
+                    
                     //Console.Write("Packet: ");
 
                     byte[] myPacket = PendingPacket.contents;
@@ -203,7 +202,7 @@ namespace IMU
                             temp2++;
                             //Console.Write(temp1 / temp2 + "\t");
                             //Console.Write(dAngle + "\t");
-                            Console.WriteLine(DriftyIntegratedAngle[i] + "\t");
+                            //Console.WriteLine(DriftyIntegratedAngle[i] + "\t");
                         }
                     }
 
@@ -219,15 +218,21 @@ namespace IMU
                     Console.Write(gyro[1] + "\t");
                     Console.Write(gyro[2] + "\t");*/
 
-                    Console.WriteLine(acc[0] + "\t");
-                    Console.WriteLine(acc[1] + "\t");
-                    Console.WriteLine(acc[2] + "\t");
+                    Console.Clear();
+                    Console.WriteLine("gyro X: " + DriftyIntegratedAngle[0] + " degrees");
+                    Console.WriteLine("gyro Y: " + DriftyIntegratedAngle[1] + " degrees");
+                    Console.WriteLine("gyro Z: " + DriftyIntegratedAngle[2] + " degrees");
+
+                    Console.WriteLine("acc X: " + acc[0] + " m/s^2");
+                    Console.WriteLine("acc Y: " + acc[1] + " m/s^2");
+                    Console.WriteLine("acc Z: " + acc[2] + " m/s^2");
 
                     //Console.Write(currentTimestamp / IMU_CLOCK_FREQ + "\t");
                     Console.WriteLine();
                 }
                 else invalidMessage++;
             } else  invalidPackets++;
+
         }
         private void addData(byte i)
         {
