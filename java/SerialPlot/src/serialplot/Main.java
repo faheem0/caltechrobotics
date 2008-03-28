@@ -23,6 +23,7 @@ public class Main {
     public static final int PLOT_HEIGHT = 600;
     
     public static final int NEXT_TIME_BYTE = 254; //defined in protocol w/MCU
+    public static final Color[] pointColor = {Color.RED, Color.GREEN, Color.BLUE,Color.WHITE, Color.ORANGE};
     
     public static void main(String[] args) {
 	
@@ -49,12 +50,13 @@ public class Main {
             while(true); */
 	    //Connect to Robot
 	    Color c = new Color(0,255,0);
-	    Robot r = new Robot("COM1");
+	    Robot r = new Robot("COM5");
 	    InputStream in = r.getInputStream();
             
 	    int byte_read;
 	    int time = 0;
-	    
+	    int colorIndex = 0;
+            
 	    while(true){
 		try{
 			byte_read =  in.read();
@@ -64,12 +66,14 @@ public class Main {
                             time = (time+1) % PLOT_WIDTH;
                             p.drawVerticalLine(((time+1) % PLOT_WIDTH), Color.CYAN);
                             p.drawVerticalLine(time, Color.BLACK);
-                            
+                            colorIndex = 0;  //reset color index
                         }
                         else {                            
                             byte_read=convertTwosComplement(byte_read);
                             System.out.println("Time: "+time + "\t"+"Byte read: " + byte_read);		
-                            p.plotPoint(time, byte_read, c);
+                            p.plotPoint(time, byte_read, pointColor[colorIndex]);
+                            if( (colorIndex +1) < pointColor.length)
+                                colorIndex++;
                         }			
 			panel.repaint();
 		} catch (IOException e){
