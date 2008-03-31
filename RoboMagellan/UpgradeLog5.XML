@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="RoboMagellan">
+</Property><Property Name="Solution File" Value="C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\RoboMagellan.sln">
+</Property><Property Name="Date" Value="Saturday, March 29, 2008">
+</Property><Property Name="Time" Value="22:03:41 PM">
+</Property><Property Name="Log Number" Value="5">
+</Property></Properties><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMU.csproj" Description="Project file successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup3\GenericIMU.csproj">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMU.csproj.user" Description="Project user file successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup3\GenericIMU.csproj.user">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\AssemblyInfo.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup3\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMU.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup3\GenericIMU.cs">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMUTypes.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup3\GenericIMUTypes.cs">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMU.manifest.xml" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup3\GenericIMU.manifest.xml">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMU.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="GenericIMU" Source="GenericIMU\GenericIMU.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU\GenericIMU.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>

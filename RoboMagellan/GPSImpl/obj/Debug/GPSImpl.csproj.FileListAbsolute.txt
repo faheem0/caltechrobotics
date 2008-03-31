@@ -1,0 +1,5 @@
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GPSImpl\obj\Debug\ResolveAssemblyReference.cache
+C:\Microsoft Robotics Studio (1.5)\bin\GPSImpl.Y2008.M03.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GPSImpl.Y2008.M03.pdb
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GPSImpl\obj\Debug\GPSImpl.Y2008.M03.dll
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GPSImpl\obj\Debug\GPSImpl.Y2008.M03.pdb

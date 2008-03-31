@@ -1,0 +1,9 @@
+C:\Microsoft Robotics Studio (1.5)\bin\GenericGPS.Y2008.M03.Proxy.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GenericGPS.Y2008.M03.Proxy.pdb
+C:\Microsoft Robotics Studio (1.5)\bin\GenericGPS.Y2008.M03.proxy.xml
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\Proxy\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\Proxy\obj\Debug\GenericGPS.Y2008.M03.proxy.csproj.GenerateResource.Cache
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\Proxy\obj\Debug\GenericGPS.Y2008.M03.Proxy.dll
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\Proxy\obj\Debug\GenericGPS.Y2008.M03.Proxy.pdb
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\Proxy\obj\Debug\RoboMagellan.GenericGPS.Resources.DssModel.dss
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\Proxy\obj\Debug\RoboMagellan.GenericGPS.Properties.Resources.resources

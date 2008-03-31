@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="RoboMagellan">
+</Property><Property Name="Solution File" Value="C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\RoboMagellan.sln">
+</Property><Property Name="Date" Value="Tuesday, March 11, 2008">
+</Property><Property Name="Time" Value="20:07:53 PM">
+</Property><Property Name="Log Number" Value="2">
+</Property></Properties><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPS.csproj" Description="Project file successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup\GenericGPS.csproj">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPS.csproj.user" Description="Project user file successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup\GenericGPS.csproj.user">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\AssemblyInfo.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPS.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup\GenericGPS.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPSTypes.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup\GenericGPSTypes.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPS.manifest.xml" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup\GenericGPS.manifest.xml">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPS.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="GenericGPS" Source="GenericGPS\GenericGPS.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS\GenericGPS.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>
