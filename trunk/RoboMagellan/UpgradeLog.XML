@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="RoboMagellan">
+</Property><Property Name="Solution File" Value="C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\RoboMagellan.sln">
+</Property><Property Name="Date" Value="Friday, March 07, 2008">
+</Property><Property Name="Time" Value="19:58:26 PM">
+</Property></Properties><Event ErrorLevel="0" Project="MainControl" Source="..\..\..\RoboMagellan\MainControl\MainControl.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="MainControl" Source="..\..\..\RoboMagellan\MainControl\MainControl.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="..\..\..\RoboMagellan\MainControl\MainControl.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>

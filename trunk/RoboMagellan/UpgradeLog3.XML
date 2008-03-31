@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="RoboMagellan">
+</Property><Property Name="Solution File" Value="C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\RoboMagellan.sln">
+</Property><Property Name="Date" Value="Wednesday, March 12, 2008">
+</Property><Property Name="Time" Value="19:19:35 PM">
+</Property><Property Name="Log Number" Value="3">
+</Property></Properties><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControl.csproj" Description="Project file successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup1\MainControl.csproj">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControl.csproj.user" Description="Project user file successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup1\MainControl.csproj.user">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\AssemblyInfo.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup1\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControl.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup1\MainControl.cs">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControlTypes.cs" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup1\MainControlTypes.cs">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControl.manifest.xml" Description="File successfully backed up as C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\Backup1\MainControl.manifest.xml">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControl.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="MainControl" Source="MainControl\MainControl.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="MainControl" Source="MainControl\MainControl.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>
