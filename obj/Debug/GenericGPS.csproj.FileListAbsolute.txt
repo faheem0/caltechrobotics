@@ -1,0 +1,8 @@
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\obj\Debug\ResolveAssemblyReference.cache
+C:\Microsoft Robotics Studio (1.5)\bin\GenericGPS.Y2008.M03.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GenericGPS.Y2008.M03.pdb
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\obj\Debug\GenericGPS.Y2008.M03.dll
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericGPS\obj\Debug\GenericGPS.Y2008.M03.pdb
+C:\Users\tonyfwu\Desktop\GPS_Service\GenericGPS\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\tonyfwu\Desktop\GPS_Service\GenericGPS\obj\Debug\GenericGPS.Y2008.M03.dll
+C:\Users\tonyfwu\Desktop\GPS_Service\GenericGPS\obj\Debug\GenericGPS.Y2008.M03.pdb

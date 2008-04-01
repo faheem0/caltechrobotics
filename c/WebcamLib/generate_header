@@ -1,3 +1,0 @@
-#!/bin/sh
-
-javah -o Webcam.h -jni -classpath /home/tonyfwu/NetbeansProjects/WebcamJava/build/classes webcamjava.Webcam

@@ -1,5 +1,0 @@
-C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\MainControl\obj\Debug\ResolveAssemblyReference.cache
-C:\Microsoft Robotics Studio (1.5)\bin\MainControl.Y2008.M03.dll
-C:\Microsoft Robotics Studio (1.5)\bin\MainControl.Y2008.M03.pdb
-C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\MainControl\obj\Debug\MainControl.Y2008.M03.dll
-C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\MainControl\obj\Debug\MainControl.Y2008.M03.pdb
