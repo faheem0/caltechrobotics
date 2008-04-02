@@ -13,6 +13,9 @@ namespace RoboMagellan.MotorControl
         static void Main(string[] args)
         {
             string portName = "COM1";
+            Console.Write("Port: ");
+            portName = Console.ReadLine();
+            portName = portName.Trim();
             motorcontrol motors = new motorcontrol(portName);
             if(!motors.connect())
                 Console.WriteLine("Couldn't connect to " + portName);
@@ -25,7 +28,18 @@ namespace RoboMagellan.MotorControl
                 cmd = Console.ReadLine();
                 cmd = cmd.Trim();
                 values = cmd.Split(' ');
-                motors.command(MotorCommands.MOVE, Byte.Parse(values[0]), Byte.Parse(values[1]));
+                try
+                {
+                    motors.command(MotorCommands.MOVE, 
+                        (byte) int.Parse(values[0], System.Globalization.NumberStyles.Integer), 
+                        (byte) int.Parse(values[1], System.Globalization.NumberStyles.Integer)
+                        );
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    Console.WriteLine("Invalid String");
+                }
             }
         }
     }
