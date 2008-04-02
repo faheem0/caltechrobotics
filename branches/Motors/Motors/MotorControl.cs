@@ -12,8 +12,8 @@ namespace RoboMagellan.MotorControl
 
     public enum MotorCommands
     {
-        MOVE = 104,
-
+        MOVE = 217,
+        //To Be Continued...
     }
     public class motorcontrol
     {
@@ -21,12 +21,12 @@ namespace RoboMagellan.MotorControl
         static int DEFAULT_DATA_BITS = 8;
         static int DEFAULT_TIMEOUT = 500;
         static Parity DEFAULT_PARITY = Parity.None;
-        static StopBits DEFAULT_STOP_BITS = StopBits.One;
+        static StopBits DEFAULT_STOP_BITS = StopBits.Two;
         static Handshake DEFAULT_HANDSHAKE = Handshake.None;
 
-        static byte COMMAND_START = 0xA9;
-        static byte COMMAND_STOP = 0xFF;
-
+        static byte COMMAND_START = 254;
+        static byte COMMAND_STOP = 233;
+        static byte MAX_SPEED = 100;
 
         private volatile SerialPort myMotors;
 
@@ -60,8 +60,6 @@ namespace RoboMagellan.MotorControl
                 Console.WriteLine("Sucessfully Connected!");
                 Console.WriteLine(myMotors.ToString());
 
-                //myMotors.RtsEnable = true;
-
                 return true;
             }
 
@@ -77,23 +75,25 @@ namespace RoboMagellan.MotorControl
             myMotors.DataReceived += new SerialDataReceivedEventHandler(serialPort_dataRecieved);
         }
 
-
+        /* The only difference is the the below method. The rest of it is very similar to the GPS code */
         public void command(MotorCommands cmd, byte left, byte right)
         {
+            //Create the packet in the right order
             byte[] cmdString = new byte[5] { COMMAND_START, 
                                             (byte)(int)cmd, 
-                                            left, 
-                                            right,
+                                            (byte) (left + MAX_SPEED), 
+                                            (byte) (right + MAX_SPEED),
                                             COMMAND_STOP
                                             };
+            
             myMotors.Write(cmdString, 0, cmdString.Length);
         }
 
         private void serialPort_dataRecieved(object sender, SerialDataReceivedEventArgs e)
         {
-            
+            //Does nothing right now. I don't know why I did not delete it.
         }
-
+        //Again, I don't know why I didn't delete the class below.
         class MotorDataParseException : Exception
         {
 
