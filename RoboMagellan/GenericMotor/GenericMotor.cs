@@ -21,7 +21,7 @@ using W3C.Soap;
 using robomagellan = RoboMagellan;
 
 
-namespace RoboMagellan
+namespace RoboMagellan.MotorControl
 {
     
     
@@ -44,7 +44,11 @@ namespace RoboMagellan
         /// </summary>
         [ServicePort("/genericmotor", AllowMultipleInstances=false)]
         private GenericMotorOperations _mainPort = new GenericMotorOperations();
-        
+
+        private static string MOTOR_PORT = "COM2";
+
+        private MotorControl _motor = new MotorControl(MOTOR_PORT);
+
         /// <summary>
         /// Default Service Constructor
         /// </summary>
@@ -60,8 +64,32 @@ namespace RoboMagellan
         {
 			base.Start();
 			// Add service specific initialization here.
+            if (!_motor.connect())
+            {
+                LogError("Failed to initialize motor control!");
+            }
         }
-        
+
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> SetMotorSpeedHandler(SetSpeed s)
+        {
+            MotorSpeed sp = s.Body;
+            _motor.command(MotorCommands.MOVE, sp.Left, sp.Right);
+
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> StopHandler(Stop s)
+        {
+            _motor.command(MotorCommands.STOP, 0, 0);
+        }
+
+        [ServiceHandler(ServiceHadlerBehavior.Exclusive)]
+        public IEnumerator<ITask> SendAckHandler(SendAck s)
+        {
+            _motor.command(MotorCommands.ACK, 0, 0);
+        }
+
         /// <summary>
         /// Get Handler
         /// </summary>

@@ -43,6 +43,8 @@ namespace RoboMagellan.GenericGPS
         {
             DirectoryInsert();
 
+            
+            
             _gps = new AC12GPS(PORT, _gpsDataPort);
 
             SpawnIterator(activateGPSIterator);
@@ -52,7 +54,7 @@ namespace RoboMagellan.GenericGPS
                 Arbiter.Receive<UTMData>(true, _gpsDataPort, DataReceivedHandler)),
                 new ConcurrentReceiverGroup()));
 
-            base.Start();
+            //base.Start();
         }
 
         public IEnumerator<ITask> activateGPSIterator()

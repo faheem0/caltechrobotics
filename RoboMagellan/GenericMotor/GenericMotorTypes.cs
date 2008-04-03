@@ -17,7 +17,7 @@ using W3C.Soap;
 using robomagellan = RoboMagellan;
 
 
-namespace RoboMagellan
+namespace RoboMagellan.MotorControl
 {
     
     
@@ -45,10 +45,50 @@ namespace RoboMagellan
     /// GenericMotor Main Operations Port
     /// </summary>
     [ServicePort()]
-    public class GenericMotorOperations : PortSet<DsspDefaultLookup, DsspDefaultDrop, Get>
+    public class GenericMotorOperations : PortSet<DsspDefaultLookup, 
+                                                  DsspDefaultDrop, 
+                                                  Get,
+                                                  SetSpeed,
+                                                  Stop,
+                                                  SendAck>
     {
     }
-    
+
+    public class SendAck : Update<object, DsspResponsePort<DefaultUpdateResponseType>>
+    {
+        public SendAck() { }
+    }
+
+    public class Stop : Update<object, DsspResponsePort<DefaultUpdateResponseType>>
+    {
+        public Stop() { }
+    }
+
+    public class SetSpeed : Update<MotorSpeed, DsspResponsePort<DefaultUpdateResponseType>>
+    {
+        public SetSpeed(MotorSpeed s) { this.Body = s; }
+
+        public SetSpeed() { }
+    }
+
+    [DataContract()]
+    public struct MotorSpeed
+    {
+        private SByte _left;
+        private SByte _right;
+
+        public SByte Left
+        {
+            get { return _left; }
+            set { _left = value; }
+        }
+
+        public SByte Right
+        {
+            get { return _right; }
+            set { _right = value; }
+        }
+    }
     /// <summary>
     /// GenericMotor Get Operation
     /// </summary>
