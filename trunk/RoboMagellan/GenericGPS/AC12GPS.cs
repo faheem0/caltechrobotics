@@ -82,7 +82,7 @@ namespace RoboMagellan.GenericGPS
 
         public void activateHandler()
         {
-            myGPS.DataReceived += serialPort_dataRecieved;
+            myGPS.DataReceived += new SerialDataReceivedEventHandler(serialPort_dataRecieved);
         }
 
 
@@ -114,7 +114,8 @@ namespace RoboMagellan.GenericGPS
             }
         }
 
-        class GPSDataParseException : Exception {
+        class GPSDataParseException : Exception
+        {
 
             public GPSDataParseException() : base() { }
 
@@ -127,6 +128,7 @@ namespace RoboMagellan.GenericGPS
         {
             Match m;
             m = UTM.Match(s);   //MMmm.. Regular Expressions
+            UTMData d = new UTMData();
             if (m.Success)
             {
                 String[] utm_data = s.Split(',');
@@ -139,22 +141,23 @@ namespace RoboMagellan.GenericGPS
                     double time = double.Parse(utm_data[2]);
 
                     //Set the new data only if the above lines did not generate FormatException
-                        //Monitor.Enter(myData);
-                    UTMData d = new UTMData();
+                    //Monitor.Enter(myData);
+
                     d.East = east;
                     d.North = north;
                     d.NumSat = sat;
                     d.Timestamp = time;
-                    return d;
-                        //Monitor.Exit(myData);
+                    //Monitor.Exit(myData);
                 }
                 catch (FormatException ex) //FUUUUUCK! Shit happened!
                 {
+                    Console.WriteLine(s);
                     throw new GPSDataParseException("Format exception!");
                 }
+                return d;
             }
-            throw new GPSDataParseException("Format exception!");
+            //throw new GPSDataParseException("Format exception!");
         }
-        
+
     }
 }
