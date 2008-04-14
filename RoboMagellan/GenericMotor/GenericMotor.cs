@@ -75,19 +75,30 @@ namespace RoboMagellan.MotorControl
         {
             MotorSpeed sp = s.Body;
             _motor.command(MotorCommands.MOVE, sp.Left, sp.Right);
-
+            yield break;
         }
 
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
         public IEnumerator<ITask> StopHandler(Stop s)
         {
             _motor.command(MotorCommands.STOP, 0, 0);
+            yield break;
         }
 
-        [ServiceHandler(ServiceHadlerBehavior.Exclusive)]
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
         public IEnumerator<ITask> SendAckHandler(SendAck s)
         {
             _motor.command(MotorCommands.ACK, 0, 0);
+            yield break;
+        }
+
+        // NEEDS TO RESPOND ON TURN COMPLETE
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> TurnHandler(Turn t)
+        {
+            // NEEDS TO ACTUALLY SEND HEADING
+            _motor.command(MotorCommands.TURN, 0, 0);
+            yield break;
         }
 
         /// <summary>
