@@ -50,18 +50,41 @@ namespace RoboMagellan.MotorControl
                                                   Get,
                                                   SetSpeed,
                                                   Stop,
-                                                  SendAck>
+                                                  SendAck,
+                                                  Turn>
     {
     }
 
-    public class SendAck : Update<object, DsspResponsePort<DefaultUpdateResponseType>>
+    public struct AckInfo
+    {
+    }
+
+    public struct StopInfo
+    {
+    }
+    public class SendAck : Update<AckInfo, DsspResponsePort<DefaultUpdateResponseType>>
     {
         public SendAck() { }
     }
 
-    public class Stop : Update<object, DsspResponsePort<DefaultUpdateResponseType>>
+    public class Stop : Update<StopInfo, DsspResponsePort<DefaultUpdateResponseType>>
     {
         public Stop() { }
+    }
+
+    public struct TurnData
+    {
+        public double heading;
+    }
+
+    public class Turn : Update<TurnData, DsspResponsePort<DefaultUpdateResponseType>>
+    {
+        public Turn(TurnData d)
+        {
+            this.Body = d;
+        }
+
+        public Turn() { }
     }
 
     public class SetSpeed : Update<MotorSpeed, DsspResponsePort<DefaultUpdateResponseType>>

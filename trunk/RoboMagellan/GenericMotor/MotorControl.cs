@@ -15,6 +15,7 @@ namespace RoboMagellan.MotorControl
         MOVE = 217,
         ACK = 218,
         STOP = 219,
+        TURN = 220,
         //To Be Continued...
     }
     public class MotorControl
