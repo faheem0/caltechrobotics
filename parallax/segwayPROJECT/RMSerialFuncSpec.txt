@@ -1,0 +1,20 @@
+ROBOT SERIAL SPECIFICATION
+
+        MOVE = 217,
+        ACK = 218,
+        STOP = 219,
+        TURN = 220,
+        TURNREL = 221
+COMMAND_START = 254;
+        COMMAND_STOP = 233;
+
+Send an ACK after a successful TURN or RELTURN
+
+Format: COMMAND_START <COMMAND> <byte shit[]> COMMAND_STOP
+
+byte shit[] can be nothing. So the sequence is just COMMAND_START <COMMAND> COMMAND_STOP
+
+for MOVE: COMMAND_START MOVE left right COMMAND_STOP.
+
+for turning: COMMAND_START <TURN,TURNREL> first_part second_part COMMAND_STOP
+angle = first_part + second_part
