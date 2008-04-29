@@ -74,6 +74,14 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
+    <Reference Include="GenericGPS.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=00557257f0c3f8b7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GenericGPS\Proxy\obj\Debug\GenericGPS.Y2008.M03.Proxy.dll</HintPath>
+    </Reference>
+    <Reference Include="GenericMotor.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=00557257f0c3f8b7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\GenericMotor\Proxy\obj\Debug\GenericMotor.Y2008.M03.Proxy.dll</HintPath>
+    </Reference>
     <Reference Include="GPSImpl.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=00557257f0c3f8b7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GPSImpl\Proxy\obj\Debug\GPSImpl.Y2008.M03.Proxy.dll</HintPath>
@@ -108,12 +116,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="MainControl.manifest.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\GenericGPS\GenericGPS.csproj">
-      <Project>{9CF1794D-6BCC-4C95-B685-773A4A46C538}</Project>
-      <Name>GenericGPS</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

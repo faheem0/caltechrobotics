@@ -47,7 +47,7 @@ namespace RoboMagellan.MotorControl
 
         private static string MOTOR_PORT = "COM2";
 
-        private MotorControl _motor = new MotorControl(MOTOR_PORT);
+        private MotorControl _motor;
 
         /// <summary>
         /// Default Service Constructor
@@ -55,6 +55,7 @@ namespace RoboMagellan.MotorControl
         public GenericMotorService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
+            _motor = new MotorControl(MOTOR_PORT, TaskQueue);
         }
         
         /// <summary>
@@ -74,21 +75,21 @@ namespace RoboMagellan.MotorControl
         public IEnumerator<ITask> SetMotorSpeedHandler(SetSpeed s)
         {
             MotorSpeed sp = s.Body;
-            _motor.command(MotorCommands.MOVE, sp.Left, sp.Right);
+            _motor.sendMove(sp.Left, sp.Right);
             yield break;
         }
 
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
         public IEnumerator<ITask> StopHandler(Stop s)
         {
-            _motor.command(MotorCommands.STOP, 0, 0);
+            _motor.sendStop(s.ResponsePort);
             yield break;
         }
 
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
         public IEnumerator<ITask> SendAckHandler(SendAck s)
         {
-            _motor.command(MotorCommands.ACK, 0, 0);
+            _motor.sendAck();
             yield break;
         }
 
@@ -96,8 +97,8 @@ namespace RoboMagellan.MotorControl
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
         public IEnumerator<ITask> TurnHandler(Turn t)
         {
-            // NEEDS TO ACTUALLY SEND HEADING
-            _motor.command(MotorCommands.TURN, 0, 0);
+            int heading = (int)t.Body.heading;
+            _motor.sendTurn(heading, t.ResponsePort);
             yield break;
         }
 

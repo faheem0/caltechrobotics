@@ -3,7 +3,9 @@ using System.IO.Ports;
 using System.Threading;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-
+using Microsoft.Ccr.Core;
+using Microsoft.Dss.Core;
+using Microsoft.Dss.ServiceModel.Dssp;
 
 using RoboMagellan.MotorControl;
 
@@ -16,6 +18,9 @@ namespace RoboMagellan.MotorControl
         ACK = 218,
         STOP = 219,
         TURN = 220,
+        TURNREL = 221,
+        COMMAND_START = 254,
+        COMMAND_STOP = 233
         //To Be Continued...
     }
     public class MotorControl
@@ -27,16 +32,20 @@ namespace RoboMagellan.MotorControl
         static StopBits DEFAULT_STOP_BITS = StopBits.Two;
         static Handshake DEFAULT_HANDSHAKE = Handshake.None;
 
-        static byte COMMAND_START = 254;
-        static byte COMMAND_STOP = 233;
         static byte MAX_SPEED = 100;
 
         private volatile SerialPort myMotors;
 
+        private Port<SendAck> motorAckRecieve;
 
-        public MotorControl(string portName)
+        private DispatcherQueue dq;
+
+        public MotorControl(string portName, DispatcherQueue queue)
         {
             myMotors = new SerialPort();
+
+            dq = queue;
+            motorAckRecieve = new Port<SendAck>();
 
             //Initialize Serial Port Parameters
             myMotors.PortName = portName;
@@ -48,8 +57,6 @@ namespace RoboMagellan.MotorControl
 
             myMotors.ReadTimeout = DEFAULT_TIMEOUT;
             myMotors.WriteTimeout = DEFAULT_TIMEOUT;
-
-
         }
 
         public bool connect()
@@ -78,23 +85,80 @@ namespace RoboMagellan.MotorControl
             myMotors.DataReceived += new SerialDataReceivedEventHandler(serialPort_dataRecieved);
         }
 
-        /* The only difference is the the below method. The rest of it is very similar to the GPS code */
-        public void command(MotorCommands cmd, SByte left, SByte right)
+        public void sendMove(SByte left, SByte right)
         {
-            //Create the packet in the right order
-            byte[] cmdString = new byte[5] { COMMAND_START, 
-                                            (byte)(int)cmd, 
-                                            (byte) (left + MAX_SPEED), 
-                                            (byte) (right + MAX_SPEED),
-                                            COMMAND_STOP
-                                            };
+            byte[] bytes = new byte[2];
+            bytes[1] = (byte)(left + MAX_SPEED);
+            bytes[2] = (byte)(right + MAX_SPEED);
+            command(MotorCommands.MOVE, bytes);
+        }
 
+        public void sendStop(Port<DefaultSubmitResponseType> responsePort)
+        {
+            command(MotorCommands.STOP, null);
+            Arbiter.Activate(dq,
+                Arbiter.Receive(false, motorAckRecieve,
+                    delegate(SendAck a)
+                    {
+                        responsePort.Post(new DefaultSubmitResponseType());
+                    }));
+        }
+
+        public void sendTurn(int bearing, Port<DefaultSubmitResponseType> responsePort)
+        {
+            byte[] bytes = new byte[2];
+
+            if (bearing > 255)
+            {
+                bytes[0] = 255;
+                bytes[1] = (byte)(bearing - 255);
+            }
+            else
+            {
+                bytes[0] = (byte)bearing;
+                bytes[1] = 0;
+            }
+            command(MotorCommands.TURN, bytes);
+            Arbiter.Activate(dq,
+                Arbiter.Receive(false, motorAckRecieve, 
+                    delegate(SendAck a)
+                    {
+                        responsePort.Post(new DefaultSubmitResponseType());
+                    }));
+        }
+
+        public void sendAck()
+        {
+            command(MotorCommands.ACK, null);
+        }
+
+        /* The only difference is the the below method. The rest of it is very similar to the GPS code */
+        protected void command(MotorCommands cmd, byte[] bytes)
+        {
+            int size = (bytes == null ? 2 : bytes.Length + 2);
+            byte[] cmdString = new byte[size];
+            cmdString[0] = (byte)MotorCommands.COMMAND_START;
+            if (bytes != null) System.Array.Copy(bytes, 0, cmdString,1, bytes.Length);
+            cmdString[size-1] = (byte)MotorCommands.COMMAND_STOP;
+            
             myMotors.Write(cmdString, 0, cmdString.Length);
         }
 
         private void serialPort_dataRecieved(object sender, SerialDataReceivedEventArgs e)
         {
-            //Does nothing right now. I don't know why I did not delete it.
+            if (myMotors.BytesToRead > 0)
+            {
+                int b = myMotors.ReadByte();
+                if (b == (int)MotorCommands.ACK)
+                {
+                    SendAck a = new SendAck();
+                    motorAckRecieve.Post(a);
+                }
+                else
+                {
+                    Console.WriteLine("Unexpected input from motors!");
+                }
+            }
         }
         //Again, I don't know why I didn't delete the class below.
         class MotorDataParseException : Exception

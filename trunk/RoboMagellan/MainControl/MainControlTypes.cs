@@ -15,7 +15,7 @@ using System;
 using System.Collections.Generic;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
-using gps = RoboMagellan.GenericGPS;
+using gps = RoboMagellan.GenericGPS.Proxy;
 
 
 namespace RoboMagellan
@@ -50,11 +50,13 @@ namespace RoboMagellan
     [DataContract()]
     public class MainControlState
     {
-        private MainControlStates _state;
+        public MainControlStates _state;
 
-        private gps.UTMData _location;
+        public gps.UTMData _location;
 
-        private gps.UTMData _destination;
+        public gps.UTMData _destination;
+
+        public Queue<gps.UTMData> _destinations = new Queue<gps.UTMData>();
     }
     
     /// <summary>

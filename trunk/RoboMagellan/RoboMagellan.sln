@@ -7,15 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericGPS", "GenericGPS\Ge
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainControl", "MainControl\MainControl.csproj", "{4E8EF43B-5960-44F1-BCAF-31B73E29CE11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPSImpl", "GPSImpl\GPSImpl.csproj", "{8BF3B386-9432-4FAC-91AA-0649AF3DFA99}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPS", "..\..\..\caltechrobotics\csharp\GPS\GPS\GPS.csproj", "{FB3A7E67-700E-4A8D-A54D-BB701E5F6E0F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftGps", "..\..\..\..\..\..\Microsoft Robotics Studio (1.5)\samples\Sensors\MicrosoftGps\MicrosoftGps.csproj", "{D9F6B1B8-29C2-45C8-9130-73A97B30CE17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SickLRF", "..\..\..\..\..\..\Microsoft Robotics Studio (1.5)\samples\Sensors\SickLRF\SickLRF.csproj", "{AC5D5E54-CA38-447A-A9A3-5541DCE2F81A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericIMU", "GenericIMU\GenericIMU.csproj", "{2AD50060-C668-446A-A4A8-AA3FA88F7B90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericMotor", "GenericMotor\GenericMotor.csproj", "{15FFE89A-BF33-40B4-A633-8F194AF53471}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,14 +33,6 @@ Global
 		{4E8EF43B-5960-44F1-BCAF-31B73E29CE11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E8EF43B-5960-44F1-BCAF-31B73E29CE11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E8EF43B-5960-44F1-BCAF-31B73E29CE11}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BF3B386-9432-4FAC-91AA-0649AF3DFA99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BF3B386-9432-4FAC-91AA-0649AF3DFA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BF3B386-9432-4FAC-91AA-0649AF3DFA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BF3B386-9432-4FAC-91AA-0649AF3DFA99}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB3A7E67-700E-4A8D-A54D-BB701E5F6E0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB3A7E67-700E-4A8D-A54D-BB701E5F6E0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB3A7E67-700E-4A8D-A54D-BB701E5F6E0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB3A7E67-700E-4A8D-A54D-BB701E5F6E0F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D9F6B1B8-29C2-45C8-9130-73A97B30CE17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D9F6B1B8-29C2-45C8-9130-73A97B30CE17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9F6B1B8-29C2-45C8-9130-73A97B30CE17}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,6 +45,10 @@ Global
 		{2AD50060-C668-446A-A4A8-AA3FA88F7B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AD50060-C668-446A-A4A8-AA3FA88F7B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AD50060-C668-446A-A4A8-AA3FA88F7B90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15FFE89A-BF33-40B4-A633-8F194AF53471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15FFE89A-BF33-40B4-A633-8F194AF53471}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15FFE89A-BF33-40B4-A633-8F194AF53471}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15FFE89A-BF33-40B4-A633-8F194AF53471}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

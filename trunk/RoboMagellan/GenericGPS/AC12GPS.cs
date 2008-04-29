@@ -156,7 +156,7 @@ namespace RoboMagellan.GenericGPS
                 }
                 return d;
             }
-            //throw new GPSDataParseException("Format exception!");
+            throw new GPSDataParseException("Format exception!");
         }
 
     }

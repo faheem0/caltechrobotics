@@ -19,8 +19,9 @@ using System.ComponentModel;
 using System.Xml;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
-using gps = RoboMagellan.GenericGPS;
+using gps = RoboMagellan.GenericGPS.Proxy;
 using gpsimpl = RoboMagellan.GPSImpl.Proxy;
+using motor = RoboMagellan.MotorControl.Proxy;
 namespace RoboMagellan
 {
     
@@ -33,9 +34,9 @@ namespace RoboMagellan
     [Contract(Contract.Identifier)]
     public class MainControlService : DsspServiceBase
     {
-        public static double DISTANCE_THRESHOLD = 10;
+        private static double DISTANCE_THRESHOLD = 10;
 
-        public static double ANGLE_THRESHOLD = 2;
+        private static double ANGLE_THRESHOLD = 2;
 
 
         [Partner("Gps", Contract = gpsimpl.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
@@ -44,9 +45,9 @@ namespace RoboMagellan
 
 
         // NEEDS PARTNER!
-        private engine.EngineOperations _enginePort = new engine.EngineOperations();
-        private engine.EngineOperations _engineNotify = new engine.EngineNotify();
-
+        [Partner("Motor", Contract = motor.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        private motor.GenericMotorOperations _motorPort = new motor.GenericMotorOperations();
+        
 
         /// <summary>
         /// _state
@@ -65,6 +66,7 @@ namespace RoboMagellan
         public MainControlService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
+            _state._destination = _state._destinations.Dequeue();
         }
         
         /// <summary>
@@ -92,14 +94,15 @@ namespace RoboMagellan
         // fix concurrency!
         public void NotifyUTMHandler(gps.UTMNotification n)
         {
-            _location = n.Body;
+            _state._location = n.Body;
 
             switch (_state._state)
             {
-                case STATE_STOPPING :
+                case MainControlStates.STATE_STOPPING :
                     return;
                     break;
-                case STATE_STOPPED :
+                case MainControlStates.STATE_STOPPED:
+                    if (_state._destination.East == 0.0) break;
                     if (GetDistanceSquared(_state._destination, n.Body) < DISTANCE_THRESHOLD)
                     {
                         return;
@@ -108,39 +111,58 @@ namespace RoboMagellan
                     {
                         double absoluteBearing = GetAbsoluteBearing(n.Body, _state._destination);
 
-                        AbsoluteBearingUpdate u = new AbsoluteBearingUpdate(absoluteBearing);
-
-                        
-                        _state._state = STATE_TURNING;
-
-                        _enginePort.Post(u);
+                        motor.TurnData td = new motor.TurnData();
+                        td.heading = (int)absoluteBearing;
+                        motor.Turn t = new motor.Turn(td);
 
 
-                        Arbiter.Activate(Arbiter.Choice(u.ResponsePort, 
-                            delegate(AbsoluteBearingUpdate a) {
-                                _state._state = STATE_DRIVING;
+                        _state._state = MainControlStates.STATE_TURNING;
 
-                                _enginePort.Post(new DriveUpdate());
-                            },
-                            delegate(Exception ex) { _state._state = STATE_ERROR; }));
+                        _motorPort.Post(t);
+
+
+                        Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
+                            delegate(DefaultSubmitResponseType s)
+                            {
+                                _state._state = MainControlStates.STATE_DRIVING;
+                                motor.MotorSpeed ms = new motor.MotorSpeed();
+                                ms.Left = 60;
+                                ms.Right = 60;
+                                motor.SetSpeed setspeed = new motor.SetSpeed(ms);
+                                _motorPort.Post(setspeed);
+                            }));
+//                            delegate(Exception ex) { _state._state = MainControlStates.STATE_ERROR; }));
                         
                     }
                     break;
-                case STATE_TURNING :
+                case MainControlStates.STATE_TURNING:
                     return;
                     break;
-                case STATE_DRIVING :
+                case MainControlStates.STATE_DRIVING:
                     if (GetDistanceSquared(_state._destination, n.Body) < DISTANCE_THRESHOLD)
                     {
-                        StopUpdate up = new StopUpdate();
+                        motor.Stop stop = new motor.Stop();
 
-                        state._state = STATE_STOPPING;
+                        _state._state = MainControlStates.STATE_STOPPING;
 
-                        _enginePort.Post(up);
+                        _motorPort.Post(stop);
 
-                        Arbiter.Activate(Arbiter.Choice(u.ResponsePort,
-                            delegate(StopUpdate a) { _state._state = STATE_STOPPED; },
-                            delegate(Exception ex) { _state._state = STATE_ERROR; }));
+                        Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
+                            delegate(DefaultSubmitResponseType a) { 
+                                _state._state = MainControlStates.STATE_STOPPED;
+                                if (_state._destinations.Count > 0)
+                                {
+                                    _state._destination = _state._destinations.Dequeue();
+                                }
+                                else
+                                {
+                                    gps.UTMData empty = new gps.UTMData();
+                                    empty.East = 0.0;
+                                    empty.North = 0.0;
+                                    _state._destination = empty;
+                                }
+                            }));
+//                            delegate(Exception ex) { _state._state = STATE_ERROR; }));
                         
                     }
                     else
@@ -148,7 +170,7 @@ namespace RoboMagellan
                         return;
                     }
                     break;
-                case STATE_ERROR :
+                case MainControlStates.STATE_ERROR:
                     return;
                     break;
             }
@@ -161,7 +183,9 @@ namespace RoboMagellan
 
         public double GetDistanceSquared(gps.UTMData a, gps.UTMData b)
         {
-            return (b.East - a.East) ^ 2 + (b.North - a.North) ^ 2;
+            double de = b.East - a.East;
+            double dn = b.North - a.North;
+            return de * de + dn * dn;
         }
         public double GetAbsoluteBearing(gps.UTMData loc, gps.UTMData dest)
         {
