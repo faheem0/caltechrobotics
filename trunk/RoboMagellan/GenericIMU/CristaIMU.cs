@@ -1,13 +1,23 @@
 ﻿using System;
 using System.IO.Ports;
 
-namespace IMU
+using Microsoft.Ccr.Core;
+using Microsoft.Dss.Core;
+using Microsoft.Dss.Core.Attributes;
+using Microsoft.Dss.ServiceModel.Dssp;
+using Microsoft.Dss.Core.DsspHttp;
+using Microsoft.Dss.ServiceModel.DsspServiceBase;
+
+using RoboMagellan.GenericIMU;
+
+namespace RoboMagellan.GenericIMU
 {
-    class CristaIMU
+    public class IMUDataPort : PortSet<IMUData, Exception> { }
+    public class CristaIMU
     {
-        public static float CONV_GYRO_RESOLUTION = 109.22666666667f;
-        public static float CONV_ACC_RESOLUTION = 334.1968383478f;
-        public static uint IMU_CLOCK_FREQ = 10000000;
+        static float CONV_GYRO_RESOLUTION = 109.22666666667f;
+        static float CONV_ACC_RESOLUTION = 334.1968383478f;
+        static uint IMU_CLOCK_FREQ = 10000000;
 
         static int DEFAULT_BAUD_RATE = 115000;
         static int DEFAULT_DATA_BITS = 8;
@@ -33,18 +43,19 @@ namespace IMU
         private float[] acc;
         private float[] DriftyIntegratedAngle;
         private uint lastTimestamp;
-        private double temp1;     // DELETE ME!!!1
-        private Int64 temp2;     // DELETE ME!!!2
 
         private Packet PendingPacket;
         private byte[] EmptyPacket;
 
+        private IMUDataPort imuDataPort;
 
 
-        public CristaIMU(string portName)
+        public CristaIMU(string portName, IMUDataPort dataPort)
         {
             myIMU = new SerialPort();
             state = 0;
+
+            imuDataPort = dataPort;
 
             PendingPacket = new Packet();
             PendingPacket.contents = new byte[PACKET_BUFFER_SIZE];
@@ -52,9 +63,6 @@ namespace IMU
 
             invalidPackets = 0;
             invalidMessage = 0;
-
-            temp1 = 0.0;
-            temp2 = 0;
 
 
             EmptyPacket = new byte[PACKET_BUFFER_SIZE];
@@ -78,6 +86,74 @@ namespace IMU
 
             myIMU.Open();
         }
+        public void activatehandler()
+        {
+            myIMU.DataReceived += new SerialDataReceivedEventHandler(IMUDataReceivedHandler);
+        }
+        private void IMUDataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            try
+            {
+                if (e.EventType == SerialData.Chars)
+                {
+                    byte byteRead = (byte)myIMU.ReadByte();
+
+                    switch (state)
+                    {
+
+                        case 0:
+                            //Console.WriteLine("State: " + state);
+                            if (byteRead == SYNC_SER_0)
+                                state = 1;
+                            break;
+                        case 1:
+                            //Console.WriteLine("State: " + state);
+                            if (byteRead == SYNC_SER_1)
+                                state = 2;
+                            else state = 0;
+                            break;
+                        case 2:
+                            if (byteRead == SYNC_SER_0)
+                            {
+                                //Console.WriteLine("State: " + state);
+                                state = 3;
+                            }
+                            else
+                            {
+                                addData(byteRead);
+                                //Console.WriteLine("State: " + state + "\t{0:X2}", byteRead);
+                            }
+                            break;
+                        case 3:
+                            if (byteRead == SYNC_SER_1)
+                            {
+                                //Console.WriteLine("State: " + state);
+                                state = 2;
+                                processPacket();
+                                clearPacket();
+                            }
+                            else
+                            {
+                                addData(SYNC_SER_0);
+                                //Console.WriteLine("State: " + state + "\t{0:X2}", byteRead);
+                                if (byteRead == SYNC_SER_0)
+                                    state = 3;
+                                else
+                                {
+                                    addData(byteRead);
+                                    state = 2;
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+        
         public void autoupdate()
         {
             while (true)
@@ -149,9 +225,6 @@ namespace IMU
         }
         private void processPacket()
         {
-            /*for (int i = 0; i < PendingPacket.index; i++)
-                Console.Write("{0:X2} ", PendingPacket.contents[i]);
-            Console.WriteLine();*/
             if (PendingPacket.index == PACKET_SIZE)
             {
                 if (PendingPacket.contents[0] == HI_SPEED_SERIAL_MSG)
@@ -193,43 +266,26 @@ namespace IMU
                         {
                             float dAngle = gyro[i] * (float)dT / (float)IMU_CLOCK_FREQ;     //Get dAngle in degrees
                             //dAngle += DriftOffsets[i];                                      //Compensate for constant drift
-                            /*dAngle *= 100.0f;
+                            dAngle *= 100.0f;
                             dAngle = (float)Math.Truncate((double)dAngle);
-                            dAngle /= 100.0f;*/
+                            dAngle /= 100.0f;
 
                             DriftyIntegratedAngle[i] += dAngle;
-                            temp1 += gyro[i];
-                            temp2++;
-                            //Console.Write(temp1 / temp2 + "\t");
-                            //Console.Write(dAngle + "\t");
-                            //Console.WriteLine(DriftyIntegratedAngle[i] + "\t");
                         }
                     }
 
+                    IMUData data = new IMUData();
+                    data.AngleX = DriftyIntegratedAngle[0];
+                    data.AngleY = DriftyIntegratedAngle[1];
+                    data.AngleZ = DriftyIntegratedAngle[2];
+                    data.GyroX = gyro[0];
+                    data.GyroY = gyro[1];
+                    data.GyroZ = gyro[2];
+                    data.AccelX = acc[0];
+                    data.AccelY = acc[1];
+                    data.AccelZ = acc[2];
+                    imuDataPort.Post(data);
 
-                    /*Console.Write("{0:X4} ", rawGyro[0]);
-                    Console.Write("{0:X4} ", rawGyro[1]);
-                    Console.Write("{0:X4} ", rawGyro[2]);
-
-                    Console.Write("{0:X4} ", acc[0]);
-                    Console.Write("{0:X4} ", acc[1]);
-                    Console.Write("{0:X4} ", acc[2]);*/
-
-                    /*Console.Write(gyro[0] + "\t");
-                    Console.Write(gyro[1] + "\t");
-                    Console.Write(gyro[2] + "\t");*/
-
-                    Console.Clear();
-                    Console.WriteLine("gyro X: " + DriftyIntegratedAngle[0] + " degrees");
-                    Console.WriteLine("gyro Y: " + DriftyIntegratedAngle[1] + " degrees");
-                    Console.WriteLine("gyro Z: " + DriftyIntegratedAngle[2] + " degrees");
-
-                    Console.WriteLine("acc X: " + acc[0] + " m/s^2");
-                    Console.WriteLine("acc Y: " + acc[1] + " m/s^2");
-                    Console.WriteLine("acc Z: " + acc[2] + " m/s^2");
-
-                    //Console.Write(currentTimestamp / IMU_CLOCK_FREQ + "\t");
-                    Console.WriteLine();
                 }
                 else invalidMessage++;
             }
