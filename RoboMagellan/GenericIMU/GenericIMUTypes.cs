@@ -9,17 +9,128 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Ccr.Core;
+using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
+using Microsoft.Dss.Core.DsspHttp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
 
 
-namespace RoboMagellan
+namespace RoboMagellan.GenericIMU
 {
-    
+    struct Packet
+    {
+        public byte[] contents;
+        public int index;
+    }
+    enum PInf
+    {
+        MESSAGE_TYPE,
+        LENGTH,
+        X_GYRO_MSB,
+        X_GYRO_LSB,
+        Y_GYRO_MSB,
+        Y_GYRO_LSB,
+        Z_GYRO_MSB,
+        Z_GYRO_LSB,
+        X_ACC_MSB,
+        X_ACC_LSB,
+        Y_ACC_MSB,
+        Y_ACC_LSB,
+        Z_ACC_MSB,
+        Z_ACC_LSB,
+        TIMER_MMSB,
+        TIMER_MSB,
+        TIMER_LSB,
+        TIMER_LLSB,
+        PPS,
+        SEQUENCE_NUMBER,
+        CRC16H,
+        CRC16L
+    }
+
+    public struct IMUData
+    {
+        private float _angleX;
+        private float _angleY;
+        private float _angleZ;
+
+        private float _gyroX;
+        private float _gyroY;
+        private float _gyroZ;
+
+        private float _accelX;
+        private float _accelY;
+        private float _accelZ;
+
+
+        [DataMember]
+        public float AngleX
+        {
+            get { return _angleX; }
+            set { _angleX = value; }
+        }
+
+        [DataMember]
+        public float AngleY
+        {
+            get { return _angleY; }
+            set { _angleY = value; }
+        }
+
+        [DataMember]
+        public float AngleZ
+        {
+            get { return _angleZ; }
+            set { _angleZ = value; }
+        }
+
+        [DataMember]
+        public float GyroX
+        {
+            get { return _gyroX; }
+            set { _gyroX = value; }
+        }
+
+        [DataMember]
+        public float GyroY
+        {
+            get { return _gyroY; }
+            set { _gyroY = value; }
+        }
+
+        [DataMember]
+        public float GyroZ
+        {
+            get { return _gyroZ; }
+            set { _gyroZ = value; }
+        }
+
+        [DataMember]
+        public float AccelX
+        {
+            get { return _accelX; }
+            set { _accelX = value; }
+        }
+
+        [DataMember]
+        public float AccelY
+        {
+            get { return _accelY; }
+            set { _accelY = value; }
+        }
+
+        [DataMember]
+        public float AccelZ
+        {
+            get { return _accelZ; }
+            set { _accelZ = value; }
+        }
+    }
     
     /// <summary>
     /// GenericIMU Contract class
@@ -37,18 +148,45 @@ namespace RoboMagellan
     /// The GenericIMU State
     /// </summary>
     [DataContract()]
+    [DisplayName("Generic IMU State")]
+    [Description("Specified the state of a IMU service")]
     public class GenericIMUState
     {
+        IMUData _data;
+
+        [DataMember]
+        [DisplayName("Current Data from IMU")]
+        [Description("This represents the current angle and data")]
+        public IMUData Data
+        {
+            get { return _data; }
+            set { _data = value; }
+        }
     }
     
     /// <summary>
     /// GenericIMU Main Operations Port
     /// </summary>
     [ServicePort()]
-    public class GenericIMUOperations : PortSet<DsspDefaultLookup, DsspDefaultDrop, Get>
+    public class GenericIMUOperations : PortSet<DsspDefaultLookup, 
+                                                DsspDefaultDrop, 
+                                                Get,
+                                                Subscribe,
+                                                HttpGet,
+                                                HttpPost,
+                                                IMUNotification>
     {
     }
-    
+
+    public class Subscribe : Subscribe<SubscribeRequestType, PortSet<SubscribeResponseType, Fault>, GenericIMUOperations> { }
+
+    public class IMUNotification : Update<IMUData, DsspResponsePort<DefaultUpdateResponseType>>
+    {
+
+        public IMUNotification(IMUData d) { this.Body = d;}
+        public IMUNotification() { }
+    }
+
     /// <summary>
     /// GenericIMU Get Operation
     /// </summary>

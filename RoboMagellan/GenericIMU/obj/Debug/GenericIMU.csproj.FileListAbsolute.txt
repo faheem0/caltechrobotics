@@ -1,0 +1,5 @@
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\obj\Debug\ResolveAssemblyReference.cache
+C:\Microsoft Robotics Studio (1.5)\bin\GenericIMU.Y2008.M03.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GenericIMU.Y2008.M03.pdb
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\obj\Debug\GenericIMU.Y2008.M03.dll
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\obj\Debug\GenericIMU.Y2008.M03.pdb

@@ -12,6 +12,7 @@ using Microsoft.Ccr.Core;
 using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
+using Microsoft.Dss.Core.DsspHttp;
 using Microsoft.Dss.ServiceModel.DsspServiceBase;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,9 @@ using System.Xml;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
 
+using submgr = Microsoft.Dss.Services.SubscriptionManager;
 
-namespace RoboMagellan
+namespace RoboMagellan.GenericIMU
 {
     
     
@@ -33,35 +35,51 @@ namespace RoboMagellan
     [Contract(Contract.Identifier)]
     public class GenericIMUService : DsspServiceBase
     {
-        
+        private static string IMU_PORT = "COM1";
+
+        private CristaIMU _imu;
         /// <summary>
         /// _state
         /// </summary>
         private GenericIMUState _state = new GenericIMUState();
-        
+        private IMUDataPort _imuDataPort = new IMUDataPort();
+
         /// <summary>
         /// _main Port
         /// </summary>
-        [ServicePort("/genericimu", AllowMultipleInstances=false)]
+        [ServicePort("/genericimu", AllowMultipleInstances = false)]
         private GenericIMUOperations _mainPort = new GenericIMUOperations();
-        
+
+        [Partner("SubMgr", Contract = submgr.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.CreateAlways)]
+        submgr.SubscriptionManagerPort _subMgrPort = new submgr.SubscriptionManagerPort();
+
         /// <summary>
         /// Default Service Constructor
         /// </summary>
-        public GenericIMUService(DsspServiceCreationPort creationPort) : 
-                base(creationPort)
+        public GenericIMUService(DsspServiceCreationPort creationPort) :
+            base(creationPort)
         {
+
         }
-        
+
         /// <summary>
         /// Service Start
         /// </summary>
         protected override void Start()
         {
-			base.Start();
-			// Add service specific initialization here.
+            //base.Start();
+            DirectoryInsert();
+            _imu = new CristaIMU(IMU_PORT, _imuDataPort);
+
+            SpawnIterator(activateIMUIterator);
+
+            Interleave mainInterleave = ActivateDsspOperationHandlers();
+            mainInterleave.CombineWith(new Interleave(new ExclusiveReceiverGroup(
+                Arbiter.Receive<IMUData>(true, _imuDataPort, DataReceivedHandler)),
+                new ConcurrentReceiverGroup()));
+            // Add service specific initialization here.
         }
-        
+
         /// <summary>
         /// Get Handler
         /// </summary>
@@ -72,6 +90,51 @@ namespace RoboMagellan
         {
             get.ResponsePort.Post(_state);
             yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public virtual IEnumerator<ITask> HttpGetHandler(HttpGet httpGet)
+        {
+            httpGet.ResponsePort.Post(new HttpResponseType(_state.Data));
+            yield break;
+        }
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public virtual IEnumerator<ITask> HttpPostHandler(HttpPost httpPost)
+        {
+            yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public virtual IEnumerator<ITask> SubscribeHandler(Subscribe subscribe)
+        {
+            SubscribeRequestType request = subscribe.Body;
+            yield return Arbiter.Choice(
+                SubscribeHelper(_subMgrPort, request, subscribe.ResponsePort),
+                delegate(SuccessResult success)
+                {
+                    SendNotification<IMUNotification>(_subMgrPort, request.Subscriber, _state.Data);
+                },
+                delegate(Exception e)
+                {
+                    LogError(null, "Subscribe failed", e);
+                }
+            );
+
+            yield break;
+
+        }
+
+        public IEnumerator<ITask> activateIMUIterator()
+        {
+            _imu.activatehandler();
+            yield return Arbiter.Receive(false, TimeoutPort(10), delegate(DateTime time) { });
+        }
+
+        private void DataReceivedHandler(IMUData d)
+        {
+            _state.Data = d;
+
+            SendNotification(_subMgrPort, new IMUNotification(d));
         }
     }
 }

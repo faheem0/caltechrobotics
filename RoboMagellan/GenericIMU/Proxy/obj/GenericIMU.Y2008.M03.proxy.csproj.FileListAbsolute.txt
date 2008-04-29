@@ -1,0 +1,9 @@
+C:\Microsoft Robotics Studio (1.5)\bin\GenericIMU.Y2008.M03.Proxy.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GenericIMU.Y2008.M03.Proxy.pdb
+C:\Microsoft Robotics Studio (1.5)\bin\GenericIMU.Y2008.M03.proxy.xml
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\ResolveAssemblyReference.cache
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.proxy.csproj.GenerateResource.Cache
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.Proxy.dll
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.Proxy.pdb
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\RoboMagellan.GenericIMU.Resources.DssModel.dss
+F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\RoboMagellan.GenericIMU.Properties.Resources.resources

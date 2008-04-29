@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="GenericIMU">
+</Property><Property Name="Solution File" Value="F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\GenericIMU.sln">
+</Property><Property Name="Date" Value="Tuesday, April 29, 2008">
+</Property><Property Name="Time" Value="10:33 AM">
+</Property></Properties><Event ErrorLevel="0" Project="GenericIMU" Source="GenericIMU.csproj" Description="The project file does not require conversion.">
+</Event><Event ErrorLevel="3" Project="GenericIMU" Source="GenericIMU.csproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="0" Project="" Source="GenericIMU.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="GenericIMU.sln" Description="Converted">
+</Event></UpgradeLog>
