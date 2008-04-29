@@ -62,22 +62,29 @@ namespace RoboMagellan.MotorControl
     public struct StopInfo
     {
     }
-    public class SendAck : Update<AckInfo, DsspResponsePort<DefaultUpdateResponseType>>
-    {
-        public SendAck() { }
-    }
 
-    public class Stop : Update<StopInfo, DsspResponsePort<DefaultUpdateResponseType>>
+
+    public class Stop : Submit<StopInfo, DsspResponsePort<DefaultSubmitResponseType>>
     {
         public Stop() { }
+        public Stop(StopInfo a) { this.Body = a; }
     }
 
+
+    public class SendAck : Submit<AckInfo, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public SendAck() { }
+        public SendAck(AckInfo a) { this.Body = a; }
+    }
+
+    [DataContract]
     public struct TurnData
     {
+        [DataMember]
         public double heading;
     }
 
-    public class Turn : Update<TurnData, DsspResponsePort<DefaultUpdateResponseType>>
+    public class Turn : Submit<TurnData, DsspResponsePort<DefaultSubmitResponseType>>
     {
         public Turn(TurnData d)
         {
@@ -87,25 +94,27 @@ namespace RoboMagellan.MotorControl
         public Turn() { }
     }
 
-    public class SetSpeed : Update<MotorSpeed, DsspResponsePort<DefaultUpdateResponseType>>
+    public class SetSpeed : Submit<MotorSpeed, DsspResponsePort<DefaultSubmitResponseType>>
     {
         public SetSpeed(MotorSpeed s) { this.Body = s; }
 
         public SetSpeed() { }
     }
 
-    [DataContract()]
+    [DataContract]
     public struct MotorSpeed
     {
         private SByte _left;
         private SByte _right;
 
+        [DataMember]
         public SByte Left
         {
             get { return _left; }
             set { _left = value; }
         }
 
+        [DataMember]
         public SByte Right
         {
             get { return _right; }

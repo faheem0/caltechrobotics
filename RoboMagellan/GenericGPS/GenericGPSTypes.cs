@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
+using System.Collections.Generic;
 
 
 namespace RoboMagellan.GenericGPS
@@ -57,6 +58,8 @@ namespace RoboMagellan.GenericGPS
             get { return _coords; }
             set { _coords = value; }
         }
+
+        Queue<UTMData> waypoints;
 
     }
 
