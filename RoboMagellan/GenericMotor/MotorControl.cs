@@ -20,7 +20,8 @@ namespace RoboMagellan.MotorControl
         TURN = 220,
         TURNREL = 221,
         COMMAND_START = 254,
-        COMMAND_STOP = 233
+        COMMAND_STOP = 233,
+        HAS_STOPPED = 216
         //To Be Continued...
     }
     public class MotorControl
@@ -34,6 +35,10 @@ namespace RoboMagellan.MotorControl
 
         static byte MAX_SPEED = 100;
 
+        private static int state;
+        private static String receive_ack;
+        private static SendAck a;
+
         private volatile SerialPort myMotors;
 
         private Port<SendAck> motorAckRecieve;
@@ -43,7 +48,8 @@ namespace RoboMagellan.MotorControl
         public MotorControl(string portName, DispatcherQueue queue)
         {
             myMotors = new SerialPort();
-
+            state = 0;
+            receive_ack = "";
             dq = queue;
             motorAckRecieve = new Port<SendAck>();
 
@@ -88,8 +94,8 @@ namespace RoboMagellan.MotorControl
         public void sendMove(SByte left, SByte right)
         {
             byte[] bytes = new byte[2];
-            bytes[1] = (byte)(left + MAX_SPEED);
-            bytes[2] = (byte)(right + MAX_SPEED);
+            bytes[0] = (byte)(left + MAX_SPEED);
+            bytes[1] = (byte)(right + MAX_SPEED);
             command(MotorCommands.MOVE, bytes);
         }
 
@@ -135,10 +141,11 @@ namespace RoboMagellan.MotorControl
         /* The only difference is the the below method. The rest of it is very similar to the GPS code */
         protected void command(MotorCommands cmd, byte[] bytes)
         {
-            int size = (bytes == null ? 2 : bytes.Length + 2);
+            int size = (bytes == null ? 3 : bytes.Length + 3);
             byte[] cmdString = new byte[size];
             cmdString[0] = (byte)MotorCommands.COMMAND_START;
-            if (bytes != null) System.Array.Copy(bytes, 0, cmdString,1, bytes.Length);
+            cmdString[1] = (byte) cmd;
+            if (bytes != null) System.Array.Copy(bytes, 0, cmdString,2, bytes.Length);
             cmdString[size-1] = (byte)MotorCommands.COMMAND_STOP;
             
             myMotors.Write(cmdString, 0, cmdString.Length);
@@ -149,14 +156,69 @@ namespace RoboMagellan.MotorControl
             if (myMotors.BytesToRead > 0)
             {
                 int b = myMotors.ReadByte();
-                if (b == (int)MotorCommands.ACK)
+                switch (state)
                 {
-                    SendAck a = new SendAck();
-                    motorAckRecieve.Post(a);
-                }
-                else
-                {
-                    Console.WriteLine("Unexpected input from motors!");
+                    case 0:
+                        if (b == (int)MotorCommands.COMMAND_START) state = 1;
+                        break;
+                    case 1:
+                        AckInfo info;
+                        switch (b)
+                        {
+                            case (int)MotorCommands.ACK:
+                                receive_ack = "Acknowledged";
+                                info = new AckInfo();
+                                info.Type = MotorCommands.ACK;
+                                a = new SendAck(info);
+                                motorAckRecieve.Post(a);
+                                state = 2;
+                                break;
+                            case (int)MotorCommands.STOP:
+                                receive_ack = "STOP Acknowledged";
+                                info = new AckInfo();
+                                info.Type = MotorCommands.STOP;
+                                a = new SendAck(info);
+                                motorAckRecieve.Post(a);
+                                state = 2;
+                                break;
+                            case (int)MotorCommands.TURN:
+                                receive_ack = "TURN Acknowledged";
+                                info = new AckInfo();
+                                info.Type = MotorCommands.TURN;
+                                a = new SendAck(info);
+                                motorAckRecieve.Post(a);
+                                state = 2;
+                                break;
+                            case (int)MotorCommands.MOVE:
+                                receive_ack = "MOVE Acknowledged";
+                                info = new AckInfo();
+                                info.Type = MotorCommands.MOVE;
+                                a = new SendAck(info);
+                                motorAckRecieve.Post(a);
+                                state = 2;
+                                break;
+                            case (int)MotorCommands.HAS_STOPPED:
+                                receive_ack = "Has Stopped";
+                                info = new AckInfo();
+                                info.Type = MotorCommands.HAS_STOPPED;
+                                a = new SendAck(info);
+                                motorAckRecieve.Post(a);
+                                state = 2;
+                                break;
+                            default:
+                                receive_ack = "Unexpected input from motors!";
+                                state = 0;
+                                break;
+                        }
+                        break;
+                    case 2:
+                        if (b == (int)MotorCommands.COMMAND_STOP) state = 0;
+                        motorAckRecieve.Post(a);
+                        Console.WriteLine(receive_ack);
+                        break;
+                    default:
+                        state = 0;
+                        break;
                 }
             }
         }
