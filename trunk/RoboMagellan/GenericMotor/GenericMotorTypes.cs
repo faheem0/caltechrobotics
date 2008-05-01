@@ -57,6 +57,13 @@ namespace RoboMagellan.MotorControl
 
     public struct AckInfo
     {
+        private MotorCommands _type;
+
+        public MotorCommands Type
+        {
+            get { return _type; }
+            set { _type = value; }
+        }
     }
 
     public struct StopInfo
