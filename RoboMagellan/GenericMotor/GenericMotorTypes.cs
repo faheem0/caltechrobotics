@@ -34,7 +34,7 @@ namespace RoboMagellan.MotorControl
     }
     
     /// <summary>
-    /// The GenericMotor State
+    /// The GenericMotor State. No members.
     /// </summary>
     [DataContract()]
     public class GenericMotorState
@@ -55,6 +55,8 @@ namespace RoboMagellan.MotorControl
     {
     }
 
+    
+
     public struct AckInfo
     {
         private MotorCommands _type;
@@ -70,6 +72,17 @@ namespace RoboMagellan.MotorControl
     {
     }
 
+    public class StopComplete : Submit<StopInfo, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public StopComplete() { }
+        public StopComplete(StopInfo a) { this.Body = a; }
+    }
+
+    public class TurnComplete : Submit<StopInfo, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public TurnComplete() { }
+        public TurnComplete(StopInfo a) { this.Body = a; }
+    }
 
     public class Stop : Submit<StopInfo, DsspResponsePort<DefaultSubmitResponseType>>
     {
