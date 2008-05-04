@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     ; This file contains the boolean definitions for the 80188 MP3 Player.
                       =1    49     ;
                       =1    50     ; Revision History:
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   101     
                       =1   102     ; Chip Select Unit Definitions
                       =1   103     
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                            152     
                            153     EXTRN InitCS:Near
                            154     EXTRN ClrIRQVectors:Near
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            204                     
 0007 B8----         R      205             MOV     AX, DGROUP              ;initialize the stack pointer
 000A 8ED0                  206             MOV     SS, AX
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
