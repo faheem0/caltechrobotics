@@ -23,8 +23,8 @@
 ; Data Structures:  None.
 ;
 ; Revision History:
-
-;     5/2/08  Samuel Yang     
+;     5/2/08  Samuel Yang     file started
+;     5/3/08  Samuel Yang	functions tested, working, comments updated
 CGROUP GROUP CODE
 DGROUP GROUP DATA
 
@@ -45,16 +45,16 @@ CODE SEGMENT PUBLIC 'CODE'
 ;
 ; Description:       This procedure initializes everything for display
 ;
-; Operation:        Initializes shared variables
+; Operation:        Sends initialization bytes to LCD
 ;
 ; Arguments:         None.
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
-; Shared Variables:  
+; Shared Variables:  None.
 
 ; Input:            None.
-; Output:            None.
+; Output:            Initializes LCD.
 ;
 ; Error Handling:    None.
 ;
@@ -62,7 +62,7 @@ CODE SEGMENT PUBLIC 'CODE'
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       1 words
+; Stack Depth:       2 words
 ;
 ; Last Modified:     5-2-2008
 InitDisplay   PROC    NEAR
@@ -94,9 +94,8 @@ InitDisplay   ENDP
 ;
 ; Description:       This procedure displays title in the dedicated spot on the LCD
 ;
-; Operation:        	
-;			Uses DisplayStr
-; Arguments:         
+; Operation:        Uses DisplayStr
+; Arguments:         segment and offset of string on stack, stored in ES, SI
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
@@ -145,9 +144,8 @@ display_title   ENDP
 ;
 ; Description:       This procedure displays artist in the dedicated spot on the LCD
 ;
-; Operation:        	
-;			Uses DisplayStr
-; Arguments:         
+; Operation:        Uses DisplayStr
+; Arguments:          segment and offset of string on stack, stored in ES, SI
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
@@ -198,7 +196,7 @@ display_artist   ENDP
 ;
 ; Operation:       Looks up predefined status strings from "statuses" table 	
 ;			Uses DisplayStr to display the looked up status string.
-; Arguments:   Status code (byte) in CX      
+; Arguments:   Status code (byte) from stack, stored in CX   
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
@@ -228,11 +226,11 @@ display_status   PROC    NEAR
 		PUSH CX
 		MOV CX, [BP+4]
 	
-		MOV AL, statusStringLength
-		;XOR AH, AH
-		;XOR CH, CH
+		;offset = statusStringLength*status
+		MOV AL, statusStringLength  ;calculate the offset of the desired predefined status message
 		MUL CL
-		PUSH SEG(statuses)
+		
+		PUSH SEG(statuses)	;Use ES:[SI] to point to the predefined status message
 		POP ES
 		MOV BX, OFFSET(statuses)
 		ADD BX, AX
@@ -259,9 +257,9 @@ display_status   ENDP
 ;
 ; Description:       This procedure displays time in the dedicated spot on the LCD
 ;
-; Operation:        	
-;			Uses DisplayStr
-; Arguments:         
+; Operation:     Divides time into minutes, seconds, and tenths of seconds, writing each
+;			to a temporary buffer, which is passed to DisplayStr.
+; Arguments:         time in tenths of seconds on the stack, stored in CX
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
@@ -273,12 +271,12 @@ display_status   ENDP
 ; Error Handling:    None.
 ;
 ; Algorithms:        None.
-; Data Structures:   None.
+; Data Structures:   Uses timeStringBuffer[] to temporarily store time string
 ;
 ; Registers Changed: None
 ; Stack Depth:       8 words
 ;
-; Last Modified:     5-2-2008
+; Last Modified:     5-3-2008
 display_time   PROC    NEAR
 			PUBLIC display_time
 		PUSH BP
@@ -290,10 +288,10 @@ display_time   PROC    NEAR
 		PUSH CX
 		PUSH DX
 		
-		MOV CX, [BP+4]
+		MOV CX, [BP+4] ;retreive time given in tenths of seconds
 		CMP CX, TIME_NONE
 		JE timeNone
-flag2:		
+	
 		;time/tenthsOfSecPerMin = minutes R(tenthsOfSeconds)
 		MOV AX, CX
 		MOV CX, tenthsOfSecPerMin
@@ -309,15 +307,15 @@ flag2:
 		DIV BX
 		ADD AX, ASCIIDecCons  ;convert to ASCII
 		ADD DX, ASCIIDecCons
-		MOV BX, timeStringBufferMinutesOffset
-		MOV timeStringBuffer[BX], AL
+		MOV BX, timeStringBufferMinutesOffset ;get index of minutes
+		MOV timeStringBuffer[BX], AL		;write minutes to buffer to be printed
 		INC BX
 		MOV timeStringBuffer[BX], DL
 		INC BX
 		;write colon
 		MOV timeStringBuffer[BX], ASCIIcolon
-flag:			
-		;previous remainder should be in CX
+		
+		;previous remainder(in tenths of seconds) should be in CX
 		MOV AX, CX
 		MOV CX, tenthsOfSecPerSec
 		XOR DX, DX
@@ -331,12 +329,12 @@ flag:
 		DIV BX
 		ADD AX, ASCIIDecCons  ;convert to ASCII
 		ADD DX, ASCIIDecCons
-		MOV BX, timeStringBufferSecondsOffset
+		MOV BX, timeStringBufferSecondsOffset ;get index of seconds
 		MOV timeStringBuffer[BX], AL
 		INC BX		
 		MOV timeStringBuffer[BX], DL
 		INC BX	
-		;write point
+		;write period
 		MOV timeStringBuffer[BX], ASCIIperiod
 		INC BX
 		
@@ -347,7 +345,7 @@ flag:
 		INC BX
 		MOV timeStringBuffer[BX], null
 		
-		;now call DisplayStr
+		;now call DisplayStr, passing it hte buffer
 		MOV AX, timeLength
 		MOV BX, timeOffset
 		PUSH SEG(timeStringBuffer)
@@ -355,7 +353,7 @@ flag:
 		MOV SI, OFFSET(timeStringBuffer)
 		JMP callGenericDisplay
 timeNone:		
-		MOV BX, 0
+		MOV BX, 0				;if TIME_NONE, then print blank spaces
 		MOV timeStringBuffer[BX], null
 callGenericDisplay:		
 		CALL DisplayStr
@@ -386,7 +384,7 @@ display_time   ENDP
 ; Input:            None.
 ; Output:            Displays string on LCD.
 ;
-; Error Handling:    None.
+; Error Handling:    If string is shorter than length, will display blank spaces afterwards.
 ;
 ; Algorithms:        None.
 ; Data Structures:   None.
@@ -403,8 +401,8 @@ DisplayStr   PROC    NEAR
 		PUSH CX
 		PUSH DX
 		
-		MOV CL, BL			;offset in CL
-		MOV BL, AL			;length in BL
+		MOV CL, BL			;store offset in CL
+		MOV BL, AL			;store length in BL
 		
 		CALL readBusyFlag
 		MOV DX, displayAddressCMD	;return cursor home
@@ -414,7 +412,6 @@ DisplayStr   PROC    NEAR
 		
 		CMP CL, position0					;shift cursor to desired offset
 		JE offsetDone
-		;MOV CL, BL
 		XOR CH, CH
 		MOV AL, cursorRight
 getToOffset:
@@ -423,7 +420,7 @@ getToOffset:
 		LOOP getToOffset
 
 offsetDone:							;cursor is now at desired offset
-		MOV CL, BL					;length in CL
+		MOV CL, BL					;store length in CL
 		XOR CH, CH
 		MOV DX, displayAddressDAT
 		
@@ -432,10 +429,10 @@ displayLoop:						;print a character, decrement length count
 		CMP AL, STRINGNULL
 		JE stringIsNull
 		;JNE string not null
-		INC SI
+		INC SI					
 		JMP endDisplayLoop
-stringIsNull:
-		MOV AL, blankSpace
+stringIsNull:				;if string is null,  don't increment SI, so string will
+		MOV AL, blankSpace		;continue reading null and blank spaces will be added
 endDisplayLoop:		
 		OUT DX,AL
 		CALL readBusyFlag
@@ -449,7 +446,30 @@ endDisplayLoop:
 		RET
 DisplayStr   ENDP
 
+; readBusyFlag
+;
+; Description:       This procedure blocks until LCD is no longer busy.
+;
+; Operation:       Keeps reading busy flag until LCD is not busy.		
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
 
+; Input:            From LCD busy flag
+; Output:           None.
+;
+; Error Handling:    Blocking function.
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       2 words
+;
+; Last Modified:     5-2-2008
 readBusyFlag   PROC    NEAR
 			PUBLIC readBusyFlag
 		
@@ -470,7 +490,7 @@ checkBusy:
 readBusyFlag   ENDP
 
 
-;array of status strings
+;array of status strings (predefined constants)
 statuses  LABEL BYTE
 		
 		DB 'PLAY l>',0
@@ -481,7 +501,7 @@ statuses  LABEL BYTE
 
 
 CODE ENDS
-;the data segment
+
 
 DATA    SEGMENT PUBLIC  'DATA'
 timeStringBuffer DB timeLength DUP(?)

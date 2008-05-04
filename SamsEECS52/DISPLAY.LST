@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE DISPLAY
@@ -33,8 +33,8 @@ LOC  OBJ                  LINE     SOURCE
                             23     ; Data Structures:  None.
                             24     ;
                             25     ; Revision History:
-                            26     
-                            27     ;     5/2/08  Samuel Yang     
+                            26     ;     5/2/08  Samuel Yang     file started
+                            27     ;     5/3/08  Samuel Yang       functions tested, working, comments updated
                             28     CGROUP GROUP CODE
                             29     DGROUP GROUP DATA
                             30     
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
   0100                =1    48     displayAddressCMD   EQU     00100H           ;display address for commands
   0101                =1    49     displayAddressDAT   EQU     00101H           ;display address for data
                       =1    50     
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
   0008                =1    95     statusStringLength EQU 8
   0020                =1    96     blankSpace EQU 32
                             97 +1  $INCLUDE(boolean.INC)
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -154,16 +154,16 @@ LOC  OBJ                  LINE     SOURCE
                            126     ;
                            127     ; Description:       This procedure initializes everything for display
                            128     ;
-                           129     ; Operation:        Initializes shared variables
+                           129     ; Operation:        Sends initialization bytes to LCD
                            130     ;
                            131     ; Arguments:         None.
                            132     ; Return Value:      None.
                            133     ;
                            134     ; Local Variables:   None.
-                           135     ; Shared Variables:  
+                           135     ; Shared Variables:  None.
                            136     
                            137     ; Input:            None.
-                           138     ; Output:            None.
+                           138     ; Output:            Initializes LCD.
                            139     ;
                            140     ; Error Handling:    None.
                            141     ;
@@ -171,14 +171,14 @@ LOC  OBJ                  LINE     SOURCE
                            143     ; Data Structures:   None.
                            144     ;
                            145     ; Registers Changed: None
-                           146     ; Stack Depth:       1 words
+                           146     ; Stack Depth:       2 words
                            147     ;
                            148     ; Last Modified:     5-2-2008
 0000                       149     InitDisplay   PROC    NEAR
                            150                             PUBLIC InitDisplay
 0000 50                    151                             PUSH AX
 0001 52                    152                             PUSH DX
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -208,447 +208,480 @@ LOC  OBJ                  LINE     SOURCE
                            175     ;
                            176     ; Description:       This procedure displays title in the dedicated spot on the LCD
                            177     ;
-                           178     ; Operation:            
-                           179     ;                       Uses DisplayStr
-                           180     ; Arguments:         
-                           181     ; Return Value:      None.
-                           182     ;
-                           183     ; Local Variables:   None.
-                           184     ; Shared Variables:  None.
-                           185     
-                           186     ; Input:            None.
-                           187     ; Output:            Displays title on LCD.
-                           188     ;
-                           189     ; Error Handling:    None.
-                           190     ;
-                           191     ; Algorithms:        None.
-                           192     ; Data Structures:   None.
-                           193     ;
-                           194     ; Registers Changed: None
-                           195     ; Stack Depth:       7 words
-                           196     ;
-                           197     ; Last Modified:     5-2-2008
-0020                       198     display_title   PROC    NEAR
-                           199                             PUBLIC display_title
-                           200                     
-0020 55                    201                     PUSH BP
-0021 8BEC                  202                     MOV BP, SP
-0023 56                    203                     PUSH SI
-0024 57                    204                     PUSH DI
-0025 50                    205                     PUSH AX
-0026 53                    206                     PUSH BX
-0027 8B7604                207                     MOV SI, [BP+4]
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    5
+                           178     ; Operation:        Uses DisplayStr
+                           179     ; Arguments:         segment and offset of string on stack, stored in ES, SI
+                           180     ; Return Value:      None.
+                           181     ;
+                           182     ; Local Variables:   None.
+                           183     ; Shared Variables:  None.
+                           184     
+                           185     ; Input:            None.
+                           186     ; Output:            Displays title on LCD.
+                           187     ;
+                           188     ; Error Handling:    None.
+                           189     ;
+                           190     ; Algorithms:        None.
+                           191     ; Data Structures:   None.
+                           192     ;
+                           193     ; Registers Changed: None
+                           194     ; Stack Depth:       7 words
+                           195     ;
+                           196     ; Last Modified:     5-2-2008
+0020                       197     display_title   PROC    NEAR
+                           198                             PUBLIC display_title
+                           199                     
+0020 55                    200                     PUSH BP
+0021 8BEC                  201                     MOV BP, SP
+0023 56                    202                     PUSH SI
+0024 57                    203                     PUSH DI
+0025 50                    204                     PUSH AX
+0026 53                    205                     PUSH BX
+0027 8B7604                206                     MOV SI, [BP+4]
+002A 8E4606                207                     MOV ES, [BP+6]
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
 
-002A 8E4606                208                     MOV ES, [BP+6]
-                           209                     
-002D B81A00                210                     MOV AX, titleLength
-0030 BB0E00                211                     MOV BX, titleOffset
-                           212                     
-0033 E8EB00                213                     CALL DisplayStr
-                           214                     
-0036 5B                    215                     POP BX
-0037 58                    216                     POP AX
-0038 5F                    217                     POP DI
-0039 5E                    218                     POP SI
-003A 5D                    219                     POP BP
+                           208                     
+002D B81A00                209                     MOV AX, titleLength
+0030 BB0E00                210                     MOV BX, titleOffset
+                           211                     
+0033 E8EB00                212                     CALL DisplayStr
+                           213                     
+0036 5B                    214                     POP BX
+0037 58                    215                     POP AX
+0038 5F                    216                     POP DI
+0039 5E                    217                     POP SI
+003A 5D                    218                     POP BP
+                           219                     
                            220                     
-                           221                     
-003B C3                    222                     RET
-                           223     display_title   ENDP
-                           224     
-                           225     ; display_artist
-                           226     ;
-                           227     ; Description:       This procedure displays artist in the dedicated spot on the LCD
-                           228     ;
-                           229     ; Operation:            
-                           230     ;                       Uses DisplayStr
-                           231     ; Arguments:         
-                           232     ; Return Value:      None.
-                           233     ;
-                           234     ; Local Variables:   None.
-                           235     ; Shared Variables:  None.
-                           236     
-                           237     ; Input:            None.
-                           238     ; Output:            Displays artist on LCD.
+003B C3                    221                     RET
+                           222     display_title   ENDP
+                           223     
+                           224     ; display_artist
+                           225     ;
+                           226     ; Description:       This procedure displays artist in the dedicated spot on the LCD
+                           227     ;
+                           228     ; Operation:        Uses DisplayStr
+                           229     ; Arguments:          segment and offset of string on stack, stored in ES, SI
+                           230     ; Return Value:      None.
+                           231     ;
+                           232     ; Local Variables:   None.
+                           233     ; Shared Variables:  None.
+                           234     
+                           235     ; Input:            None.
+                           236     ; Output:            Displays artist on LCD.
+                           237     ;
+                           238     ; Error Handling:    None.
                            239     ;
-                           240     ; Error Handling:    None.
-                           241     ;
-                           242     ; Algorithms:        None.
-                           243     ; Data Structures:   None.
-                           244     ;
-                           245     ; Registers Changed: None
-                           246     ; Stack Depth:       7 words
-                           247     ;
-                           248     ; Last Modified:     5-3-2008
-003C                       249     display_artist   PROC    NEAR
-                           250                             PUBLIC display_artist
-                           251                     
-003C 55                    252                     PUSH BP
-003D 8BEC                  253                     MOV BP, SP
-003F 56                    254                     PUSH SI
-0040 57                    255                     PUSH DI
-0041 50                    256                     PUSH AX
-0042 53                    257                     PUSH BX
-0043 8B7604                258                     MOV SI, [BP+4]
-0046 8E4606                259                     MOV ES, [BP+6]
-                           260                     
-0049 B82800                261                     MOV AX, artistLength
-004C BB2800                262                     MOV BX, artistOffset
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    6
+                           240     ; Algorithms:        None.
+                           241     ; Data Structures:   None.
+                           242     ;
+                           243     ; Registers Changed: None
+                           244     ; Stack Depth:       7 words
+                           245     ;
+                           246     ; Last Modified:     5-3-2008
+003C                       247     display_artist   PROC    NEAR
+                           248                             PUBLIC display_artist
+                           249                     
+003C 55                    250                     PUSH BP
+003D 8BEC                  251                     MOV BP, SP
+003F 56                    252                     PUSH SI
+0040 57                    253                     PUSH DI
+0041 50                    254                     PUSH AX
+0042 53                    255                     PUSH BX
+0043 8B7604                256                     MOV SI, [BP+4]
+0046 8E4606                257                     MOV ES, [BP+6]
+                           258                     
+0049 B82800                259                     MOV AX, artistLength
+004C BB2800                260                     MOV BX, artistOffset
+                           261                     
+004F E8CF00                262                     CALL DisplayStr
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
 
                            263                     
-004F E8CF00                264                     CALL DisplayStr
-                           265                     
-0052 5B                    266                     POP BX
-0053 58                    267                     POP AX
-0054 5F                    268                     POP DI
-0055 5E                    269                     POP SI
-0056 5D                    270                     POP BP
-                           271                     
-                           272                     
-0057 C3                    273                     RET
-                           274     display_artist   ENDP
-                           275     
-                           276     ; display_status
+0052 5B                    264                     POP BX
+0053 58                    265                     POP AX
+0054 5F                    266                     POP DI
+0055 5E                    267                     POP SI
+0056 5D                    268                     POP BP
+                           269                     
+                           270                     
+0057 C3                    271                     RET
+                           272     display_artist   ENDP
+                           273     
+                           274     ; display_status
+                           275     ;
+                           276     ; Description:       This procedure displays status in the dedicated spot on the LCD
                            277     ;
-                           278     ; Description:       This procedure displays status in the dedicated spot on the LCD
-                           279     ;
-                           280     ; Operation:       Looks up predefined status strings from "statuses" table     
-                           281     ;                       Uses DisplayStr to display the looked up status string.
-                           282     ; Arguments:   Status code (byte) in CX      
-                           283     ; Return Value:      None.
-                           284     ;
-                           285     ; Local Variables:   None.
-                           286     ; Shared Variables:  None.
-                           287     
-                           288     ; Input:            None.
-                           289     ; Output:            Displays status on LCD.
+                           278     ; Operation:       Looks up predefined status strings from "statuses" table     
+                           279     ;                       Uses DisplayStr to display the looked up status string.
+                           280     ; Arguments:   Status code (byte) from stack, stored in CX   
+                           281     ; Return Value:      None.
+                           282     ;
+                           283     ; Local Variables:   None.
+                           284     ; Shared Variables:  None.
+                           285     
+                           286     ; Input:            None.
+                           287     ; Output:            Displays status on LCD.
+                           288     ;
+                           289     ; Error Handling:    None.
                            290     ;
-                           291     ; Error Handling:    None.
-                           292     ;
-                           293     ; Algorithms:        None.
-                           294     ; Data Structures:   None.
-                           295     ;
-                           296     ; Registers Changed: None
-                           297     ; Stack Depth:       7 words
-                           298     ;
-                           299     ; Last Modified:     5-2-2008
-0058                       300     display_status   PROC    NEAR
-                           301                             PUBLIC display_status
-                           302                     
-0058 55                    303                     PUSH BP
-0059 8BEC                  304                     MOV BP, SP
-005B 56                    305                     PUSH SI
-005C 57                    306                     PUSH DI
-005D 50                    307                     PUSH AX
-005E 53                    308                     PUSH BX
-005F 51                    309                     PUSH CX
-0060 8B4E04                310                     MOV CX, [BP+4]
-                           311             
-0063 B008                  312                     MOV AL, statusStringLength
-                           313                     ;XOR AH, AH
-                           314                     ;XOR CH, CH
-0065 F6E1                  315                     MUL CL
-0067 68----90       R      316                     PUSH SEG(statuses)
-006B 07                    317                     POP ES
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    7
+                           291     ; Algorithms:        None.
+                           292     ; Data Structures:   None.
+                           293     ;
+                           294     ; Registers Changed: None
+                           295     ; Stack Depth:       7 words
+                           296     ;
+                           297     ; Last Modified:     5-2-2008
+0058                       298     display_status   PROC    NEAR
+                           299                             PUBLIC display_status
+                           300                     
+0058 55                    301                     PUSH BP
+0059 8BEC                  302                     MOV BP, SP
+005B 56                    303                     PUSH SI
+005C 57                    304                     PUSH DI
+005D 50                    305                     PUSH AX
+005E 53                    306                     PUSH BX
+005F 51                    307                     PUSH CX
+0060 8B4E04                308                     MOV CX, [BP+4]
+                           309             
+                           310                     ;offset = statusStringLength*status
+0063 B008                  311                     MOV AL, statusStringLength  ;calculate the offset of the desired pred
+                                   efined status message
+0065 F6E1                  312                     MUL CL
+                           313                     
+0067 68----90       R      314                     PUSH SEG(statuses)      ;Use ES:[SI] to point to the predefined statu
+                                   s message
+006B 07                    315                     POP ES
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
 
-006C BB740190       R      318                     MOV BX, OFFSET(statuses)
-0070 03D8                  319                     ADD BX, AX
-0072 8BF3                  320                     MOV SI, BX      
-                           321                     
-                           322                     
-0074 B80400                323                     MOV AX, statusLength
-0077 BB0000                324                     MOV BX, statusOffset
+006C BB740190       R      316                     MOV BX, OFFSET(statuses)
+0070 03D8                  317                     ADD BX, AX
+0072 8BF3                  318                     MOV SI, BX      
+                           319                     
+                           320                     
+0074 B80400                321                     MOV AX, statusLength
+0077 BB0000                322                     MOV BX, statusOffset
+                           323                     
+007A E8A400                324                     CALL DisplayStr
                            325                     
-007A E8A400                326                     CALL DisplayStr
-                           327                     
-007D 59                    328                     POP CX
-007E 5B                    329                     POP BX
-007F 58                    330                     POP AX
-0080 5F                    331                     POP DI
-0081 5E                    332                     POP SI
-0082 5D                    333                     POP BP
-                           334                     
-                           335                     
-0083 C3                    336                     RET
-                           337     display_status   ENDP
-                           338     
-                           339     ; display_time
+007D 59                    326                     POP CX
+007E 5B                    327                     POP BX
+007F 58                    328                     POP AX
+0080 5F                    329                     POP DI
+0081 5E                    330                     POP SI
+0082 5D                    331                     POP BP
+                           332                     
+                           333                     
+0083 C3                    334                     RET
+                           335     display_status   ENDP
+                           336     
+                           337     ; display_time
+                           338     ;
+                           339     ; Description:       This procedure displays time in the dedicated spot on the LCD
                            340     ;
-                           341     ; Description:       This procedure displays time in the dedicated spot on the LCD
-                           342     ;
-                           343     ; Operation:            
-                           344     ;                       Uses DisplayStr
-                           345     ; Arguments:         
-                           346     ; Return Value:      None.
-                           347     ;
-                           348     ; Local Variables:   None.
-                           349     ; Shared Variables:  None.
-                           350     
-                           351     ; Input:            None.
-                           352     ; Output:            Displays time on LCD.
+                           341     ; Operation:     Divides time into minutes, seconds, and tenths of seconds, writing e
+                                   ach
+                           342     ;                       to a temporary buffer, which is passed to DisplayStr.
+                           343     ; Arguments:         time in tenths of seconds on the stack, stored in CX
+                           344     ; Return Value:      None.
+                           345     ;
+                           346     ; Local Variables:   None.
+                           347     ; Shared Variables:  None.
+                           348     
+                           349     ; Input:            None.
+                           350     ; Output:            Displays time on LCD.
+                           351     ;
+                           352     ; Error Handling:    None.
                            353     ;
-                           354     ; Error Handling:    None.
-                           355     ;
-                           356     ; Algorithms:        None.
-                           357     ; Data Structures:   None.
-                           358     ;
-                           359     ; Registers Changed: None
-                           360     ; Stack Depth:       8 words
-                           361     ;
-                           362     ; Last Modified:     5-2-2008
-0084                       363     display_time   PROC    NEAR
-                           364                             PUBLIC display_time
-0084 55                    365                     PUSH BP
-0085 8BEC                  366                     MOV BP, SP
-0087 56                    367                     PUSH SI
-0088 57                    368                     PUSH DI
-0089 50                    369                     PUSH AX
-008A 53                    370                     PUSH BX
-008B 51                    371                     PUSH CX
-008C 52                    372                     PUSH DX
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    8
+                           354     ; Algorithms:        None.
+                           355     ; Data Structures:   Uses timeStringBuffer[] to temporarily store time string
+                           356     ;
+                           357     ; Registers Changed: None
+                           358     ; Stack Depth:       8 words
+                           359     ;
+                           360     ; Last Modified:     5-3-2008
+0084                       361     display_time   PROC    NEAR
+                           362                             PUBLIC display_time
+0084 55                    363                     PUSH BP
+0085 8BEC                  364                     MOV BP, SP
+0087 56                    365                     PUSH SI
+0088 57                    366                     PUSH DI
+0089 50                    367                     PUSH AX
+008A 53                    368                     PUSH BX
+008B 51                    369                     PUSH CX
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           373                     
-008D 8B4E04                374                     MOV CX, [BP+4]
-0090 81F9FFFF              375                     CMP CX, TIME_NONE
-0094 7477                  376                     JE timeNone
-0096                       377     flag2:          
-                           378                     ;time/tenthsOfSecPerMin = minutes R(tenthsOfSeconds)
-0096 8BC1                  379                     MOV AX, CX
-0098 B95802                380                     MOV CX, tenthsOfSecPerMin
-009B 33D2                  381                     XOR DX, DX
-009D F7F1                  382                     DIV CX
-009F 8BCA                  383                     MOV CX, DX ;store remainder in CX
-                           384                     ;minutes in AX, remainder (in tenths of seconds) in CX
-                           385                     
-                           386                     ;write minutes (in AX)
-                           387                     ;minutes/10= tensOfMinutes R(minutes)
-00A1 BB0A00                388                     MOV BX, ten
-00A4 33D2                  389                     XOR DX, DX
-00A6 F7F3                  390                     DIV BX
-00A8 053000                391                     ADD AX, ASCIIDecCons  ;convert to ASCII
-00AB 83C230                392                     ADD DX, ASCIIDecCons
-00AE BB0000                393                     MOV BX, timeStringBufferMinutesOffset
-00B1 88870000       R      394                     MOV timeStringBuffer[BX], AL
-00B5 43                    395                     INC BX
-00B6 88970000       R      396                     MOV timeStringBuffer[BX], DL
-00BA 43                    397                     INC BX
-                           398                     ;write colon
-00BB C68700003A90   R      399                     MOV timeStringBuffer[BX], ASCIIcolon
-00C1                       400     flag:                   
-                           401                     ;previous remainder should be in CX
-00C1 8BC1                  402                     MOV AX, CX
-00C3 B90A00                403                     MOV CX, tenthsOfSecPerSec
-00C6 33D2                  404                     XOR DX, DX
-00C8 F7F1                  405                     DIV CX 
-00CA 8BCA                  406                     MOV CX, DX ;store new remainder in CX
-                           407                     ;seconds in AX, tenths of seconds in CX
-                           408                     
-                           409                     ;write seconds
-00CC BB0A00                410                     MOV BX, ten
-00CF 33D2                  411                     XOR DX, DX
-00D1 F7F3                  412                     DIV BX
-00D3 053000                413                     ADD AX, ASCIIDecCons  ;convert to ASCII
-00D6 83C230                414                     ADD DX, ASCIIDecCons
-00D9 BB0300                415                     MOV BX, timeStringBufferSecondsOffset
-00DC 88870000       R      416                     MOV timeStringBuffer[BX], AL
-00E0 43                    417                     INC BX          
-00E1 88970000       R      418                     MOV timeStringBuffer[BX], DL
-00E5 43                    419                     INC BX  
-                           420                     ;write point
-00E6 C68700002E90   R      421                     MOV timeStringBuffer[BX], ASCIIperiod
-00EC 43                    422                     INC BX
-                           423                     
-                           424                     ;write tenths of seconds
-00ED 83C130                425                     ADD CX, ASCIIDecCons
-00F0 888F0000       R      426                     MOV timeStringBuffer[BX], CL
-                           427                     ;write null at end
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE    9
+008C 52                    370                     PUSH DX
+                           371                     
+008D 8B4E04                372                     MOV CX, [BP+4] ;retreive time given in tenths of seconds
+0090 81F9FFFF              373                     CMP CX, TIME_NONE
+0094 7477                  374                     JE timeNone
+                           375             
+                           376                     ;time/tenthsOfSecPerMin = minutes R(tenthsOfSeconds)
+0096 8BC1                  377                     MOV AX, CX
+0098 B95802                378                     MOV CX, tenthsOfSecPerMin
+009B 33D2                  379                     XOR DX, DX
+009D F7F1                  380                     DIV CX
+009F 8BCA                  381                     MOV CX, DX ;store remainder in CX
+                           382                     ;minutes in AX, remainder (in tenths of seconds) in CX
+                           383                     
+                           384                     ;write minutes (in AX)
+                           385                     ;minutes/10= tensOfMinutes R(minutes)
+00A1 BB0A00                386                     MOV BX, ten
+00A4 33D2                  387                     XOR DX, DX
+00A6 F7F3                  388                     DIV BX
+00A8 053000                389                     ADD AX, ASCIIDecCons  ;convert to ASCII
+00AB 83C230                390                     ADD DX, ASCIIDecCons
+00AE BB0000                391                     MOV BX, timeStringBufferMinutesOffset ;get index of minutes
+00B1 88870000       R      392                     MOV timeStringBuffer[BX], AL            ;write minutes to buffer to b
+                                   e printed
+00B5 43                    393                     INC BX
+00B6 88970000       R      394                     MOV timeStringBuffer[BX], DL
+00BA 43                    395                     INC BX
+                           396                     ;write colon
+00BB C68700003A90   R      397                     MOV timeStringBuffer[BX], ASCIIcolon
+                           398                     
+                           399                     ;previous remainder(in tenths of seconds) should be in CX
+00C1 8BC1                  400                     MOV AX, CX
+00C3 B90A00                401                     MOV CX, tenthsOfSecPerSec
+00C6 33D2                  402                     XOR DX, DX
+00C8 F7F1                  403                     DIV CX 
+00CA 8BCA                  404                     MOV CX, DX ;store new remainder in CX
+                           405                     ;seconds in AX, tenths of seconds in CX
+                           406                     
+                           407                     ;write seconds
+00CC BB0A00                408                     MOV BX, ten
+00CF 33D2                  409                     XOR DX, DX
+00D1 F7F3                  410                     DIV BX
+00D3 053000                411                     ADD AX, ASCIIDecCons  ;convert to ASCII
+00D6 83C230                412                     ADD DX, ASCIIDecCons
+00D9 BB0300                413                     MOV BX, timeStringBufferSecondsOffset ;get index of seconds
+00DC 88870000       R      414                     MOV timeStringBuffer[BX], AL
+00E0 43                    415                     INC BX          
+00E1 88970000       R      416                     MOV timeStringBuffer[BX], DL
+00E5 43                    417                     INC BX  
+                           418                     ;write period
+00E6 C68700002E90   R      419                     MOV timeStringBuffer[BX], ASCIIperiod
+00EC 43                    420                     INC BX
+                           421                     
+                           422                     ;write tenths of seconds
+00ED 83C130                423                     ADD CX, ASCIIDecCons
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
 
-00F4 43                    428                     INC BX
-00F5 C68700000090   R      429                     MOV timeStringBuffer[BX], null
-                           430                     
-                           431                     ;now call DisplayStr
-00FB B80800                432                     MOV AX, timeLength
-00FE BB0500                433                     MOV BX, timeOffset
-0101 68----90       R      434                     PUSH SEG(timeStringBuffer)
-0105 07                    435                     POP ES
-0106 BE000090       R      436                     MOV SI, OFFSET(timeStringBuffer)
-010A EB0A90                437                     JMP callGenericDisplay
-010D                       438     timeNone:               
-010D BB0000                439                     MOV BX, 0
-0110 C68700000090   R      440                     MOV timeStringBuffer[BX], null
-0116                       441     callGenericDisplay:             
-0116 E80800                442                     CALL DisplayStr
-                           443                     
-0119 5A                    444                     POP DX
-011A 59                    445                     POP CX
-011B 5B                    446                     POP BX
-011C 58                    447                     POP AX
-011D 5F                    448                     POP DI
-011E 5E                    449                     POP SI
-011F 5D                    450                     POP BP
-0120 C3                    451                     RET
-                           452     display_time   ENDP
-                           453     
-                           454     ; DisplayStr
+00F0 888F0000       R      424                     MOV timeStringBuffer[BX], CL
+                           425                     ;write null at end
+00F4 43                    426                     INC BX
+00F5 C68700000090   R      427                     MOV timeStringBuffer[BX], null
+                           428                     
+                           429                     ;now call DisplayStr, passing it hte buffer
+00FB B80800                430                     MOV AX, timeLength
+00FE BB0500                431                     MOV BX, timeOffset
+0101 68----90       R      432                     PUSH SEG(timeStringBuffer)
+0105 07                    433                     POP ES
+0106 BE000090       R      434                     MOV SI, OFFSET(timeStringBuffer)
+010A EB0A90                435                     JMP callGenericDisplay
+010D                       436     timeNone:               
+010D BB0000                437                     MOV BX, 0                               ;if TIME_NONE, then print bla
+                                   nk spaces
+0110 C68700000090   R      438                     MOV timeStringBuffer[BX], null
+0116                       439     callGenericDisplay:             
+0116 E80800                440                     CALL DisplayStr
+                           441                     
+0119 5A                    442                     POP DX
+011A 59                    443                     POP CX
+011B 5B                    444                     POP BX
+011C 58                    445                     POP AX
+011D 5F                    446                     POP DI
+011E 5E                    447                     POP SI
+011F 5D                    448                     POP BP
+0120 C3                    449                     RET
+                           450     display_time   ENDP
+                           451     
+                           452     ; DisplayStr
+                           453     ;
+                           454     ; Description:       This procedure is a generic display function. 
                            455     ;
-                           456     ; Description:       This procedure is a generic display function. 
-                           457     ;
-                           458     ; Operation:        Displays string stored at ES:[SI] for specified length,
-                           459     ;                               offset          
-                           460     ;
-                           461     ; Arguments:         string located at ES:[SI], length in AL, offset in BL
-                           462     ; Return Value:      None.
-                           463     ;
-                           464     ; Local Variables:   None.
-                           465     ; Shared Variables:  None.
-                           466     
-                           467     ; Input:            None.
-                           468     ; Output:            Displays string on LCD.
+                           456     ; Operation:        Displays string stored at ES:[SI] for specified length,
+                           457     ;                               offset          
+                           458     ;
+                           459     ; Arguments:         string located at ES:[SI], length in AL, offset in BL
+                           460     ; Return Value:      None.
+                           461     ;
+                           462     ; Local Variables:   None.
+                           463     ; Shared Variables:  None.
+                           464     
+                           465     ; Input:            None.
+                           466     ; Output:            Displays string on LCD.
+                           467     ;
+                           468     ; Error Handling:    If string is shorter than length, will display blank spaces afte
+                                   rwards.
                            469     ;
-                           470     ; Error Handling:    None.
-                           471     ;
-                           472     ; Algorithms:        None.
-                           473     ; Data Structures:   None.
-                           474     ;
-                           475     ; Registers Changed: None
-                           476     ; Stack Depth:       5 words
-                           477     ;
-                           478     ; Last Modified:     5-2-2008
-0121                       479     DisplayStr   PROC    NEAR
-                           480                             PUBLIC DisplayStr
-0121 56                    481                     PUSH SI
-0122 50                    482                     PUSH AX
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE   10
+                           470     ; Algorithms:        None.
+                           471     ; Data Structures:   None.
+                           472     ;
+                           473     ; Registers Changed: None
+                           474     ; Stack Depth:       5 words
+                           475     ;
+                           476     ; Last Modified:     5-2-2008
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE   10
 
 
 LOC  OBJ                  LINE     SOURCE
 
-0123 53                    483                     PUSH BX
-0124 51                    484                     PUSH CX
-0125 52                    485                     PUSH DX
-                           486                     
-0126 8ACB                  487                     MOV CL, BL                      ;offset in CL
-0128 8AD8                  488                     MOV BL, AL                      ;length in BL
-                           489                     
-012A E83800                490                     CALL readBusyFlag
-012D BA0001                491                     MOV DX, displayAddressCMD       ;return cursor home
-0130 B002                  492                     MOV AL, returnHome
-0132 EE                    493                     OUT DX, AL
-0133 E82F00                494                     CALL readBusyFlag
-                           495                     
-0136 80F900                496                     CMP CL, position0                                       ;shift cursor
+0121                       477     DisplayStr   PROC    NEAR
+                           478                             PUBLIC DisplayStr
+0121 56                    479                     PUSH SI
+0122 50                    480                     PUSH AX
+0123 53                    481                     PUSH BX
+0124 51                    482                     PUSH CX
+0125 52                    483                     PUSH DX
+                           484                     
+0126 8ACB                  485                     MOV CL, BL                      ;store offset in CL
+0128 8AD8                  486                     MOV BL, AL                      ;store length in BL
+                           487                     
+012A E83800                488                     CALL readBusyFlag
+012D BA0001                489                     MOV DX, displayAddressCMD       ;return cursor home
+0130 B002                  490                     MOV AL, returnHome
+0132 EE                    491                     OUT DX, AL
+0133 E82F00                492                     CALL readBusyFlag
+                           493                     
+0136 80F900                494                     CMP CL, position0                                       ;shift cursor
                                     to desired offset
-0139 740A                  497                     JE offsetDone
-                           498                     ;MOV CL, BL
-013B 32ED                  499                     XOR CH, CH
-013D B014                  500                     MOV AL, cursorRight
-013F                       501     getToOffset:
-013F EE                    502                     OUT DX, AL
-0140 E82200                503                     CALL readBusyFlag
-0143 E2FA                  504                     LOOP getToOffset
-                           505     
-0145                       506     offsetDone:                                                     ;cursor is now at des
+0139 740A                  495                     JE offsetDone
+013B 32ED                  496                     XOR CH, CH
+013D B014                  497                     MOV AL, cursorRight
+013F                       498     getToOffset:
+013F EE                    499                     OUT DX, AL
+0140 E82200                500                     CALL readBusyFlag
+0143 E2FA                  501                     LOOP getToOffset
+                           502     
+0145                       503     offsetDone:                                                     ;cursor is now at des
                                    ired offset
-0145 8ACB                  507                     MOV CL, BL                                      ;length in CL
-0147 32ED                  508                     XOR CH, CH
-0149 BA0101                509                     MOV DX, displayAddressDAT
-                           510                     
-014C                       511     displayLoop:                                            ;print a character, decrement
+0145 8ACB                  504                     MOV CL, BL                                      ;store length in CL
+0147 32ED                  505                     XOR CH, CH
+0149 BA0101                506                     MOV DX, displayAddressDAT
+                           507                     
+014C                       508     displayLoop:                                            ;print a character, decrement
                                     length count
-014C 268A04                512                     MOV AL, ES:[SI]
-014F 3C00                  513                     CMP AL, STRINGNULL
-0151 7404                  514                     JE stringIsNull
-                           515                     ;JNE string not null
-0153 46                    516                     INC SI
-0154 EB0390                517                     JMP endDisplayLoop
-0157                       518     stringIsNull:
-0157 B020                  519                     MOV AL, blankSpace
-0159                       520     endDisplayLoop:         
-0159 EE                    521                     OUT DX,AL
-015A E80800                522                     CALL readBusyFlag
-015D E2ED                  523                     LOOP displayLoop
-                           524                     
-015F 5A                    525                     POP DX
-0160 59                    526                     POP CX
-0161 5B                    527                     POP BX
-0162 58                    528                     POP AX
-0163 5E                    529                     POP SI
-0164 C3                    530                     RET
-                           531     DisplayStr   ENDP
-                           532     
-                           533     
-0165                       534     readBusyFlag   PROC    NEAR
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:20:14  05/04/:8  PAGE   11
+014C 268A04                509                     MOV AL, ES:[SI]
+014F 3C00                  510                     CMP AL, STRINGNULL
+0151 7404                  511                     JE stringIsNull
+                           512                     ;JNE string not null
+0153 46                    513                     INC SI                                  
+0154 EB0390                514                     JMP endDisplayLoop
+0157                       515     stringIsNull:                           ;if string is null,  don't increment SI, so s
+                                   tring will
+0157 B020                  516                     MOV AL, blankSpace              ;continue reading null and blank spac
+                                   es will be added
+0159                       517     endDisplayLoop:         
+0159 EE                    518                     OUT DX,AL
+015A E80800                519                     CALL readBusyFlag
+015D E2ED                  520                     LOOP displayLoop
+                           521                     
+015F 5A                    522                     POP DX
+0160 59                    523                     POP CX
+0161 5B                    524                     POP BX
+0162 58                    525                     POP AX
+0163 5E                    526                     POP SI
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE   11
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           535                             PUBLIC readBusyFlag
-                           536                     
-0165 50                    537                     PUSH AX
-0166 52                    538                     PUSH DX
-                           539                     
-0167                       540     checkBusy:              
-0167 BA0001                541                     MOV DX, displayAddressCMD
-016A EC                    542                     IN AL, DX
-016B 2480                  543                     AND AL, busyFlagMask
-016D 3C80                  544                     CMP AL, LCDbusy
-016F 74F6                  545                     JE checkBusy
-                           546                     
-0171 5A                    547                     POP DX
-0172 58                    548                     POP AX
-                           549                     
-0173 C3                    550                     RET
-                           551     readBusyFlag   ENDP
-                           552     
-                           553     
-                           554     ;array of status strings
-0174                       555     statuses  LABEL BYTE
+0164 C3                    527                     RET
+                           528     DisplayStr   ENDP
+                           529     
+                           530     ; readBusyFlag
+                           531     ;
+                           532     ; Description:       This procedure blocks until LCD is no longer busy.
+                           533     ;
+                           534     ; Operation:       Keeps reading busy flag until LCD is not busy.               
+                           535     ;
+                           536     ; Arguments:         None.
+                           537     ; Return Value:      None.
+                           538     ;
+                           539     ; Local Variables:   None.
+                           540     ; Shared Variables:  None.
+                           541     
+                           542     ; Input:            From LCD busy flag
+                           543     ; Output:           None.
+                           544     ;
+                           545     ; Error Handling:    Blocking function.
+                           546     ;
+                           547     ; Algorithms:        None.
+                           548     ; Data Structures:   None.
+                           549     ;
+                           550     ; Registers Changed: None
+                           551     ; Stack Depth:       2 words
+                           552     ;
+                           553     ; Last Modified:     5-2-2008
+0165                       554     readBusyFlag   PROC    NEAR
+                           555                             PUBLIC readBusyFlag
                            556                     
-0174 504C4159206C3E        557                     DB 'PLAY l>',0
-017B 00
-017C 46465744203E3E        558                     DB 'FFWD >>',0
-0183 00
-0184 52574420203C3C        559                     DB 'RWD  <<',0
-018B 00
-018C 49444C45202E2E        560                     DB 'IDLE ..',0
-0193 00
-0194 494C4C4547414C        561                     DB 'ILLEGAL',0
-019B 00
-                           562     
-                           563     
-----                       564     CODE ENDS
-                           565     ;the data segment
-                           566     
-----                       567     DATA    SEGMENT PUBLIC  'DATA'
-0000 (8                    568     timeStringBuffer DB timeLength DUP(?)
-     ??
-     )
-----                       569     DATA    ENDS
-                           570     
-                           571     
+0165 50                    557                     PUSH AX
+0166 52                    558                     PUSH DX
+                           559                     
+0167                       560     checkBusy:              
+0167 BA0001                561                     MOV DX, displayAddressCMD
+016A EC                    562                     IN AL, DX
+016B 2480                  563                     AND AL, busyFlagMask
+016D 3C80                  564                     CMP AL, LCDbusy
+016F 74F6                  565                     JE checkBusy
+                           566                     
+0171 5A                    567                     POP DX
+0172 58                    568                     POP AX
+                           569                     
+0173 C3                    570                     RET
+                           571     readBusyFlag   ENDP
                            572     
                            573     
-                           574             END     
+                           574     ;array of status strings (predefined constants)
+0174                       575     statuses  LABEL BYTE
+                           576                     
+0174 504C4159206C3E        577                     DB 'PLAY l>',0
+017B 00
+017C 46465744203E3E        578                     DB 'FFWD >>',0
+0183 00
+0184 52574420203C3C        579                     DB 'RWD  <<',0
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  15:46:17  05/04/:8  PAGE   12
+
+
+LOC  OBJ                  LINE     SOURCE
+
+018B 00
+018C 49444C45202E2E        580                     DB 'IDLE ..',0
+0193 00
+0194 494C4C4547414C        581                     DB 'ILLEGAL',0
+019B 00
+                           582     
+                           583     
+----                       584     CODE ENDS
+                           585     
+                           586     
+----                       587     DATA    SEGMENT PUBLIC  'DATA'
+0000 (8                    588     timeStringBuffer DB timeLength DUP(?)
+     ??
+     )
+----                       589     DATA    ENDS
+                           590     
+                           591     
+                           592     
+                           593     
+                           594             END     
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND
