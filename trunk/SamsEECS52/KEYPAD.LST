@@ -1,0 +1,590 @@
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    1
+
+
+DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE KEYPAD
+OBJECT MODULE PLACED IN KEYPAD.OBJ
+ASSEMBLER INVOKED BY:  C:\USERS\SAM\DOCUME~1\CALTECH\SPRING~1\EECS52\CODE\ASM86.EXE KEYPAD.ASM DB M1 EP
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                             1            NAME  keypad
+                             2     
+                             3     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                             4     ;                                                                            ;
+                             5     ;                                    keypad                                ;
+                             6     ;                           Keypad Event Handler                             ;
+                             7     ;                                                                            ;
+                             8     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                             9     
+                            10     ; Description:      This program an event handler (interrupt service routine).
+                            11     ;                   It reads from the keypad.
+                            12     ;
+                            13     ; Input:            Keypad
+                            14     ; Output:           None.
+                            15     ; User Interface:   call functions getkey() , key_available()
+                            16     ; Error Handling:   None.
+                            17     ;
+                            18     ; Algorithms:       None.
+                            19     ; Data Structures:  None.
+                            20     ;
+                            21     ; Revision History:
+                            22     
+                            23     ;     5/2/08  Samuel Yang     
+                            24     
+                            25     
+                            26     ; local include files
+                            27 +1  $INCLUDE(keypad.INC)
+                      =1    28     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    29     ;                                                                            ;
+                      =1    30     ;                                  keypad.INC                                ;
+                      =1    31     ;                              Keypad Event Handler                          ;
+                      =1    32     ;                                 Include File                               ;
+                      =1    33     ;                                                                            ;
+                      =1    34     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    35     
+                      =1    36     ; This file contains the definitions for the Keypad Event Handler
+                      =1    37     ; program (keypad.ASM).
+                      =1    38     ;
+                      =1    39     ; Revision History:
+                      =1    40     
+                      =1    41     ;     5/2/2008 Samuel Yang     
+                      =1    42     
+                      =1    43     
+  0080                =1    44     KeypadAddress   EQU     0080H           ;keypad address
+                      =1    45     
+  000F                =1    46     KEYPADDATAMASK EQU 000fh                ;only use 4 bits
+                      =1    47     
+                            48 +1  $INCLUDE(boolean.INC)
+                      =1    49     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    50     ;                                                                            ;
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    2
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                      =1    51     ;                                  boolean.INC                               ;
+                      =1    52     ;                             Boolean Definitions                            ;
+                      =1    53     ;                                 Include File                               ;
+                      =1    54     ;                                                                            ;
+                      =1    55     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    56     
+                      =1    57     ; This file contains the boolean definitions for the 80188 MP3 Player.
+                      =1    58     ;
+                      =1    59     ; Revision History:
+                      =1    60     
+                      =1    61     ;     5/2/2008 Samuel Yang     
+                      =1    62     
+                      =1    63     
+  0001                =1    64     TRUE EQU 1h
+  0000                =1    65     FALSE EQU 0h
+                            66 +1  $INCLUDE(regAddrs.INC)
+                      =1    67     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    68     ;                                                                            ;
+                      =1    69     ;                                  regAddrs.INC                              ;
+                      =1    70     ;                              Register Addresses and Values                 ;
+                      =1    71     ;                                 Include File                               ;
+                      =1    72     ;                                                                            ;
+                      =1    73     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    74     
+                      =1    75     ; This file contains the definitions for the 801C88 MP3 Player.
+                      =1    76     ;
+                      =1    77     ;
+                      =1    78     ; Revision History:
+                      =1    79     
+                      =1    80     ;     5/2/2008 Samuel Yang     
+                      =1    81     
+                      =1    82     
+                      =1    83     
+                      =1    84     
+                      =1    85     
+                      =1    86     ; Interrupt Vectors
+  000C                =1    87     Int0Vec         EQU     12               ;interrupt vector for INT 0
+  000D                =1    88     Int1Vec         EQU     13               ;interrupt vector for INT 1
+                      =1    89     
+                      =1    90     
+                      =1    91     ; Interrupt Controller Definitions
+                      =1    92     
+                      =1    93     ; Addresses
+  FF38                =1    94     INT0Ctrlr        EQU    0FF38H           ;address of interrupt 0 controller
+  FF3A                =1    95     INT1Ctrlr        EQU    0FF3AH           ;address of interrupt 1 controller
+  FF32                =1    96     INTCtrlrCtrl    EQU     0FF32H          ;address of interrupt controller for timer
+  FF22                =1    97     INTCtrlrEOI     EQU     0FF22H          ;address of interrupt controller EOI register
+                      =1    98     
+                      =1    99     ; Register Values
+  0001                =1   100     INTCtrlrCVal    EQU     00001H          ;set priority for timers to 1 and enable
+                      =1   101                                             ;000000000000----  reserved
+                      =1   102                                             ;------------0---  enable timer interrupt
+                      =1   103                                             ;-------------001  timer priority
+  0011                =1   104     INT0CtrlrVal    EQU             00011H                                          
+                                                              
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    3
+
+
+LOC  OBJ                  LINE     SOURCE
+
+  0011                =1   105     INT1CtrlrVal    EQU             00011H                                          
+                                                                      
+                      =1   106     
+  0008                =1   107     TimerEOI        EQU     00008H          ;Timer EOI command (samNone for all timers)
+  8000                =1   108     NonSpecEOI      EQU     08000H          ;Non-specific EOI command
+                      =1   109     
+                      =1   110     
+                      =1   111     ; Chip Select Unit Definitions
+                      =1   112     
+                      =1   113     ; Addresses
+  FFA4                =1   114     PACSreg         EQU     0FFA4H          ;address of PACS register
+  FFA8                =1   115     MPCSreg         EQU     0FFA8H          ;address of MPCS register
+                      =1   116     
+                      =1   117     
+                      =1   118     ; Control Register Values
+  0003                =1   119     PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
+                      =1   120                                             ;0000000000------  starts at address 0
+                      =1   121                                             ;----------000---  reserved
+                      =1   122                                             ;-------------0--  wait for RDY inputs
+                      =1   123                                             ;--------------11  3 wait states
+  0183                =1   124     MPCSval         EQU     00183H          ;PCS in I/O space, use PCS5/6, 3 wait states
+                      =1   125                                             ;0---------000---  reserved
+                      =1   126                                             ;-0000001--------  MCS is 8KB
+                      =1   127                                             ;--------1-------  output PCS5/PCS6
+                      =1   128                                             ;---------0------  PCS in I/O space
+                      =1   129                                             ;-------------0--  wait for RDY inputs
+                      =1   130                                             ;--------------11  3 wait states
+                      =1   131     
+                      =1   132     ; Timing Definitions
+                      =1   133     
+                      =1   134     
+                      =1   135     
+                      =1   136     ; General Definitions
+                      =1   137     
+  0001                =1   138     FIRST_RESERVED_VEC      EQU     1       ;reserve vectors 1-3
+  0003                =1   139     LAST_RESERVED_VEC       EQU     3
+  0100                =1   140     NUM_IRQ_VECTORS         EQU     256     ;number of interrupt vectors
+                      =1   141     
+                           142     
+                           143     
+                           144     
+----                       145     CODE SEGMENT PUBLIC 'CODE'
+                           146     
+                           147             ASSUME  CS:CODE, DS:DATA
+                           148     
+                           149     
+                           150     
+                           151     ; Int0EventHandler
+                           152     ;
+                           153     ; Description:       This procedure is the event handler for when the
+                           154     ;                       keypad debouncing chip signals a pressed key.
+                           155     ;
+                           156     ; Operation:         Reads data in, updates status of pressed key.
+                           157     ;
+                           158     ; Arguments:         None.
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    4
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           159     ; Return Value:      None.
+                           160     ;
+                           161     ; Local Variables:   None.
+                           162     ; Shared Variables:  keyCode, keyReady
+                           163     
+                           164     ; Input:            From keypad debouncing chip.
+                           165     ; Output:            None.
+                           166     ;
+                           167     ; Error Handling:    None.
+                           168     ;
+                           169     ; Algorithms:        None.
+                           170     ; Data Structures:   None.
+                           171     ;
+                           172     ; Registers Changed: None
+                           173     ; Stack Depth:       3 words
+                           174     ;
+                           175     ; Last Modified:     5-2-2008
+                           176     
+0000                       177     Int0EventHandler       PROC    NEAR
+                           178                                             PUBLIC Int0EventHandler
+0000 50                    179                     PUSH AX                         ;save register values
+0001 52                    180                     PUSH DX
+0002 33C0                  181                     XOR AX, AX
+0004 33D2                  182                     XOR DX, DX
+0006 BA8000                183                     MOV DX, keypadAddress
+0009 EC                    184                     IN AL, DX
+000A 250F00                185                     AND AX, KEYPADDATAMASK
+000D A30000         R      186                     MOV keyCode, AX
+0010 C60602000190   R      187                     MOV keyReady, TRUE
+                           188     
+0016 BA22FF                189             MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
+0019 B80C00                190             MOV     AX, Int0Vec
+001C EE                    191             OUT     DX, AL
+                           192      
+001D 5A                    193                     POP DX                                                  ;restore regi
+                                   ster values
+001E 58                    194                     POP AX
+001F CF                    195             IRET                            ;and return (Event Handlers end with IRET not
+                                    RET)
+                           196     
+                           197     
+                           198     Int0EventHandler       ENDP
+                           199     
+                           200     
+                           201     ; InitKeypad
+                           202     ;
+                           203     ; Description:       This procedure initializes everything for keypad
+                           204     ;
+                           205     ; Operation:        Initializes shared variables
+                           206     ;
+                           207     ; Arguments:         None.
+                           208     ; Return Value:      None.
+                           209     ;
+                           210     ; Local Variables:   None.
+                           211     ; Shared Variables:  keyCode, keyReady
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    5
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           212     
+                           213     ; Input:            None.
+                           214     ; Output:            None.
+                           215     ;
+                           216     ; Error Handling:    None.
+                           217     ;
+                           218     ; Algorithms:        None.
+                           219     ; Data Structures:   None.
+                           220     ;
+                           221     ; Registers Changed: None
+                           222     ; Stack Depth:       1 words
+                           223     ;
+                           224     ; Last Modified:     5-2-2008
+0020                       225     InitKeypad   PROC    NEAR
+                           226                             PUBLIC InitKeypad
+0020 C60602000090   R      227                     MOV keyReady, FALSE     
+0026 C70600000000   R      228                     MOV keyCode, 0                                  ;this doesn't really 
+                                   have to be initialized since keyReady is FALSE
+                           229                     
+002C C3                    230                     RET
+                           231     InitKeypad   ENDP
+                           232     
+                           233     ; key_available
+                           234     ;
+                           235     ; Description:       Returns true if a key has been pressed
+                           236     ;
+                           237     ; Operation:        Returns shared variable
+                           238     ;
+                           239     ; Arguments:         None.
+                           240     ; Return Value:     keyReady in AL
+                           241     ;
+                           242     ; Local Variables:   None.
+                           243     ; Shared Variables:  keyReady
+                           244     
+                           245     ; Input:            None.
+                           246     ; Output:            None.
+                           247     ;
+                           248     ; Error Handling:    None.
+                           249     ;
+                           250     ; Algorithms:        None.
+                           251     ; Data Structures:   None.
+                           252     ;
+                           253     ; Registers Changed: AL
+                           254     ; Stack Depth:       1 words
+                           255     ;
+                           256     ; Last Modified:     5-2-2008
+002D                       257     key_available   PROC    NEAR
+                           258                             PUBLIC key_available
+002D A00200         R      259                     MOV AL, keyReady        
+0030 C3                    260                     RET
+                           261     key_available   ENDP
+                           262     
+                           263     ; getkey
+                           264     ;
+                           265     ; Description:       Returns keycode of pressed key
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    6
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           266     ;
+                           267     ; Operation:        Returns shared variable
+                           268     ;
+                           269     ; Arguments:         None.
+                           270     ; Return Value:     keyCode in AX
+                           271     ;
+                           272     ; Local Variables:   None.
+                           273     ; Shared Variables:  keyCode, keyReady
+                           274     
+                           275     ; Input:            None.
+                           276     ; Output:            None.
+                           277     ;
+                           278     ; Error Handling:    getkey should only be called if key_available returns TRUE
+                           279     ;
+                           280     ; Algorithms:        None.
+                           281     ; Data Structures:   None.
+                           282     ;
+                           283     ; Registers Changed: AX
+                           284     ; Stack Depth:       1 words
+                           285     ;
+                           286     ; Last Modified:     5-2-2008
+0031                       287     getkey   PROC    NEAR
+                           288                             PUBLIC getkey
+0031 A10000         R      289                     MOV AX, keyCode
+0034 C60602000090   R      290                     MOV keyReady, FALSE              ;reset keyReady flag since no new pr
+                                   essed keys to report
+003A C3                    291                     RET
+                           292     getkey   ENDP
+                           293     
+                           294     
+                           295     ; InitCS
+                           296     ;
+                           297     ; Description:       Initialize the Peripheral Chip Selects on the 80188.
+                           298     ;
+                           299     ; Operation:         Write the initial values to the PACS and MPCS registers.
+                           300     ;
+                           301     ; Arguments:         None.
+                           302     ; Return Value:      None.
+                           303     ;
+                           304     ; Local Variables:   None.
+                           305     ; Shared Variables:  None.
+                           306     ; Global Variables:  None.
+                           307     ;
+                           308     ; Input:             None.
+                           309     ; Output:            None.
+                           310     ;
+                           311     ; Error Handling:    None.
+                           312     ;
+                           313     ; Algorithms:        None.
+                           314     ; Data Structures:   None.
+                           315     ;
+                           316     ; Registers Changed: AX, DX
+                           317     ; Stack Depth:       0 words
+                           318     ;
+                           319     ; Author:            Glen George
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    7
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           320     ; Last Modified:     Oct. 29, 1997
+                           321     
+003B                       322     InitCS  PROC    NEAR
+                           323                     PUBLIC InitCS
+                           324     
+                           325     
+003B BAA4FF                326             MOV     DX, PACSreg     ;setup to write to PACS register
+003E B80300                327             MOV     AX, PACSval
+0041 EE                    328             OUT     DX, AL          ;write PACSval to PACS (base at 0, 3 wait states)
+                           329     
+0042 BAA8FF                330             MOV     DX, MPCSreg     ;setup to write to MPCS register
+0045 B88301                331             MOV     AX, MPCSval
+0048 EE                    332             OUT     DX, AL          ;write MPCSval to MPCS (I/O space, 3 wait states)
+                           333     
+                           334     
+0049 C3                    335             RET                     ;done so return
+                           336     
+                           337     
+                           338     InitCS  ENDP
+                           339     
+                           340     
+                           341     
+                           342     
+                           343     
+                           344     
+                           345     
+                           346     
+                           347     ; InstallHandlerInt0
+                           348     ;
+                           349     ; Description:       Install the event handler for the int0 interrupt.
+                           350     ;
+                           351     ; Operation:         Writes the address of the int 0 event handler to the
+                           352     ;                    appropriate interrupt vector.
+                           353     ;
+                           354     ; Arguments:         None.
+                           355     ; Return Value:      None.
+                           356     ;
+                           357     ; Local Variables:   None.
+                           358     ; Shared Variables:  None.
+                           359     ; Global Variables:  None.
+                           360     ;
+                           361     ; Input:             None.
+                           362     ; Output:            None.
+                           363     ;
+                           364     ; Error Handling:    None.
+                           365     ;
+                           366     ; Algorithms:        None.
+                           367     ; Data Structures:   None.
+                           368     ;
+                           369     ; Registers Changed: flags, AX, ES
+                           370     ; Stack Depth:       0 words
+                           371     ;
+                           372     ; Author:            Samuel Yang
+                           373     ; Last Modified:     5-2-2008
+                           374     
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    8
+
+
+LOC  OBJ                  LINE     SOURCE
+
+004A                       375     InstallHandlerInt0  PROC    NEAR
+                           376                             PUBLIC InstallHandlerInt0
+                           377     
+                           378     
+004A 33C0                  379             XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
+004C 8EC0                  380             MOV     ES, AX
+                           381                                     ;store the vector
+004E 26C70630000000 R      382             MOV     ES: WORD PTR (4 * Int0Vec), OFFSET(Int0EventHandler)
+0055 26C7063200---- R      383             MOV     ES: WORD PTR (4 * Int0Vec + 2), SEG(Int0EventHandler)
+                           384     
+005C BA38FF                385                     MOV DX, INT0Ctrlr
+005F B011                  386                     MOV AL, INT0CtrlrVal
+0061 C3                    387             RET                     ;all done, return
+                           388     
+                           389     
+                           390     InstallHandlerInt0  ENDP
+                           391     
+                           392     
+                           393     
+                           394     
+                           395     ; ClrIRQVectors
+                           396     ;
+                           397     ; Description:      This functions installs the IllegalEventHandler for all
+                           398     ;                   interrupt vectors in the interrupt vector table.  Note
+                           399     ;                   that all 256 vectors are initialized so the code must be
+                           400     ;                   located above 400H.  The initialization skips  (does not
+                           401     ;                   initialize vectors) from vectors FIRST_RESERVED_VEC to
+                           402     ;                   LAST_RESERVED_VEC.
+                           403     ;
+                           404     ; Arguments:        None.
+                           405     ; Return Value:     None.
+                           406     ;
+                           407     ; Local Variables:  CX    - vector counter.
+                           408     ;                   ES:SI - pointer to vector table.
+                           409     ; Shared Variables: None.
+                           410     ; Global Variables: None.
+                           411     ;
+                           412     ; Input:            None.
+                           413     ; Output:           None.
+                           414     ;
+                           415     ; Error Handling:   None.
+                           416     ;
+                           417     ; Algorithms:       None.
+                           418     ; Data Structures:  None.
+                           419     ;
+                           420     ; Registers Used:   flags, AX, CX, SI, ES
+                           421     ; Stack Depth:      1 word
+                           422     ;
+                           423     ; Author:           Glen George
+                           424     ; Last Modified:    Feb. 8, 2002
+                           425     
+0062                       426     ClrIRQVectors   PROC    NEAR
+                           427                             PUBLIC ClrIRQVectors
+                           428     
+                           429     
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE    9
+
+
+LOC  OBJ                  LINE     SOURCE
+
+0062                       430     InitClrVectorLoop:              ;setup to store the same handler 256 times
+                           431     
+0062 33C0                  432             XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
+0064 8EC0                  433             MOV     ES, AX
+0066 BE0000                434             MOV     SI, 0           ;initialize SI to skip RESERVED_VECS (4 bytes each)
+                           435     
+0069 B90001                436             MOV     CX, 256         ;up to 256 vectors to initialize
+                           437     
+                           438     
+006C                       439     ClrVectorLoop:                  ;loop clearing each vector
+                           440                                     ;check if should store the vector
+006C 83FE04                441             CMP     SI, 4 * FIRST_RESERVED_VEC
+006F 7205                  442             JB      DoStore         ;if before start of reserved field - store it
+0071 83FE0C                443             CMP     SI, 4 * LAST_RESERVED_VEC
+0074 760B                  444             JBE     DoneStore       ;if in the reserved vectors - don't store it
+                           445             
+                           446     
+0076                       447     DoStore:                        ;store the vector
+0076 26C7048700     R      448             MOV     ES: WORD PTR [SI], OFFSET(IllegalEventHandler)
+007B 26C74402----   R      449             MOV     ES: WORD PTR [SI + 2], SEG(IllegalEventHandler)
+                           450     
+0081                       451     DoneStore:                      ;done storing the vector
+0081 83C604                452             ADD     SI, 4           ;update pointer to next vector
+                           453     
+0084 E2E6                  454             LOOP    ClrVectorLoop   ;loop until have cleared all vectors
+                           455         
+                           456     
+                           457     
+0086                       458     EndClrIRQVectors:               ;all done, return
+0086 C3                    459             RET
+                           460     
+                           461     
+                           462     ClrIRQVectors   ENDP
+                           463     
+                           464     
+                           465     
+                           466     ; IllegalEventHandler
+                           467     ;
+                           468     ; Description:       This procedure is the event handler for illegal
+                           469     ;                    (uninitialized) interrupts.  It does nothing - it just
+                           470     ;                    returns after sending a non-specific EOI.
+                           471     ;
+                           472     ; Operation:         Send a non-specific EOI and return.
+                           473     ;
+                           474     ; Arguments:         None.
+                           475     ; Return Value:      None.
+                           476     ;
+                           477     ; Local Variables:   None.
+                           478     ; Shared Variables:  None.
+                           479     ; Global Variables:  None.
+                           480     ;
+                           481     ; Input:             None.
+                           482     ; Output:            None.
+                           483     ;
+                           484     ; Error Handling:    None.
+8086/87/88/186 MACRO ASSEMBLER    KEYPAD                                                   22:33:02  05/03/:8  PAGE   10
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           485     ;
+                           486     ; Algorithms:        None.
+                           487     ; Data Structures:   None.
+                           488     ;
+                           489     ; Registers Changed: None
+                           490     ; Stack Depth:       2 words
+                           491     ;
+                           492     ; Author:            Glen George
+                           493     ; Last Modified:     Dec. 25, 2000
+                           494     
+0087                       495     IllegalEventHandler     PROC    NEAR
+                           496     
+0087 90                    497             NOP                             ;do nothing (can set breakpoint here)
+                           498     
+0088 50                    499             PUSH    AX                      ;save the registers
+0089 52                    500             PUSH    DX
+                           501     
+008A BA22FF                502             MOV     DX, INTCtrlrEOI         ;send a non-sepecific EOI to the
+008D B80080                503             MOV     AX, NonSpecEOI          ;   interrupt controller to clear out
+0090 EE                    504             OUT     DX, AL                  ;   the interrupt that got us here
+                           505     
+0091 5A                    506             POP     DX                      ;restore the registers
+0092 58                    507             POP     AX
+                           508     
+0093 CF                    509             IRET                            ;and return
+                           510     
+                           511     
+                           512     IllegalEventHandler     ENDP
+                           513     
+                           514     
+----                       515     CODE ENDS
+                           516     
+                           517     ;the data segment
+                           518     
+----                       519     DATA    SEGMENT PUBLIC  'DATA'
+0000 ????                  520     keyCode  DW ?
+0002 ??                    521     keyReady DB ?
+----                       522     DATA    ENDS
+                           523     
+                           524     
+                           525     
+                           526     
+                           527             END     
+
+ASSEMBLY COMPLETE, NO ERRORS FOUND
