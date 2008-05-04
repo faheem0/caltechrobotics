@@ -1,4 +1,5 @@
 cls
 @echo off
 echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-call compile c0smrom.asm converts.asm display.asm keypad.asm
+IC86 testlcdk.c debug extend mod186 small optimize(0) rom
+call compile main.asm c0smrom.asm display.asm keypad.asm testlcdk.obj

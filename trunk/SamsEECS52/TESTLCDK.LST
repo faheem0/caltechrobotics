@@ -1,0 +1,30 @@
+iC-86  COMPILER   TESTLCDK                                                                   05/04/:8 15:20:14  PAGE   1
+
+
+DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE TESTLCDK
+OBJECT MODULE PLACED IN TESTLCDK.OBJ
+COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE TESTLCDK.C DEBUG EXTEND MOD186 SMALL OPTIMIZE(0) ROM
+
+ line level  incl 
+
+    1             #include "mp3defs.h"
+    2             
+    3             void disp()
+    4             {
+    5     1           while(!key_available()) {;}
+    6     1           display_time(6711);
+    7     1           display_title("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+    8     1           display_status(3);
+    9     1           display_artist("37-Fort Minor - where'd you go (featuring holly brook and jonah matranga)");
+   10     1       }
+
+
+
+MODULE INFORMATION:
+
+     CODE AREA SIZE               = 003DH     61D
+     CONSTANT AREA SIZE           = 006FH    111D
+     DATA AREA SIZE               = 0000H      0D
+     MAXIMUM STACK SIZE           = 000CH     12D
+
+iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS

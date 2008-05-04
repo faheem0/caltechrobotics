@@ -25,7 +25,8 @@
 ; Revision History:
 
 ;     5/2/08  Samuel Yang     
-
+CGROUP GROUP CODE
+DGROUP GROUP DATA
 
 ; local include files
 $INCLUDE(display.INC)
@@ -34,7 +35,7 @@ $INCLUDE(boolean.INC)
 
 CODE SEGMENT PUBLIC 'CODE'
 
-        ASSUME  CS:CODE, DS:DATA
+        ASSUME  CS:CGROUP, DS:DGROUP
 
 
 
@@ -122,8 +123,8 @@ display_title   PROC    NEAR
 		PUSH DI
 		PUSH AX
 		PUSH BX
-		MOV ES, [BP+4]
-		MOV SI, [BP+6]
+		MOV SI, [BP+4]
+		MOV ES, [BP+6]
 		
 		MOV AX, titleLength
 		MOV BX, titleOffset
@@ -139,6 +140,57 @@ display_title   PROC    NEAR
 		
 		RET
 display_title   ENDP
+
+; display_artist
+;
+; Description:       This procedure displays artist in the dedicated spot on the LCD
+;
+; Operation:        	
+;			Uses DisplayStr
+; Arguments:         
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
+
+; Input:            None.
+; Output:            Displays artist on LCD.
+;
+; Error Handling:    None.
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       7 words
+;
+; Last Modified:     5-3-2008
+display_artist   PROC    NEAR
+			PUBLIC display_artist
+		
+		PUSH BP
+		MOV BP, SP
+		PUSH SI
+		PUSH DI
+		PUSH AX
+		PUSH BX
+		MOV SI, [BP+4]
+		MOV ES, [BP+6]
+		
+		MOV AX, artistLength
+		MOV BX, artistOffset
+		
+		CALL DisplayStr
+		
+		POP BX
+		POP AX
+		POP DI
+		POP SI
+		POP BP
+		
+		
+		RET
+display_artist   ENDP
 
 ; display_status
 ;
@@ -173,15 +225,18 @@ display_status   PROC    NEAR
 		PUSH DI
 		PUSH AX
 		PUSH BX
+		PUSH CX
 		MOV CX, [BP+4]
-		
+	
 		MOV AL, statusStringLength
+		;XOR AH, AH
+		;XOR CH, CH
 		MUL CL
 		PUSH SEG(statuses)
 		POP ES
 		MOV BX, OFFSET(statuses)
 		ADD BX, AX
-		MOV SI, AX	
+		MOV SI, BX	
 		
 		
 		MOV AX, statusLength
@@ -189,6 +244,7 @@ display_status   PROC    NEAR
 		
 		CALL DisplayStr
 		
+		POP CX
 		POP BX
 		POP AX
 		POP DI
@@ -237,15 +293,18 @@ display_time   PROC    NEAR
 		MOV CX, [BP+4]
 		CMP CX, TIME_NONE
 		JE timeNone
-		
-		MOV AX, tenthsOfSecPerMin
+flag2:		
+		;time/tenthsOfSecPerMin = minutes R(tenthsOfSeconds)
+		MOV AX, CX
+		MOV CX, tenthsOfSecPerMin
 		XOR DX, DX
 		DIV CX
 		MOV CX, DX ;store remainder in CX
+		;minutes in AX, remainder (in tenths of seconds) in CX
 		
-		;write AX using dec2string
-		MOV BX, AX
-		MOV AX, ten
+		;write minutes (in AX)
+		;minutes/10= tensOfMinutes R(minutes)
+		MOV BX, ten
 		XOR DX, DX
 		DIV BX
 		ADD AX, ASCIIDecCons  ;convert to ASCII
@@ -253,17 +312,21 @@ display_time   PROC    NEAR
 		MOV BX, timeStringBufferMinutesOffset
 		MOV timeStringBuffer[BX], AL
 		INC BX
+		MOV timeStringBuffer[BX], DL
+		INC BX
 		;write colon
 		MOV timeStringBuffer[BX], ASCIIcolon
-		
-		
-		MOV AX, tenthsOfSecPerSec
+flag:			
+		;previous remainder should be in CX
+		MOV AX, CX
+		MOV CX, tenthsOfSecPerSec
 		XOR DX, DX
-		DIV CX ;remainder should be in CX
+		DIV CX 
+		MOV CX, DX ;store new remainder in CX
+		;seconds in AX, tenths of seconds in CX
 		
-		;write ax using dec2string
-		MOV BX, AX
-		MOV AX, ten
+		;write seconds
+		MOV BX, ten
 		XOR DX, DX
 		DIV BX
 		ADD AX, ASCIIDecCons  ;convert to ASCII
@@ -271,12 +334,18 @@ display_time   PROC    NEAR
 		MOV BX, timeStringBufferSecondsOffset
 		MOV timeStringBuffer[BX], AL
 		INC BX		
+		MOV timeStringBuffer[BX], DL
+		INC BX	
 		;write point
 		MOV timeStringBuffer[BX], ASCIIperiod
 		INC BX
 		
-		;write dx using dec2string
-		MOV timeStringBuffer[BX], DL
+		;write tenths of seconds
+		ADD CX, ASCIIDecCons
+		MOV timeStringBuffer[BX], CL
+		;write null at end
+		INC BX
+		MOV timeStringBuffer[BX], null
 		
 		;now call DisplayStr
 		MOV AX, timeLength
@@ -337,14 +406,15 @@ DisplayStr   PROC    NEAR
 		MOV CL, BL			;offset in CL
 		MOV BL, AL			;length in BL
 		
+		CALL readBusyFlag
 		MOV DX, displayAddressCMD	;return cursor home
 		MOV AL, returnHome
 		OUT DX, AL
 		CALL readBusyFlag
 		
-		CMP BL, position0					;shift cursor to desired offset
+		CMP CL, position0					;shift cursor to desired offset
 		JE offsetDone
-		MOV CL, BL
+		;MOV CL, BL
 		XOR CH, CH
 		MOV AL, cursorRight
 getToOffset:
@@ -354,16 +424,21 @@ getToOffset:
 
 offsetDone:							;cursor is now at desired offset
 		MOV CL, BL					;length in CL
+		XOR CH, CH
 		MOV DX, displayAddressDAT
 		
 displayLoop:						;print a character, decrement length count
 		MOV AL, ES:[SI]
-		OUT DX, AL
-		CALL readBusyFlag
 		CMP AL, STRINGNULL
-		JE doneIncrementingSI		;don't increment SI if at string null (pads blanks)
+		JE stringIsNull
+		;JNE string not null
 		INC SI
-doneIncrementingSI:		
+		JMP endDisplayLoop
+stringIsNull:
+		MOV AL, blankSpace
+endDisplayLoop:		
+		OUT DX,AL
+		CALL readBusyFlag
 		LOOP displayLoop
 		
 		POP DX
@@ -393,11 +468,11 @@ checkBusy:
 		
 		RET
 readBusyFlag   ENDP
-CODE ENDS
+
 
 ;array of status strings
 statuses  LABEL BYTE
-		PUBLIC statuses
+		
 		DB 'PLAY l>',0
 		DB 'FFWD >>',0
 		DB 'RWD  <<',0
@@ -405,7 +480,7 @@ statuses  LABEL BYTE
 		DB 'ILLEGAL',0
 
 
-
+CODE ENDS
 ;the data segment
 
 DATA    SEGMENT PUBLIC  'DATA'

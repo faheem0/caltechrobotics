@@ -28,11 +28,13 @@ $INCLUDE(keypad.INC)
 $INCLUDE(boolean.INC)
 $INCLUDE(regAddrs.INC)
 
+CGROUP GROUP CODE
+DGROUP GROUP DATA
 
 
 CODE SEGMENT PUBLIC 'CODE'
 
-        ASSUME  CS:CODE, DS:DATA
+        ASSUME  CS:CGROUP, DS:DGROUP
 
 
 
@@ -77,7 +79,8 @@ Int0EventHandler       PROC    NEAR
         MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
         MOV     AX, Int0Vec
         OUT     DX, AL
- 
+		
+		
 		POP DX							;restore register values
 		POP AX
         IRET                            ;and return (Event Handlers end with IRET not RET)
@@ -272,6 +275,9 @@ InstallHandlerInt0  PROC    NEAR
 
 		MOV DX, INT0Ctrlr
 		MOV AL, INT0CtrlrVal
+		OUT DX, AL
+		STI ;enable interrupts
+		
         RET                     ;all done, return
 
 

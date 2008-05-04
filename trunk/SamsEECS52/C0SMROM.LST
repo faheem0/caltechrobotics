@@ -1,9 +1,9 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  22:33:01  05/03/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
 OBJECT MODULE PLACED IN C0SMROM.OBJ
-ASSEMBLER INVOKED BY:  C:\USERS\SAM\DOCUME~1\CALTECH\SPRING~1\EECS52\CODE\ASM86.EXE C0SMROM.ASM DB M1 EP
+ASSEMBLER INVOKED BY:  C:\ASMSTU~1\ASM86.EXE C0SMROM.ASM DB M1 EP
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     ; This file contains the boolean definitions for the 80188 MP3 Player.
                       =1    49     ;
                       =1    50     ; Revision History:
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  22:33:01  05/03/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   101     
                       =1   102     ; Chip Select Unit Definitions
                       =1   103     
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  22:33:01  05/03/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -177,89 +177,96 @@ LOC  OBJ                  LINE     SOURCE
                            151     DGROUP  GROUP   DATA, STACK
                            152     
                            153     EXTRN InitCS:Near
-                           154     EXTRN InstallHandlerInt0:Near
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  22:33:01  05/03/:8  PAGE    4
+                           154     EXTRN ClrIRQVectors:Near
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           155     ; segment register assumptions
-                           156             ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
-                           157     
-                           158     
-                           159     
-                           160     ; the data segment - used for static and global variables
+                           155     EXTRN InstallHandlerInt0:Near
+                           156     EXTRN InitKeypad:Near
+                           157     EXTRN InitDisplay:Near
+                           158     EXTRN   main2:NEAR               ;declare the main function
+                           159     ; segment register assumptions
+                           160             ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
                            161     
-----                       162     DATA    SEGMENT  WORD  PUBLIC  'DATA'
+                           162     
                            163     
-                           164     
-----                       165     DATA    ENDS
-                           166     
+                           164     ; the data segment - used for static and global variables
+                           165     
+----                       166     DATA    SEGMENT  WORD  PUBLIC  'DATA'
                            167     
                            168     
-                           169     
-                           170     ; the stack segment - used for subroutine linkage, argument passing, and
-                           171     ; local variables
+----                       169     DATA    ENDS
+                           170     
+                           171     
                            172     
-----                       173     STACK   SEGMENT  WORD  STACK  'STACK'
-                           174     
-                           175     
-0000 (80                   176             DB      80 DUP ('Stack   ')             ;320 words
+                           173     
+                           174     ; the stack segment - used for subroutine linkage, argument passing, and
+                           175     ; local variables
+                           176     
+----                       177     STACK   SEGMENT  WORD  STACK  'STACK'
+                           178     
+                           179     
+0000 (80                   180             DB      80 DUP ('Stack   ')             ;320 words
      537461636B2020
      20
      )
-                           177     
-0280                       178     TopOfStack      LABEL   WORD
-                           179     
-                           180     
-----                       181     STACK   ENDS
-                           182     
+                           181     
+0280                       182     TopOfStack      LABEL   WORD
                            183     
                            184     
-                           185     
-                           186     ; the actual startup code - should be executed (jumped to) after reset
+----                       185     STACK   ENDS
+                           186     
                            187     
-----                       188     CODE    SEGMENT  WORD  PUBLIC  'CODE'
+                           188     
                            189     
-                           190     
-                           191             EXTRN   main:NEAR               ;declare the main function
-                           192     
+                           190     ; the actual startup code - should be executed (jumped to) after reset
+                           191     
+----                       192     CODE    SEGMENT   PUBLIC  'CODE'
                            193     
-0000                       194     Start:                                  ;start the program
-                           195             PUBLIC  Start                   ;public so can jump to from power on code
-                           196     
-0000 BAA2FF                197                     MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
-0003 B8C007                198                     MOV AX, LCSCtrlVal
-0006 EE                    199                     OUT DX,AL               
-                           200                     
-0007 B8----         R      201             MOV     AX, DGROUP              ;initialize the stack pointer
-000A 8ED0                  202             MOV     SS, AX
-000C BC8002         R      203             MOV     SP, OFFSET(DGROUP:TopOfStack)
-                           204     
-000F B8----         R      205             MOV     AX, DGROUP              ;initialize the data segment
-0012 8ED8                  206             MOV     DS, AX
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  22:33:01  05/03/:8  PAGE    5
+                           194     
+                           195            
+0000                       196     START:
+                           197     
+0000                       198     main:                                  ;start the program
+                           199             ;PUBLIC  Start                  ;public so can jump to from power on code
+                           200     
+0000 BAA2FF                201                     MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
+0003 B8C007                202                     MOV AX, LCSCtrlVal
+0006 EE                    203                     OUT DX,AL               
+                           204                     
+0007 B8----         R      205             MOV     AX, DGROUP              ;initialize the stack pointer
+000A 8ED0                  206             MOV     SS, AX
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:20:14  05/04/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           207     
-                           208             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                           209             ; user initialization code goes here ;
-                           210             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-0014 E80000         E      211                     CALL InitCS
-0017 E80000         E      212                     CALL InstallHandlerInt0
-                           213                     
-001A E80000         E      214             CALL    main                    ;run the main function (no arguments)
-                           215     
-001D EBE1                  216             JMP     Start                   ;if return - reinitialize and try again
-                           217     
-                           218     
-                           219     
-----                       220     CODE    ENDS
-                           221     
+000C BC8002         R      207             MOV     SP, OFFSET(DGROUP:TopOfStack)
+                           208     
+000F B8----         R      209             MOV     AX, DGROUP              ;initialize the data segment
+0012 8ED8                  210             MOV     DS, AX
+                           211     
+                           212             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                           213             ; user initialization code goes here ;
+                           214             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0014 E80000         E      215                     CALL InitCS
+0017 E80000         E      216                     CALL ClrIRQVectors
+001A E80000         E      217                     CALL InitKeypad
+001D E80000         E      218                     CALL InitDisplay                
+0020 E80000         E      219                     CALL InstallHandlerInt0
+                           220                     
+0023 E80000         E      221             CALL    main2                    ;run the main function (no arguments)
                            222     
-                           223     
-                           224             END
+0026 EBD8                  223             JMP     main                   ;if return - reinitialize and try again
+                           224     
+                           225     
+                           226     
+----                       227     CODE    ENDS
+                           228     
+                           229     
+                           230     
+                           231             END START
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND
