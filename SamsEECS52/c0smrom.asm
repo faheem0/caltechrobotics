@@ -45,7 +45,11 @@ CGROUP  GROUP   CODE
 DGROUP  GROUP   DATA, STACK
 
 EXTRN InitCS:Near
+EXTRN ClrIRQVectors:Near
 EXTRN InstallHandlerInt0:Near
+EXTRN InitKeypad:Near
+EXTRN InitDisplay:Near
+EXTRN   main2:NEAR               ;declare the main function
 ; segment register assumptions
         ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
 
@@ -79,14 +83,14 @@ STACK   ENDS
 
 ; the actual startup code - should be executed (jumped to) after reset
 
-CODE    SEGMENT  WORD  PUBLIC  'CODE'
+CODE    SEGMENT   PUBLIC  'CODE'
 
 
-        EXTRN   main:NEAR               ;declare the main function
+       
+START:
 
-
-Start:                                  ;start the program
-	PUBLIC  Start			;public so can jump to from power on code
+main:                                  ;start the program
+	;PUBLIC  Start			;public so can jump to from power on code
 
 		MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
 		MOV AX, LCSCtrlVal
@@ -103,11 +107,14 @@ Start:                                  ;start the program
         ; user initialization code goes here ;
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 		CALL InitCS
+		CALL ClrIRQVectors
+		CALL InitKeypad
+		CALL InitDisplay		
 		CALL InstallHandlerInt0
 		
-        CALL    main                    ;run the main function (no arguments)
+        CALL    main2                    ;run the main function (no arguments)
 
-        JMP     Start                   ;if return - reinitialize and try again
+        JMP     main                   ;if return - reinitialize and try again
 
 
 
@@ -115,4 +122,4 @@ CODE    ENDS
 
 
 
-        END
+        END START

@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 22:33:01  05/03/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 12:49:54  05/04/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE CONVERTS
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                             46     ;
                             47     ; Input: AX
                             48     ; Output: memory written
-8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 22:33:01  05/03/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 12:49:54  05/04/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
 0023 F7F3                   99                     DIV BX                        ;AX=quotient, DX= remainder
                            100                           
 0025 83C230                101                     ADD DX, 48                  ;convert DX to ASCII digit
-8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 22:33:01  05/03/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 12:49:54  05/04/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                            153     ; Algorithms: None
                            154     ; Data Structures: None
                            155     ;
-8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 22:33:01  05/03/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 12:49:54  05/04/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            207                     
                            208                     ;MOV SI, DI                    ;put back original SI value
 006F 5F                    209                                     POP DI
-8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 22:33:01  05/03/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    CONVERTS                                                 12:49:54  05/04/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE

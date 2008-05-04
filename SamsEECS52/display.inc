@@ -27,14 +27,19 @@ cursorRight			EQU 14H						;shifts cursor right one
 returnHome			EQU 02H						;
 
 ;display format constants
-titleLength EQU 28
-titleOffset EQU 14
-statusLength EQU 4
 statusOffset EQU 0
-artistLength EQU 10
-artistOffset EQU 40
-timeLength EQU 8
+statusLength EQU 4
 timeOffset EQU 5
+timeLength EQU 8
+titleOffset EQU 14
+titleLength EQU 26
+artistOffset EQU 40
+artistLength EQU 40
+
+
+
+
+
 
 ;time conversion constants
 tenthsOfSecPerMin EQU 600
@@ -44,9 +49,9 @@ ASCIIDecCons EQU 48
 ASCIIcolon EQU 58
 ASCIIperiod EQU 46
 timeStringBufferMinutesOffset EQU 0
-timeStringBufferSecondsOffset EQU 2
+timeStringBufferSecondsOffset EQU 3
 null EQU 0
-TIME_NONE EQU 0 ;IS THIS RIGHT????
+TIME_NONE EQU 65535 ;IS THIS RIGHT????
 
 
 ;other constants
@@ -55,4 +60,5 @@ position0 	   EQU 0							;0 position on display
 STRINGNULL 		EQU 0
 busyFlagMask	EQU 80h
 LCDbusy 	EQU 80h
-statusStringLength EQU 7
+statusStringLength EQU 8
+blankSpace EQU 32
