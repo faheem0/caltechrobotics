@@ -1,9 +1,9 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  19:20:42  05/04/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
 OBJECT MODULE PLACED IN C0SMROM.OBJ
-ASSEMBLER INVOKED BY:  C:\ASMSTU~1\ASM86.EXE C0SMROM.ASM DB M1 EP
+ASSEMBLER INVOKED BY:  C:\ASMSTU~1\ASM86.EXE C0SMROM.ASM M1 DB EP
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     ; This file contains the boolean definitions for the 80188 MP3 Player.
                       =1    49     ;
                       =1    50     ; Revision History:
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  19:20:42  05/04/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   101     
                       =1   102     ; Chip Select Unit Definitions
                       =1   103     
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  19:20:42  05/04/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -134,10 +134,10 @@ LOC  OBJ                  LINE     SOURCE
                       =1   112                                             ;----------000---  reserved
                       =1   113                                             ;-------------0--  wait for RDY inputs
                       =1   114                                             ;--------------11  3 wait states
-  0183                =1   115     MPCSval         EQU     00183H          ;PCS in I/O space, use PCS5/6, 3 wait states
+  4003                =1   115     MPCSval         EQU     04003H          ;PCS in I/O space, use PCS5/6, 3 wait states
                       =1   116                                             ;0---------000---  reserved
-                      =1   117                                             ;-0000001--------  MCS is 8KB
-                      =1   118                                             ;--------1-------  output PCS5/PCS6
+                      =1   117                                             ;-1000000--------  MCS is 512KB
+                      =1   118                                             ;--------0-------  output PCS5/PCS6
                       =1   119                                             ;---------0------  PCS in I/O space
                       =1   120                                             ;-------------0--  wait for RDY inputs
                       =1   121                                             ;--------------11  3 wait states
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                            152     
                            153     EXTRN InitCS:Near
                            154     EXTRN ClrIRQVectors:Near
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  19:20:42  05/04/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -186,7 +186,7 @@ LOC  OBJ                  LINE     SOURCE
                            155     EXTRN InstallHandlerInt0:Near
                            156     EXTRN InitKeypad:Near
                            157     EXTRN InitDisplay:Near
-                           158     EXTRN   main2:NEAR               ;declare the main function
+                           158     EXTRN   main:NEAR               ;declare the main function
                            159     ; segment register assumptions
                            160             ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
                            161     
@@ -229,7 +229,7 @@ LOC  OBJ                  LINE     SOURCE
                            195            
 0000                       196     START:
                            197     
-0000                       198     main:                                  ;start the program
+0000                       198     main0:                                  ;start the program
                            199             ;PUBLIC  Start                  ;public so can jump to from power on code
                            200     
 0000 BAA2FF                201                     MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            204                     
 0007 B8----         R      205             MOV     AX, DGROUP              ;initialize the stack pointer
 000A 8ED0                  206             MOV     SS, AX
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  15:46:17  05/04/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  19:20:42  05/04/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -257,9 +257,9 @@ LOC  OBJ                  LINE     SOURCE
 001D E80000         E      218                     CALL InitDisplay                
 0020 E80000         E      219                     CALL InstallHandlerInt0
                            220                     
-0023 E80000         E      221             CALL    main2                    ;run the main function (no arguments)
-                           222     
-0026 EBD8                  223             JMP     main                   ;if return - reinitialize and try again
+                           221             ;CALL    main2                    ;run the main function (no arguments)
+0023 E80000         E      222                     CALL main
+0026 EBD8                  223             JMP     main0                   ;if return - reinitialize and try again
                            224     
                            225     
                            226     

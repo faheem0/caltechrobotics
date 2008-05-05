@@ -1,0 +1,1387 @@
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   1
+
+
+DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE FATUTIL
+OBJECT MODULE PLACED IN FATUTIL.OBJ
+COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OPTIMIZE(0) NOALIGN ROM
+
+ line level  incl 
+
+    1             /****************************************************************************/
+    2             /*                                                                          */
+    3             /*                                 FATUTIL                                  */
+    4             /*              Utility Functions for Reading a FAT16 Hard Drive            */
+    5             /*                           MP3 Jukebox Project                            */
+    6             /*                                EE/CS 52                                  */
+    7             /*                                                                          */
+    8             /****************************************************************************/
+    9             
+   10             /*
+   11                This file contains utility functions for reading a FAT16 hard drive.  The
+   12                current directory information and the path are kept locally in this file.
+   13                The functions included are:
+   14                   cur_isDir              - is the current file a directory
+   15                   cur_isParentDir        - is the current file the parent directory (..)
+   16                   get_cur_file_attr      - get the attributes of the current file
+   17                   get_cur_file_name      - get the name of the current file
+   18                   get_cur_file_sector    - get the starting sector of the current file
+   19                   get_cur_file_size      - get the size in bytes of the current file
+   20                   get_cur_file_time      - get the time of the current file
+   21                   get_first_dir_entry    - get the first file in the current directory
+   22                   get_next_dir_entry     - get next file in the current directory
+   23                   get_previous_dir_entry - get previous file in the current directory
+   24                   init_FAT_system        - initialize the FAT file system
+   25             
+   26                The local functions included are:
+   27                   init_dir_stack         - initialize the directory name stack
+   28                   new_directory          - entering a new directory, update the stack
+   29                   get_dir_tos_name       - get name on the top of the stack
+   30                   get_dir_tos_sector     - get starting sector of directory at tos
+   31             
+   32                The locally global variable definitions included are:
+   33                   cur_dir                - current file entry in dir_sector[]
+   34                   cur_sector             - starting sector of current directory entry
+   35                   dir_offset             - current sector offset in the current directory
+   36                   dir_sector             - array of directory entries in a sector
+   37                   dirname                - name of current directory
+   38                   dirnames               - names of directories on stack as a char []
+   39                   dirnamestack           - stack of name positions in dirnames[]
+   40                   dirsectorstack         - stack of starting directory sector numbers
+   41                   dirstack_ptr           - the stack pointer into directory info stacks
+   42                   filename               - filename of current directory entry
+   43                   first_file_sector      - sector of the first file on the hard drive
+   44                   sectors_per_cluster    - number of sectors per cluster
+   45                   start_sector           - starting sector of current directory
+   46             
+   47             
+   48                Revision History
+   49                   6/5/03   Glen George       Initial revision.
+   50                   6/10/03  Glen George       Updated get_cur_file_time() to use macros
+   51                                              to extract the hours/minutes/seconds from a
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   2
+
+
+   52                                              word in the directory entry, rather than bit
+   53                                              fields which aren't convenient in Intel C.
+   54                   6/10/03  Glen George       Changed code to not display volume label
+   55                                              entries and instead use them as the name of
+   56                                              the root directory.
+   57                   6/10/03  Glen George       Updated comments.
+   58                   6/11/03  Glen George       Changed code to use new packed int time and
+   59                                              date structure for directory entries.
+   60                   6/11/03  Glen George       Fixed minor problem with unterminated
+   61                                              comment.
+   62                   4/29/06  Glen George       Removed inclusion of string.h, that's handled
+   63                                              by mp3defs.h now.
+   64                   4/29/06  Glen George       Changed all calls to get_blocks to use words
+   65                                              (short int) instead of bytes (char).
+   66                   4/29/06  Glen George       Switched to using unions and macros for
+   67                                              accessing hard drive data for portability.
+   68                   5/3/06   Glen George       Updated to use the modified macros in vfat.h
+   69                                              for portability.
+   70             */
+   71             
+   72             
+   73             
+   74             
+   75             /* library include files */
+   76               /* none */
+   77             
+   78             /* local include files */
+   79             #include  "mp3defs.h"
+   80             #include  "interfac.h"
+   81             #include  "vfat.h"
+   82             #include  "fatutil.h"
+   83             
+   84             
+   85             
+   86             
+   87             /* local definitions */
+   88               /* none */
+   89             
+   90             
+   91             
+   92             
+   93             /* local function declarations */
+   94             void                init_dir_stack(void);       /* initialize stack of directory names */
+   95             void                new_directory(void);        /* entering a new directory, update stack */
+   96             const char         *get_dir_tos_name(void);     /* get name of directory at top of stack */
+   97             unsigned long int   get_dir_tos_sector(void);   /* get starting sector of directory at top of stack */
+   98             
+   99             
+  100             
+  101             
+  102             /* locally global variables */
+  103             
+  104             /* local variables shared by directory functions */
+  105             static  union  VFAT_dir_entry  dir_sector[ENTRIES_PER_SECTOR];  /* directory entries in a sector */
+  106             static  int                    cur_dir;             /* current entry in dir_sector[] */
+  107             
+  108             static  long int               sectors_per_cluster; /* number of sectors per cluster */
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   3
+
+
+  109             static  unsigned long int      first_file_sector;   /* sector of the first file on the hard drive */
+  110             
+  111             static  unsigned long int      start_sector;        /* starting sector of directory */
+  112             static  int                    dir_offset;          /* sector offset in directory */
+  113             
+  114             static  unsigned long int      cur_sector;          /* starting sector of current entry */
+  115             
+  116             static  char  dirname[MAX_LFN_LEN];                 /* name of current directory */
+  117             static  char  filename[MAX_LFN_LEN];                /* filename of current entry */
+  118             
+  119             
+  120             
+  121             
+  122             /*
+  123                init_FAT_system(unsigned long int, long int)
+  124             
+  125                Description:      This function initializes FAT file system.  It sets up
+  126                                  the directory parameters: the starting sector number for
+  127                                  files on the drive, and the number of sectors per
+  128                                  cluster.  It also initializes the directory stack and the
+  129                                  directory name and filename.
+  130             
+  131                Arguments:        None.
+  132                Return Value:     (long int) - starting sector of the root directory, zero
+  133                                  if there is an error.
+  134             
+  135                Inputs:           None.
+  136                Outputs:          None.
+  137             
+  138                Error Handling:   If there is an error reading the drive or interpretting
+  139                                  the data, zero (0) is returned.
+  140             
+  141                Algorithms:       None.
+  142                Data Structures:  None.
+  143             
+  144                Shared Variables: first_file_sector   - set to the computed sector number.
+  145                                  sectors_per_cluster - set to the read sectors per
+  146                                                        cluster.
+  147             
+  148                Author:           Glen George
+  149                Last Modified:    April 29, 2006
+  150             
+  151             */
+  152             
+  153             long int  init_FAT_system()
+  154             {
+  155     1           /* variables */
+  156     1           union  first_sector    s;               /* the boot sector */
+  157     1       
+  158     1           long int               root_dir_start;  /* start of the root directory */
+  159     1       
+  160     1           char                   error;           /* drive reading error flag */
+  161     1       
+  162     1       
+  163     1       
+  164     1           /* read the first sector from the harddrive */
+  165     1           error = (get_blocks(0, 1, (unsigned short int far *) &s) != 1);
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   4
+
+
+  166     1       
+  167     1       
+  168     1           /* compute the start of the root directory (in sectors) */
+  169     1           root_dir_start = RESERVED_SECTORS(s) + (NUMFATS(s) * FAT_SECTORS(s));
+  170     1       
+  171     1       
+  172     1           /* set the drive variables */
+  173     1           if (!error)  {
+  174     2               /* if no error set the parameters from the boot sector value */
+  175     2               first_file_sector = root_dir_start + (ROOT_ENTRIES(s) / ENTRIES_PER_SECTOR);
+  176     2               sectors_per_cluster = ALLOC_SECTORS(s);
+  177     2           }
+  178     1           else  {
+  179     2               /* there was an error - set the parameters to default values */
+  180     2               first_file_sector = 1;
+  181     2               sectors_per_cluster = 64;
+  182     2           }
+  183     1       
+  184     1       
+  185     1           /* initialize the directory name stack */
+  186     1           init_dir_stack();
+  187     1       
+  188     1       
+  189     1           /* initialize the directory and file names */
+  190     1           dirname[0] = '\0';
+  191     1           filename[0] = '\0';
+  192     1       
+  193     1       
+  194     1           /* and return the start of the root directory or an error indicator */
+  195     1           if (error)
+  196     1               /* error - return 0 */
+  197     1               return  0;
+  198     1           else
+  199     1               /* no error - return the start of the root directory */
+  200     1               return  root_dir_start;
+  201     1       
+  202     1       }
+  203             
+  204             
+  205             
+  206             
+  207             /*
+  208                get_cur_file_name
+  209             
+  210                Description:      This function returns a pointer to the name of the
+  211                                  current directory entry (a filename).
+  212             
+  213                Arguments:        None.
+  214                Return Value:     (const char *) - pointer to the name of the current
+  215                                  directory entry.  If the entry has a long filename that
+  216                                  filename is returned, otherwise the 8.3 filename is
+  217                                  returned.  If there is no current directory, due to an
+  218                                  error, and empty string is returned.
+  219             
+  220                Inputs:           None.
+  221                Outputs:          None.
+  222             
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   5
+
+
+  223                Error Handling:   None.
+  224             
+  225                Algorithms:       None.
+  226                Data Structures:  None.
+  227             
+  228                Shared Variables: filename - accessed by this function.
+  229             
+  230                Author:           Glen George
+  231                Last Modified:    June 1, 2003
+  232             
+  233             */
+  234             
+  235             const char  *get_cur_file_name()
+  236             {
+  237     1           /* variables */
+  238     1             /* none */
+  239     1       
+  240     1       
+  241     1       
+  242     1           /* just return a pointer to the current filename */
+  243     1           return  filename;
+  244     1       
+  245     1       }
+  246             
+  247             
+  248             
+  249             
+  250             /*
+  251                get_cur_file_attr
+  252             
+  253                Description:      This function returns the attribute byte of the current
+  254                                  directory entry.
+  255             
+  256                Arguments:        None.
+  257                Return Value:     (unsigned char) - attribute byte of the current directory
+  258                                  entry (a file).  If there is no current directory entry
+  259                                  due to an error, zero is returned.
+  260             
+  261                Inputs:           None.
+  262                Outputs:          None.
+  263             
+  264                Error Handling:   None.
+  265             
+  266                Algorithms:       None.
+  267                Data Structures:  None.
+  268             
+  269                Shared Variables: dir_sector - accessed to determine attribute.
+  270                                  cur_dir    - accessed to determine current attribute.
+  271             
+  272                Author:           Glen George
+  273                Last Modified:    April 29, 2006
+  274             
+  275             */
+  276             
+  277             unsigned char  get_cur_file_attr()
+  278             {
+  279     1           /* variables */
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   6
+
+
+  280     1             /* none */
+  281     1       
+  282     1       
+  283     1       
+  284     1           /* just return the attribute of the current directory entry */
+  285     1           return  ATTR(dir_sector[cur_dir]);
+  286     1       
+  287     1       }
+  288             
+  289             
+  290             
+  291             
+  292             /*
+  293                cur_isDir
+  294             
+  295                Description:      This function returns whether or not the current file
+  296                                  entry is a subdirectory.
+  297             
+  298                Arguments:        None.
+  299                Return Value:     (char) - TRUE if the current entry is a subdirectory,
+  300                                  FALSE if it is not.
+  301             
+  302                Inputs:           None.
+  303                Outputs:          None.
+  304             
+  305                Error Handling:   None.
+  306             
+  307                Algorithms:       None.
+  308                Data Structures:  None.
+  309             
+  310                Shared Variables: dir_sector - accessed to determine directory status.
+  311                                  cur_dir    - accessed to determine directory status.
+  312             
+  313                Author:           Glen George
+  314                Last Modified:    June 27, 2002
+  315             
+  316             */
+  317             
+  318             char  cur_isDir()
+  319             {
+  320     1           /* variables */
+  321     1             /* none */
+  322     1       
+  323     1       
+  324     1       
+  325     1           /* just return whether or not current entry is a directory */
+  326     1           return  ((get_cur_file_attr() & ATTRIB_DIR) != 0);
+  327     1       
+  328     1       }
+  329             
+  330             
+  331             
+  332             
+  333             /*
+  334                cur_isParentDir
+  335             
+  336                Description:      This function returns whether or not the current file
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   7
+
+
+  337                                  entry is the parent directory.
+  338             
+  339                Arguments:        None.
+  340                Return Value:     (char) - TRUE if the current entry is the parent
+  341                                  directory (".."), FALSE if it is not.
+  342             
+  343                Inputs:           None.
+  344                Outputs:          None.
+  345             
+  346                Error Handling:   None.
+  347             
+  348                Algorithms:       None.
+  349                Data Structures:  None.
+  350             
+  351                Shared Variables: dir_sector - accessed to determine directory status.
+  352                                  cur_dir    - accessed to determine directory status.
+  353             
+  354                Author:           Glen George
+  355                Last Modified:    April 29, 2006
+  356             
+  357             */
+  358             
+  359             char  cur_isParentDir()
+  360             {
+  361     1           /* variables */
+  362     1             /* none */
+  363     1       
+  364     1       
+  365     1       
+  366     1           /* just return whether or not current entry is the parent directory */
+  367     1           /* it's the parent if the name starts with '.' */
+  368     1           return  (cur_isDir() && (FILENAME(dir_sector[cur_dir], 0) == '.'));
+  369     1       
+  370     1       }
+  371             
+  372             
+  373             
+  374             
+  375             /*
+  376                get_cur_file_time
+  377             
+  378                Description:      This function returns the time (in seconds) of the
+  379                                  current directory entry (a file).
+  380             
+  381                Arguments:        None.
+  382                Return Value:     (unsigned int) - the time stamp for the current
+  383                                  directory entry in seconds.  If there is no current
+  384                                  directory entry due to an error, zero is returned.
+  385             
+  386                Inputs:           None.
+  387                Outputs:          None.
+  388             
+  389                Error Handling:   None.
+  390             
+  391                Algorithms:       None.
+  392                Data Structures:  None.
+  393             
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   8
+
+
+  394                Shared Variables: cur_sector - accessed by this function.
+  395             
+  396                Author:           Glen George
+  397                Last Modified:    April 29, 2006
+  398             
+  399             */
+  400             
+  401             unsigned int  get_cur_file_time()
+  402             {
+  403     1           /* variables */
+  404     1           unsigned int  t;            /* the file time (in seconds) */
+  405     1       
+  406     1       
+  407     1       
+  408     1           /* first get the seconds (kept in units of 2 seconds) */
+  409     1           t = 2 * DIR_SECONDS(FTIME(dir_sector[cur_dir]));
+  410     1           /* then add in the minutes and hours */
+  411     1           t += 60 * DIR_MINUTES(FTIME(dir_sector[cur_dir]));
+  412     1           t += 60 * 60 * DIR_HOURS(FTIME(dir_sector[cur_dir]));
+  413     1       
+  414     1       
+  415     1           /* and return the resulting time in seconds */
+  416     1           return  t;
+  417     1       
+  418     1       }
+  419             
+  420             
+  421             
+  422             
+  423             /*
+  424                get_cur_file_size
+  425             
+  426                Description:      This function returns the size of the current directory
+  427                                  entry (a file) in bytes.
+  428             
+  429                Arguments:        None.
+  430                Return Value:     (unsigned long int) - size (in bytes) of the current
+  431                                  directory entry.  If there is no current directory entry
+  432                                  due to an error, zero is returned.
+  433             
+  434                Inputs:           None.
+  435                Outputs:          None.
+  436             
+  437                Error Handling:   None.
+  438             
+  439                Algorithms:       None.
+  440                Data Structures:  None.
+  441             
+  442                Shared Variables: cur_sector - accessed by this function.
+  443             
+  444                Author:           Glen George
+  445                Last Modified:    April 29, 2006
+  446             
+  447             */
+  448             
+  449             long int  get_cur_file_size()
+  450             {
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE   9
+
+
+  451     1           /* variables */
+  452     1             /* none */
+  453     1       
+  454     1       
+  455     1       
+  456     1           /* return the length in bytes of the current directory entry */
+  457     1           return  FSIZE(dir_sector[cur_dir]);
+  458     1       
+  459     1       }
+  460             
+  461             
+  462             
+  463             
+  464             /*
+  465                get_cur_file_sector
+  466             
+  467                Description:      This function returns the starting sector of the current
+  468                                  directory entry (a file).
+  469             
+  470                Arguments:        None.
+  471                Return Value:     (unsigned long int) - starting sector of the current
+  472                                  directory entry.  If there is no current directory entry
+  473                                  due to an error, zero is returned.
+  474             
+  475                Inputs:           None.
+  476                Outputs:          None.
+  477             
+  478                Error Handling:   None.
+  479             
+  480                Algorithms:       None.
+  481                Data Structures:  None.
+  482             
+  483                Shared Variables: cur_sector - accessed by this function.
+  484             
+  485                Author:           Glen George
+  486                Last Modified:    June 1, 2003
+  487             
+  488             */
+  489             
+  490             unsigned long int  get_cur_file_sector()
+  491             {
+  492     1           /* variables */
+  493     1             /* none */
+  494     1       
+  495     1       
+  496     1       
+  497     1           /* return the starting sector of the current directory entry */
+  498     1           return  cur_sector;
+  499     1       
+  500     1       }
+  501             
+  502             
+  503             
+  504             
+  505             /*
+  506                get_first_dir_entry
+  507             
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  10
+
+
+  508                Description:      This function gets the first valid directory entry in
+  509                                  the directory whose starting sector number is passed.
+  510                                  The long filename of this directory entry is also read
+  511                                  and the filename variable is set to this long filename
+  512                                  if it exists or the 8.3 filename if there is no long
+  513                                  filename.  Finally the starting sector number of this
+  514                                  entry is also saved.  If there is an error reading the
+  515                                  directory entry the filename is set to the empty string,
+  516                                  the starting sector number is set to 0, the directory
+  517                                  information is properly initialized, and TRUE is
+  518                                  returned.  The function get_next_dir_entry is used to
+  519                                  actually get the first directory entry.
+  520             
+  521                Arguments:        first_sector (unsigned long int) - starting sector number
+  522                                                                     of the directory.
+  523                Return Value:     (char) - TRUE if there is an error reading the directory
+  524                                  information, FALSE otherwise.
+  525             
+  526                Inputs:           Data is read from the disk drive.
+  527                Outputs:          None.
+  528             
+  529                Error Handling:   If there is an error reading the directory, the saved
+  530                                  information is set to reasonable values and TRUE is
+  531                                  returned.
+  532             
+  533                Algorithms:       None.
+  534                Data Structures:  None.
+  535             
+  536                Shared Variables: dir_sector   - filled with a sector of directory entries.
+  537                                  dir_offset   - set to zero (0), 1st sector of directory.
+  538                                  start_sector - set to the passed sector number.
+  539                                  dirname      - set to the old value of filename.
+  540                                  filename     - set to the filename of the current entry.
+  541                                  cur_dir      - set to the current file entry.
+  542                                  cur_sector   - set to the starting sector of the entry.
+  543             
+  544                Author:           Glen George
+  545                Last Modified:    June 1, 2003
+  546             
+  547             */
+  548             
+  549             char  get_first_dir_entry(unsigned long int first_sector)
+  550             {
+  551     1           /* variables */
+  552     1           char  error = FALSE;        /* read error flag */
+  553     1       
+  554     1       
+  555     1       
+  556     1           /* first save the current directory information */
+  557     1           new_directory();
+  558     1       
+  559     1           /* now entering a directory, so save it as the directory name */
+  560     1           strcpy(dirname, filename);
+  561     1       
+  562     1           /* and set the starting sector for the directory */
+  563     1           start_sector = first_sector;
+  564     1       
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  11
+
+
+  565     1       
+  566     1           /* setup the file variables for the get_next_dir_entry function */
+  567     1           /* have to point at entry "before" first entry */
+  568     1           cur_dir = ENTRIES_PER_SECTOR - 1;   /* think at end of previous sector */
+  569     1           dir_offset = -1;                    /* will be updated to 0 */
+  570     1       
+  571     1       
+  572     1           /* now can just use the get_next_dir_entry function to get first file */
+  573     1           error = get_next_dir_entry();
+  574     1       
+  575     1       
+  576     1           /* done, return with the error status */
+  577     1           return  error;
+  578     1       
+  579     1       }
+  580             
+  581             
+  582             
+  583             
+  584             /*
+  585                get_next_dir_entry
+  586             
+  587                Description:      This function gets the next valid directory entry in
+  588                                  the directory.  As necessary it reads sectors of 
+  589                                  directory entries from the hard drive.  The long filename
+  590                                  of the next directory entry is also read and the filename
+  591                                  variable is set to this long filename if it exists or the
+  592                                  8.3 filename if it does not exist.  The current sector
+  593                                  number and directory entry number are also updated.  If
+  594                                  there is an error reading the directory entry the
+  595                                  filename is set to the empty string, the starting sector
+  596                                  number is set to 0, the directory information is properly
+  597                                  initialized, and TRUE is returned.
+  598             
+  599                Arguments:        None.
+  600                Return Value:     (char) - TRUE if there is an error reading the directory
+  601                                  information, FALSE otherwise.
+  602             
+  603                Inputs:           Data is read from the disk drive.
+  604                Outputs:          None.
+  605             
+  606                Error Handling:   If there is an error reading the directory, the saved
+  607                                  information is set to reasonable values and TRUE is
+  608                                  returned.
+  609             
+  610                Algorithms:       None.
+  611                Data Structures:  None.
+  612             
+  613                Shared Variables: dir_sector          - accessed and possibly filled with a
+  614                                                        sector of directory entries.
+  615                                  dir_offset          - accessed and possibly updated to
+  616                                                        the sector offset of the directory
+  617                                                        entries.
+  618                                  start_sector        - accessed to get the starting sector
+  619                                                        of the current directory.
+  620                                  sectors_per_cluster - accessed to compute starting sector
+  621                                                        of an entry.
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  12
+
+
+  622                                  first_file_sector   - accessed to compute starting sector
+  623                                                        of an entry.
+  624                                  filename            - set to the filename of the current
+  625                                                        entry.
+  626                                  cur_dir             - accessed and updated to the current
+  627                                                        entry.
+  628                                  cur_sector          - set to the starting sector of the
+  629                                                        entry.
+  630             
+  631                Author:           Glen George
+  632                Last Modified:    April 29, 2006
+  633             
+  634             */
+  635             
+  636             char  get_next_dir_entry()
+  637             {
+  638     1           /* variables */
+  639     1           char  longfilename[MAX_LFN_LEN];    /* long filename of current entry */
+  640     1           int   lfn_seq;                      /* sequence number for LFN */
+  641     1           int   chksum;                       /* long filename checksum */
+  642     1       
+  643     1           int   old_dir_offset;               /* previous directory offset */
+  644     1           int   old_cur_dir;                  /* old file entry in directory */
+  645     1       
+  646     1           char  error = FALSE;                /* read error flag */
+  647     1           char  done = FALSE;                 /* done reading the directory info */
+  648     1       
+  649     1           int   i;                            /* general loop indices */
+  650     1           int   k;
+  651     1       
+  652     1       
+  653     1       
+  654     1           /* reset the filename to setup for this file */
+  655     1           longfilename[0] = '\0';
+  656     1       
+  657     1           /* keep track of the old values (in case can't find a next entry */
+  658     1           old_dir_offset = dir_offset;
+  659     1           old_cur_dir = cur_dir;
+  660     1       
+  661     1       
+  662     1           /* now find the next entry in this directory */
+  663     1           while (!error && !done)  {
+  664     2       
+  665     2               /* check if need to read a new sector's worth of entries */
+  666     2               if (cur_dir >= (ENTRIES_PER_SECTOR - 1))  {
+  667     3       
+  668     3                   /* need to read in a new sector of directory entries */
+  669     3                   /* update the directory sector number */
+  670     3                   dir_offset++;
+  671     3                   /* read a sector of directory entries, watching for an error */
+  672     3                   error = (get_blocks(start_sector + dir_offset, 1, (unsigned short int far *) dir_sector) !
+                -= 1);
+  673     3                   /* reset the pointer into the sector of entries */
+  674     3                   /* set to -1 so will be properly incremented in a couple lines */
+  675     3                   cur_dir = -1;
+  676     3               }
+  677     2       
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  13
+
+
+  678     2       
+  679     2               /* is this the first entry or the end of the directory */
+  680     2               if ((cur_dir == -1) || (FILENAME(dir_sector[cur_dir], 0) != '\0'))
+  681     2                   /* not end of the directory - update the entry number */
+  682     2                   cur_dir++;
+  683     2       
+  684     2       
+  685     2               /* try to find the next directory entry */
+  686     2               while (!error && !done && (cur_dir < ENTRIES_PER_SECTOR))  {
+  687     3       
+  688     3                   /* check if this is a long filename or a normal entry */
+  689     3                   if (ATTR(dir_sector[cur_dir]) == ATTRIB_LFN)  {
+  690     4       
+  691     4                       /* this is a long filename - collect characters */
+  692     4                       /* assume ASCII instead of Unicode */
+  693     4       
+  694     4                       /* get the sequence number for this part of the filename */
+  695     4                       /* make it zero-based */
+  696     4                       lfn_seq = (L_SEQ_NUM(dir_sector[cur_dir]) & LFN_SEQ_MASK) - 1;
+  697     4       
+  698     4                       /* collect the pieces of the long filename */
+  699     4                       for (k = 0; k < LFN_CHARS; k++)  {
+  700     5                           /* figure out where the LFN characters are */
+  701     5                           if (k < LFN1_CHARS)
+  702     5                               longfilename[LFN_CHARS * lfn_seq + k] = L_LFN1(dir_sector[cur_dir], 2 * k);
+  703     5                           else if (k < (LFN1_CHARS + LFN2_CHARS))
+  704     5                               longfilename[LFN_CHARS * lfn_seq + k] = L_LFN2(dir_sector[cur_dir], 2 * (k - L
+                -FN1_CHARS));
+  705     5                           else
+  706     5                               longfilename[LFN_CHARS * lfn_seq + k] = L_LFN3(dir_sector[cur_dir], 2 * (k - L
+                -FN1_CHARS - LFN2_CHARS));
+  707     5                       }
+  708     4       
+  709     4                       /* check if this is the last entry */
+  710     4                       if ((L_SEQ_NUM(dir_sector[cur_dir]) & LAST_LFN_ENTRY) != 0)  {
+  711     5                           /* last entry so remember the checksum */
+  712     5                           chksum = CHECKSUM(dir_sector[cur_dir]);
+  713     5                           /* also terminate the filename */
+  714     5                           longfilename[LFN_CHARS * (lfn_seq + 1)] = '\0';
+  715     5                       }
+  716     4                       
+  717     4                       /* go to the next directory entry */
+  718     4                       cur_dir++;
+  719     4                   }
+  720     3                   else  {
+  721     4       
+  722     4                       /* this is a normal entry */
+  723     4                       /* first check if this entry really exists */
+  724     4                       if (FILENAME(dir_sector[cur_dir], 0) == '\xE5')  {
+  725     5       
+  726     5                           /* deleted entry */
+  727     5                           /* not a valid file, clear the long filename */
+  728     5                           longfilename[0] = '\0';
+  729     5                           /* and move to the next entry */
+  730     5                           cur_dir++;
+  731     5                       }
+  732     4       
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  14
+
+
+  733     4                       /* is it the end of directory marker */
+  734     4                       else if (FILENAME(dir_sector[cur_dir], 0) == '\0')  {
+  735     5       
+  736     5                           /* end of directory marker */
+  737     5                           /* not a valid file, clear the filename */
+  738     5                           longfilename[0] = '\0';
+  739     5                           /* need to restore the old file state (on last file) */
+  740     5                           cur_dir = old_cur_dir;
+  741     5                           /* check if need to restore the directory sector */
+  742     5                           if (dir_offset != old_dir_offset)  {
+  743     6                               /* need to restore the old directory sector */
+  744     6                               error = (get_blocks(start_sector + old_dir_offset, 1, (unsigned short int far 
+                -*) dir_sector) != 1);
+  745     6                               /* also restore the actual offset */
+  746     6                               dir_offset = old_dir_offset;
+  747     6                           }
+  748     5                           /* restored state, now we're done */
+  749     5                           done = TRUE;
+  750     5                       }
+  751     4       
+  752     4                       /* is it . or .. */
+  753     4                       else if (FILENAME(dir_sector[cur_dir], 0) == '.')  {
+  754     5       
+  755     5                           /* is it pointer to this directory or parent directory */
+  756     5                           if (FILENAME(dir_sector[cur_dir], 1) == '.')  {
+  757     6       
+  758     6                               /* pointer to parent directory */
+  759     6                               /* so get sector number and parent name */
+  760     6                               cur_sector = get_dir_tos_sector();
+  761     6                               strcpy(filename, get_dir_tos_name());
+  762     6                               /* and we are done */
+  763     6                               done = TRUE;
+  764     6                           }
+  765     5                           else  {
+  766     6       
+  767     6                               /* pointer to current directory - skip it */
+  768     6                               /* not a valid file, clear the long filename */
+  769     6                               longfilename[0] = '\0';
+  770     6                               /* and move to the next entry */
+  771     6                               cur_dir++;
+  772     6                           }
+  773     5                       }
+  774     4       
+  775     4                       /* is it a volume label */
+  776     4                       else if ((ATTR(dir_sector[cur_dir]) & ATTRIB_VOLUME) != 0)  {
+  777     5       
+  778     5                           /* it is a volume label, see if already have a directory name */
+  779     5                           if (dirname[0] == '\0')  {
+  780     6       
+  781     6                               /* no directory name currently, use volume label */
+  782     6                               /* now check if there is a long filename (shouldn't be) */
+  783     6                               /* first compute the checksum for this entry */
+  784     6                               /* if checksum OK and there is a filename - keep it */
+  785     6                               if (longfilename[0] == '\0')  {
+  786     7       
+  787     7                                   /* no long filename, set the directory name from 8.3 name */
+  788     7                                   /* copy the filename and extension (but no .) */
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  15
+
+
+  789     7                                   /* start at first character of filename */
+  790     7                                   k = 0;
+  791     7                                   /* copy the full filename */
+  792     7                                   for (i = 0; (i < DOS_FILENAME_LEN); i++)
+  793     7                                       dirname[k++] = FILENAME(dir_sector[cur_dir], i);
+  794     7       
+  795     7                                   /* now append the extension */
+  796     7                                   for (i = 0; (i < DOS_EXTENSION_LEN); i++)
+  797     7                                       dirname[k++] = EXTENSION(dir_sector[cur_dir], i);
+  798     7       
+  799     7                                   /* finally, null terminate the string */
+  800     7                                   dirname[k] = '\0';
+  801     7                               }
+  802     6                               else  {
+  803     7       
+  804     7                                   /* have a long filename - save it as the  directory name */
+  805     7                                   strcpy(dirname, longfilename);
+  806     7                               }
+  807     6                           }
+  808     5                           else  {
+  809     6       
+  810     6                               /* already have a directory name so ignore volume label */
+  811     6                               /* means we cursored back up to the directory */
+  812     6                               ;
+  813     6                           }
+  814     5       
+  815     5                           /* in any case, erase any long file name */
+  816     5                           longfilename[0] = '\0';
+  817     5                           /* and move to the next entry (ignore volume label) */
+  818     5                           cur_dir++;
+  819     5                       }
+  820     4       
+  821     4                       /* none of the above, so must actually be a file */
+  822     4                       else  {
+  823     5       
+  824     5                           /* need to set the starting sector and filename */
+  825     5                           cur_sector = (START_CLUSTER(dir_sector[cur_dir]) - 2) * sectors_per_cluster + firs
+                -t_file_sector;
+  826     5       
+  827     5                           /* now check if there is a long filename */
+  828     5                           /* first compute the checksum for this entry */
+  829     5                           /* if checksum OK and there is a filename - keep it */
+  830     5                           if (longfilename[0] == '\0')  {
+  831     6       
+  832     6                               /* no long filename, set the filename from 8.3 name */
+  833     6                               /* copy the filename and extension */
+  834     6                               /* start at first character of filename */
+  835     6                               k = 0;
+  836     6                               /* copy the filename without the trailing spaces */
+  837     6                               for (i = 0; ((i < DOS_FILENAME_LEN) && (FILENAME(dir_sector[cur_dir], i) != ' 
+                -')); i++)
+  838     6                                   filename[k++] = FILENAME(dir_sector[cur_dir], i);
+  839     6       
+  840     6                               /* add the '.' separating name and extension */
+  841     6                               filename[k++] = '.';
+  842     6       
+  843     6                               /* now add the extension, skipping trailing spaces */
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  16
+
+
+  844     6                               for (i = 0; ((i < DOS_EXTENSION_LEN) && (EXTENSION(dir_sector[cur_dir], i) != 
+                -' ')); i++)
+  845     6                                   filename[k++] = EXTENSION(dir_sector[cur_dir], i);
+  846     6       
+  847     6                               /* finally, null terminate the string */
+  848     6                               filename[k] = '\0';
+  849     6                           }
+  850     5                           else  {
+  851     6       
+  852     6                               /* have a long filename - save it as the filename */
+  853     6                               strcpy(filename, longfilename);
+  854     6                           }
+  855     5       
+  856     5                           /* got to the next entry so set the done flag */
+  857     5                           done = TRUE;
+  858     5                       }
+  859     4                   }
+  860     3               }
+  861     2           }
+  862     1       
+  863     1       
+  864     1           /* check if there was an error */
+  865     1           if (error)  {
+  866     2               /* had an error - clear out the data */
+  867     2               /* clear the filename */
+  868     2               filename[0] = '\0';
+  869     2               /* set the sector to 0 */
+  870     2               cur_sector = 0;
+  871     2           }
+  872     1       
+  873     1       
+  874     1           /* finally done, return with the error status */
+  875     1           return  error;
+  876     1       
+  877     1       }
+  878             
+  879             
+  880             
+  881             
+  882             /*
+  883                get_previous_dir_entry
+  884             
+  885                Description:      This function gets the previous valid directory entry in
+  886                                  the directory.  As necessary it reads sectors of 
+  887                                  directory entries from the hard drive.  The function
+  888                                  backs up through the directory to the first standard
+  889                                  directory entry prior the current one and then back
+  890                                  before any long filename for that entry.  The long
+  891                                  filename of the previous directory entry is also read and
+  892                                  the filename variable is set to this long filename if it
+  893                                  exists or the 8.3 filename if there is no long filename.
+  894                                  The current sector number and directory entry number are
+  895                                  also updated.  If there is an error reading the directory
+  896                                  entry the filename is set to the empty string, the
+  897                                  starting sector number is set to 0, the directory
+  898                                  information is properly initialized, and TRUE is
+  899                                  returned.
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  17
+
+
+  900             
+  901                Arguments:        None.
+  902                Return Value:     (char) - TRUE if there is an error reading the directory
+  903                                  information, FALSE otherwise.
+  904             
+  905                Inputs:           Data is read from the disk drive.
+  906                Outputs:          None.
+  907             
+  908                Error Handling:   If there is an error reading the directory, the saved
+  909                                  information is set to reasonable values and TRUE is
+  910                                  returned.
+  911             
+  912                Algorithms:       None.
+  913                Data Structures:  None.
+  914             
+  915                Shared Variables: dir_sector   - accessed and possibly filled with a sector
+  916                                                 of directory entries.
+  917                                  dir_offset   - accessed and possibly updated to the
+  918                                                 sector offset of the directory entries.
+  919                                  start_sector - accessed to get the starting sector of the
+  920                                                 current directory.
+  921                                  filename     - set to the filename of the current entry.
+  922                                  cur_dir      - accessed and updated to the current entry.
+  923                                  cur_sector   - set to the starting sector of the entry.
+  924             
+  925                Author:           Glen George
+  926                Last Modified:    April 29, 2006
+  927             
+  928             */
+  929             
+  930             char  get_previous_dir_entry()
+  931             {
+  932     1           /* variables */
+  933     1           char  error = FALSE;        /* read error flag */
+  934     1           char  done = FALSE;         /* done getting the previous directory info */
+  935     1           char  have_entry = FALSE;   /* have the entry (but maybe not the filename) */
+  936     1       
+  937     1       
+  938     1       
+  939     1           /* find the previous entry in this directory */
+  940     1           /* loop until find the entry or get an error */
+  941     1           while (!error && !done)  {
+  942     2       
+  943     2               /* check if need to read a new sector's worth of entries */
+  944     2               if (cur_dir == 0)  {
+  945     3       
+  946     3                   /* need to read in the previous sector of directory entries */
+  947     3                   dir_offset--;
+  948     3                   /* check if out of directory entries */
+  949     3                   if (dir_offset < 0)  {
+  950     4                       /* out of directory entries - reset to the start */
+  951     4                       dir_offset = 0;
+  952     4                       /* need to be sure "next" operation finds first entry */
+  953     4                       cur_dir = -1;
+  954     4                       /* and done */
+  955     4                       done = TRUE;
+  956     4                   }
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  18
+
+
+  957     3                   else  {
+  958     4                       /* have a directory entry to check, read the sector of */
+  959     4                       /*    directory entries, watching for an error */
+  960     4                       error = (get_blocks(start_sector + dir_offset, 1, (unsigned short int far *) dir_secto
+                -r) != 1);
+  961     4                       /* and reset to the last file entry in the directory */
+  962     4                       cur_dir = ENTRIES_PER_SECTOR - 1;
+  963     4                   }
+  964     3               }
+  965     2               else  {
+  966     3       
+  967     3                   /* still more files in this directory, just check the previous entry */
+  968     3                   cur_dir--;
+  969     3               }
+  970     2       
+  971     2       
+  972     2               /* if not an error or done, keep processing */
+  973     2               if (!done && !error)  {
+  974     3       
+  975     3                   /* if don't have the entry yet, check if this is it */
+  976     3                   if (!have_entry)  {
+  977     4       
+  978     4                       /* check if this is a file entry in the directory */
+  979     4                       have_entry = ((FILENAME(dir_sector[cur_dir], 0) != '\0')  &&
+  980     4                                     (FILENAME(dir_sector[cur_dir], 0) != '\xE5')  &&
+  981     4                                     (ATTR(dir_sector[cur_dir]) != ATTRIB_LFN));
+  982     4                   }
+  983     3                   else  {
+  984     4       
+  985     4                       /* already have an entry, but need to skip its */
+  986     4                       /* potentional long filename too */
+  987     4                       if (ATTR(dir_sector[cur_dir]) != ATTRIB_LFN)  {
+  988     5                           /* not a long filename, must be done */
+  989     5                           done = TRUE;
+  990     5                       }
+  991     4                       else  {
+  992     5                           /* still part of a long filename for the entry */
+  993     5                           /* nothing to do, just keep going */
+  994     5                           ;
+  995     5                       }
+  996     4                   }
+  997     3               }
+  998     2           }
+  999     1       
+ 1000     1       
+ 1001     1           /* if finished without an error then get the actual previous filename */
+ 1002     1           if (done & !error)  {
+ 1003     2       
+ 1004     2               /* get the entry watching for errors */
+ 1005     2               /* since we've backed up past the previous entry, this will now */
+ 1006     2               /*    find the previous entry */
+ 1007     2               error = get_next_dir_entry();
+ 1008     2           }
+ 1009     1       
+ 1010     1       
+ 1011     1           /* check if there was an error */
+ 1012     1           if (error)  {
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  19
+
+
+ 1013     2               /* had an error - clear out the data */
+ 1014     2               /* clear the filename */
+ 1015     2               filename[0] = '\0';
+ 1016     2               /* set the sector to 0 */
+ 1017     2               cur_sector = 0;
+ 1018     2           }
+ 1019     1       
+ 1020     1       
+ 1021     1           /* finally done, return with the error status */
+ 1022     1           return  error;
+ 1023     1       
+ 1024     1       }
+ 1025             
+ 1026             
+ 1027             
+ 1028             
+ 1029             /* locally global variables for the stack routines */
+ 1030             
+ 1031             /* stack of directory information */
+ 1032             static  char               dirnames[MAX_PATH_CHARS];            /* names */
+ 1033             static  unsigned long int  dirsectorstack[MAX_NUM_SUBDIRS];     /* starting sectors */
+ 1034             static  int                dirnamestack[MAX_NUM_SUBDIRS];       /* name positions in dirnames */
+ 1035             static  int                dirstack_ptr;                        /* the stack pointer */
+ 1036             
+ 1037             
+ 1038             
+ 1039             
+ 1040             /*
+ 1041                init_dir_stack()
+ 1042             
+ 1043                Description:      This function initializes the directory stack.  It clears
+ 1044                                  the directory names, zeros the first stack elements, and
+ 1045                                  initializes the stack pointer.
+ 1046             
+ 1047                Arguments:        None.
+ 1048                Return Value:     None.
+ 1049             
+ 1050                Input:            None.
+ 1051                Output:           None.
+ 1052             
+ 1053                Error Handling:   None.
+ 1054             
+ 1055                Algorithms:       None.
+ 1056                Data Structures:  None.
+ 1057             
+ 1058                Shared Variables: dirnames       - first character is set to '\0'.
+ 1059                                  dirsectorstack - first element is set to 0.
+ 1060                                  dirnamestack   - first element is set to 0.
+ 1061                                  dirstack_ptr   - initialized to -1.
+ 1062             
+ 1063                Author:           Glen George
+ 1064                Last Modified:    June 27, 2002
+ 1065             
+ 1066             */
+ 1067             
+ 1068             static  void  init_dir_stack()
+ 1069             {
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  20
+
+
+ 1070     1           /* variables */
+ 1071     1             /* none */
+ 1072     1       
+ 1073     1       
+ 1074     1       
+ 1075     1           /* set the string of names to the empty string */
+ 1076     1           dirnames[0] = '\0';
+ 1077     1       
+ 1078     1           /* initialize the first directory entries to 0 */
+ 1079     1           dirsectorstack[0] = 0;
+ 1080     1           dirnamestack[0] = 0;
+ 1081     1       
+ 1082     1           /* finally, set the stack pointer to empty stack */
+ 1083     1           dirstack_ptr = -1;
+ 1084     1       
+ 1085     1       
+ 1086     1           /* all done with the initialization - return */
+ 1087     1           return;
+ 1088     1       
+ 1089     1       }
+ 1090             
+ 1091             
+ 1092             
+ 1093             
+ 1094             /*
+ 1095                new_directory()
+ 1096             
+ 1097                Description:      This function handles a new directory.  It may be either
+ 1098                                  a subdirectory or a parent directory.  If a subdirectory
+ 1099                                  the directory information (name and starting sector) is
+ 1100                                  added to the directory stack.  If a parent directory, it
+ 1101                                  is removed from the directory stack.  It is assumed that
+ 1102                                  the directory in question is the current entry.
+ 1103             
+ 1104                Arguments:        None.
+ 1105                Return Value:     None.
+ 1106             
+ 1107                Input:            None.
+ 1108                Output:           None.
+ 1109             
+ 1110                Error Handling:   None.
+ 1111             
+ 1112                Algorithms:       None.
+ 1113                Data Structures:  None.
+ 1114             
+ 1115                Shared Variables: dirnames       - update to add or remove directory names.
+ 1116                                  dirsectorstack - may be updated to add a directory
+ 1117                                                   starting sector location.
+ 1118                                  dirnamestack   - may be updated to add the starting
+ 1119                                                   character number in dirnames[] for this
+ 1120                                                   directory name.
+ 1121                                  dirstack_ptr   - updated to adjust the stack.
+ 1122                                  dirname        - accessed for the current directory name.
+ 1123                                  start_sector   - accessed for the directory starting
+ 1124                                                   sector number.
+ 1125             
+ 1126                Author:           Glen George
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  21
+
+
+ 1127                Last Modified:    June 1, 2003
+ 1128             
+ 1129             */
+ 1130             
+ 1131             static  void  new_directory()
+ 1132             {
+ 1133     1           /* variables */
+ 1134     1             /* none */
+ 1135     1       
+ 1136     1       
+ 1137     1       
+ 1138     1           /* check if the current entry matches the top of the stack */
+ 1139     1           if ((dirstack_ptr >= 0) && (dirsectorstack[dirstack_ptr] == cur_sector))  {
+ 1140     2       
+ 1141     2               /* new directory is on stack - need to pop it off of the stack */
+ 1142     2               /* first get rid of the name */
+ 1143     2               dirnames[dirnamestack[dirstack_ptr]] = '\0';
+ 1144     2               /* now just decrement the stack pointer */
+ 1145     2               dirstack_ptr--;
+ 1146     2           }
+ 1147     1           else  {
+ 1148     2       
+ 1149     2               /* does not match top of the stack, need to push new value */
+ 1150     2               /* note - push the info for the current directory, not entry */
+ 1151     2               /* make sure not out of space */
+ 1152     2               if ((dirstack_ptr < (MAX_NUM_SUBDIRS - 1)) &&
+ 1153     2                   ((strlen(dirnames) + strlen(dirname)) < MAX_PATH_CHARS))  {
+ 1154     3       
+ 1155     3                   /* there is room - update the stack pointer */
+ 1156     3                   dirstack_ptr++;
+ 1157     3                   /* save the sector */
+ 1158     3                   dirsectorstack[dirstack_ptr] = start_sector;
+ 1159     3                   /* save the name pointer and the name */
+ 1160     3                   dirnamestack[dirstack_ptr] = strlen(dirnames);
+ 1161     3                   strcat(dirnames, dirname);
+ 1162     3               }
+ 1163     2               else  {
+ 1164     3       
+ 1165     3                   /* out of room in the stack - this shouldn't happen */
+ 1166     3                   ;
+ 1167     3               }
+ 1168     2           }
+ 1169     1       
+ 1170     1       
+ 1171     1           /* all done - return */
+ 1172     1           return;
+ 1173     1       
+ 1174     1       }
+ 1175             
+ 1176             
+ 1177             
+ 1178             
+ 1179             /*
+ 1180                get_dir_tos_name()
+ 1181             
+ 1182                Description:      This function returns the name of the directory on the
+ 1183                                  top of the directory stack.  If the stack is empty, the
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  22
+
+
+ 1184                                  empty string is returned.
+ 1185             
+ 1186                Arguments:        None.
+ 1187                Return Value:     (const char *) - pointer to the name of the directory on
+ 1188                                  the top of the directory stack or the pointer to an empty
+ 1189                                  string if there is nothing on the stack.
+ 1190             
+ 1191                Input:            None.
+ 1192                Output:           None.
+ 1193             
+ 1194                Error Handling:   If nothing is on the stack an empty string is returned.
+ 1195             
+ 1196                Algorithms:       None.
+ 1197                Data Structures:  None.
+ 1198             
+ 1199                Shared Variables: dirnames     - accessed to get the directory name.
+ 1200                                  dirnamestack - accessed to find position of name.
+ 1201                                  dirstack_ptr - accessed to find stack entry.
+ 1202             
+ 1203                Author:           Glen George
+ 1204                Last Modified:    June 27, 2002
+ 1205             
+ 1206             */
+ 1207             
+ 1208             static  const char  *get_dir_tos_name()
+ 1209             {
+ 1210     1           /* variables */
+ 1211     1           const char  *name;
+ 1212     1       
+ 1213     1       
+ 1214     1       
+ 1215     1           /* check if there is something in the directory stack */
+ 1216     1           if (dirstack_ptr >= 0)  {
+ 1217     2       
+ 1218     2               /* there is something on the stack, get the pointer to the name */
+ 1219     2               name = &(dirnames[dirnamestack[dirstack_ptr]]);
+ 1220     2           }
+ 1221     1           else  {
+ 1222     2       
+ 1223     2               /* nothing on the stack */
+ 1224     2               /* make sure the directory names list is empty */
+ 1225     2               dirnames[0] = '\0';
+ 1226     2               /* and return a pointer to that empty string */
+ 1227     2               name = dirnames;
+ 1228     2           }
+ 1229     1       
+ 1230     1       
+ 1231     1           /* all done - return with the name pointer */
+ 1232     1           return  name;
+ 1233     1       
+ 1234     1       }
+ 1235             
+ 1236             
+ 1237             
+ 1238             
+ 1239             /*
+ 1240                get_dir_tos_sector()
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  23
+
+
+ 1241             
+ 1242                Description:      This function returns the starting sector of the
+ 1243                                  directory on the top of the directory stack.  If the
+ 1244                                  stack is empty, zero (0) is returned.
+ 1245             
+ 1246                Arguments:        None.
+ 1247                Return Value:     (unsigned long int) - the starting sector of the
+ 1248                                  directory on the top of the directory stack or zero (0)
+ 1249                                  if there is nothing on the stack.
+ 1250             
+ 1251                Input:            None.
+ 1252                Output:           None.
+ 1253             
+ 1254                Error Handling:   If nothing is on the stack, zero (0) is returned.
+ 1255             
+ 1256                Algorithms:       None.
+ 1257                Data Structures:  None.
+ 1258             
+ 1259                Shared Variables: dirsectorstack - accessed to get sector number.
+ 1260                                  dirstack_ptr   - accessed to get sector number.
+ 1261             
+ 1262                Author:           Glen George
+ 1263                Last Modified:    June 27, 2002
+ 1264             
+ 1265             */
+ 1266             
+ 1267             static  unsigned long int  get_dir_tos_sector()
+ 1268             {
+ 1269     1           /* variables */
+ 1270     1           unsigned long int  sect;
+ 1271     1       
+ 1272     1       
+ 1273     1       
+ 1274     1           /* check if there is something in the directory stack */
+ 1275     1           if (dirstack_ptr >= 0)  {
+ 1276     2       
+ 1277     2               /* there is something on the stack, return the sector */
+ 1278     2               sect = dirsectorstack[dirstack_ptr];
+ 1279     2           }
+ 1280     1           else  {
+ 1281     2       
+ 1282     2               /* nothing on the stack, return 0 */
+ 1283     2               sect = 0;
+ 1284     2           }
+ 1285     1       
+ 1286     1       
+ 1287     1           /* all done - return with the starting sector */
+ 1288     1           return  sect;
+ 1289     1       
+ 1290     1       }
+
+
+
+MODULE INFORMATION:
+
+     CODE AREA SIZE               = 0939H   2361D
+     CONSTANT AREA SIZE           = 0000H      0D
+iC-86  COMPILER   FATUTIL                                                                    05/04/:8 19:20:42  PAGE  24
+
+
+     DATA AREA SIZE               = 08C6H   2246D
+     MAXIMUM STACK SIZE           = 0218H    536D
+
+iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS
