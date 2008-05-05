@@ -1,0 +1,161 @@
+iC-86  COMPILER   STUBFNCS                                                                   05/04/:8 19:20:42  PAGE   1
+
+
+DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE STUBFNCS
+OBJECT MODULE PLACED IN STUBFNCS.OBJ
+COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL OPTIMIZE(0) ROM
+
+ line level  incl 
+
+    1             /****************************************************************************/
+    2             /*                                                                          */
+    3             /*                                STUBFNCS                                  */
+    4             /*                          Audio Stub Functions                            */
+    5             /*                           MP3 Jukebox Project                            */
+    6             /*                                EE/CS 52                                  */
+    7             /*                                                                          */
+    8             /****************************************************************************/
+    9             
+   10             /*
+   11                This file contains stub functions for the hardware interfacing code.  The
+   12                file is meant to allow linking of the main code without necessarily having
+   13                all the low-level functions.  The functions included are:
+   14                   update         - check if ready for an update
+   15                   elapsed_time   - get the time since the last call to this function
+   16                   key_available  - check if a key is available
+   17                   getkey         - get a key
+   18                   display_time   - display the passed time
+   19                   display_track  - display the passed track number
+   20                   display_status - display the passed status
+   21                   display_title  - display the passed track title
+   22                   display_artist - display the passed track artist
+   23                   get_blocks     - get data from the hard drive
+   24                   audio_play     - start audio output
+   25                   audio_halt     - halt audio input or output
+   26             
+   27                The local functions included are:
+   28                   none
+   29             
+   30                The locally global variable definitions included are:
+   31                   none
+   32             
+   33             
+   34                Revision History
+   35                   6/6/00   Glen George       Initial revision (from the 3/6/99 version of
+   36                                              stubfncs.c for the Digital Audio Recorder
+   37                                              Project).
+   38                   6/2/02   Glen George       Removed ffrev_start() and ffrev_halt(), they
+   39                                              are no longer part of the user-written code.
+   40                   6/5/03   Glen George       Removed display_track(), is is no longer part
+   41                                              of the user-written code.
+   42                   4/29/06  Glen George       Updated definitions of get_blocks(),
+   43                                              update(), and audio_play() to use words
+   44                              instead of bytes.
+   45                   5/3/08 Samuel Yang        some functions implemented
+   46             */
+   47             
+   48             
+   49             
+   50             /* library include files */
+   51               /* none */
+iC-86  COMPILER   STUBFNCS                                                                   05/04/:8 19:20:42  PAGE   2
+
+
+   52             
+   53             /* local include files */
+   54             #include  "mp3defs.h"
+   55             
+   56             
+   57             
+   58             
+   59             /* update function */
+   60             
+   61             unsigned char  update(unsigned short int far *p, int n)
+   62             {
+   63     1           return  FALSE;
+   64     1       }
+   65             
+   66             
+   67             
+   68             /* timing function */
+   69             
+   70             int  elapsed_time()
+   71             {
+   72     1           return  0;
+   73     1       }
+   74             
+   75             
+   76             
+   77             /* keypad functions */
+   78             
+   79             /*unsigned char  key_available()
+   80             {
+   81                 return  FALSE;
+   82             }
+   83             
+   84             int  getkey()
+   85             {
+   86                 return  KEY_ILLEGAL;
+   87             }*/
+   88             
+   89             
+   90             
+   91             /* display functions  */
+   92             
+   93             /*void  display_time(unsigned int t)
+   94             {
+   95                 return;
+   96             }
+   97             
+   98             void  display_status(unsigned int s)
+   99             {
+  100                 return;
+  101             }
+  102             
+  103             void  display_title(const char far *t)
+  104             {
+  105                 return;
+  106             }
+  107             
+  108             void  display_artist(const char far *a)
+iC-86  COMPILER   STUBFNCS                                                                   05/04/:8 19:20:42  PAGE   3
+
+
+  109             {
+  110                 return;
+  111             }*/
+  112             
+  113             
+  114             
+  115             /* IDE interface function */
+  116             
+  117             /*int  get_blocks(unsigned long int b, int n, unsigned short int far *p)
+  118             {
+  119                 return  n;
+  120             }*/
+  121             
+  122             
+  123             
+  124             /* audio functions */
+  125             
+  126             void  audio_play(unsigned short int far *p, int n)
+  127             {
+  128     1           return;
+  129     1       }
+  130             
+  131             void  audio_halt()
+  132             {
+  133     1           return;
+  134     1       }
+  135             
+
+
+
+MODULE INFORMATION:
+
+     CODE AREA SIZE               = 002BH     43D
+     CONSTANT AREA SIZE           = 0000H      0D
+     DATA AREA SIZE               = 0000H      0D
+     MAXIMUM STACK SIZE           = 0008H      8D
+
+iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS

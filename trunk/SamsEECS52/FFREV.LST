@@ -1,0 +1,664 @@
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   1
+
+
+DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE FFREV
+OBJECT MODULE PLACED IN FFREV.OBJ
+COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTIMIZE(0) ROM
+
+ line level  incl 
+
+    1             /****************************************************************************/
+    2             /*                                                                          */
+    3             /*                                  FFREV                                   */
+    4             /*                      Fast Forward/Reverse Functions                      */
+    5             /*                           MP3 Jukebox Project                            */
+    6             /*                                EE/CS  52                                 */
+    7             /*                                                                          */
+    8             /****************************************************************************/
+    9             
+   10             /*
+   11                This file contains the key processing and update functions for the Fast
+   12                Forward and Reverse operations of the MP3 Jukebox Project.  These functions
+   13                take care of processing an input key (from the keypad) and updates for Fast
+   14                Forward and Reverse operations.  They are called by the main loop of the
+   15                MP3 Jukebox.  The functions included are:
+   16                   begin_FastFwd   - switch to fast forward from reverse (key processing
+   17                                     function)
+   18                   begin_Reverse   - switch to reverse from fast forward (key processing
+   19                                     function)
+   20                   start_FastFwd   - start going fast forward (key processing function)
+   21                   start_Reverse   - start going reverse (key processing function)
+   22                   stop_FFRev      - stop when doing fast forward or reverse (key
+   23                                     processing function)
+   24                   switch_FastFwd  - switch to fast forward from play (key processing
+   25                                     function)
+   26                   switch_Reverse  - switch to reverse from play (key processing function)
+   27                   update_FastFwd  - fast forwarding, update the time (update function)
+   28                   update_Reverse  - reversing, update the time (update function)
+   29             
+   30                The local functions included are:
+   31                   none
+   32             
+   33                The locally global variable definitions included are:
+   34                   time_FFRev - leftover (after rounding) time for fast forward/reverse
+   35             
+   36             
+   37                Revision History
+   38                   6/4/00   Glen George       Initial revision (from 3/6/99 version of
+   39                                              ffrev.c from the Digital Audio Recorder
+   40                                              Project).
+   41                   6/2/02   Glen George       Changed update_FastFwd() and update_Reverse()
+   42                                              to use the elapsed_time() function to do the
+   43                                              fast forward and reverse operations, rather
+   44                                              than the user update function.
+   45                   6/2/02   Glen George       Added time_FFRev global variable to support
+   46                                              fast forward and reverse operations.
+   47                   6/2/02   Glen George       Rewrote start_FastFwd(), start_Reverse(),
+   48                                              begin_FastFwd(), begin_Reverse(), and
+   49                                              stop_FFRev() to implement the new method for
+   50                                              doing fast forward and reverse operations.
+   51                   6/2/02   Glen George       Updated comments.
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   2
+
+
+   52                   6/5/03   Glen George       Updated start_FastFwd and start_Reverse to
+   53                                              not do anything if the current track is a
+   54                                              directory (supports FAT file systems).
+   55                   6/5/03   Glen George       Added #include of fatutil.h for function
+   56                                              declarations needed by above change.
+   57                   6/5/03   Glen George       Updated function headers.
+   58             */
+   59             
+   60             
+   61             
+   62             /* library include files */
+   63               /* none */
+   64             
+   65             /* local include files */
+   66             #include  "mp3defs.h"
+   67             #include  "keyproc.h"
+   68             #include  "updatfnc.h"
+   69             #include  "trakutil.h"
+   70             #include  "fatutil.h"
+   71             
+   72             
+   73             
+   74             /* locally global variables */
+   75             static int  time_FFRev;         /* leftover time (after rounding) for fast forward/reverse */
+   76             
+   77             
+   78             
+   79             
+   80             /*
+   81                start_FastFwd
+   82             
+   83                Description:      This function handles the <Fast Forward> key when nothing
+   84                                  is happening in the system.  It starts the fast forward
+   85                                  operation if there is time remaining on the current track
+   86                                  to fast forward thru and the track is not a directory and
+   87                                  does nothing otherwise.
+   88             
+   89                Arguments:        cur_status (enum status) - the current system status.
+   90                Return Value:     (enum status) - the new system status: STAT_FF if there
+   91                                  is something on the track to fast forward thru, the
+   92                                  passed current status otherwise.
+   93             
+   94                Input:            None.
+   95                Output:           None.
+   96             
+   97                Error Handling:   None.
+   98             
+   99                Algorithms:       None.
+  100                Data Structures:  None.
+  101             
+  102                Shared Variables: time_FFRev - reset to 0.
+  103             
+  104                Author:           Glen George
+  105                Last Modified:    June 5, 2003
+  106             
+  107             */
+  108             
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   3
+
+
+  109             enum status  start_FastFwd(enum status cur_status)
+  110             {
+  111     1           /* variables */
+  112     1             /* none */
+  113     1       
+  114     1       
+  115     1       
+  116     1           /* check if something is left on the track and it isn't a directory */
+  117     1           if (!cur_isDir() && (get_track_remaining_length() != 0))  {
+  118     2       
+  119     2               /* not a directory and something is left on the track - fast forward it */
+  120     2       
+  121     2               /* clear out the timer for the fast forward operation */
+  122     2               (void) elapsed_time();
+  123     2               /* also clear leftover time */
+  124     2               time_FFRev = 0;
+  125     2       
+  126     2               /* set status to fast forward */
+  127     2               cur_status = STAT_FF;
+  128     2           }
+  129     1       
+  130     1       
+  131     1           /* return with the possibly new system status */
+  132     1           return  cur_status;
+  133     1       
+  134     1       }
+  135             
+  136             
+  137             
+  138             
+  139             /*
+  140                start_Reverse
+  141             
+  142                Description:      This function handles the <Reverse> key when nothing is
+  143                                  happening in the system.  It starts the reverse operation
+  144                                  if there is data to be reversed thru on the current track
+  145                                  and the track is not a direcotry and does nothing
+  146                                  otherwise.
+  147             
+  148                Arguments:        cur_status (enum status) - the current system status.
+  149                Return Value:     (enum status) - the new system status: STAT_REV if there
+  150                                  is something left on the track to reverse thru, the
+  151                                  passed current status otherwise.
+  152             
+  153                Input:            None.
+  154                Output:           None.
+  155             
+  156                Error Handling:   None.
+  157             
+  158                Algorithms:       None.
+  159                Data Structures:  None.
+  160             
+  161                Shared Variables: time_FFRev - reset to 0.
+  162             
+  163                Author:           Glen George
+  164                Last Modified:    June 5, 2003
+  165             
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   4
+
+
+  166             */
+  167             
+  168             enum status  start_Reverse(enum status cur_status)
+  169             {
+  170     1           /* variables */
+  171     1             /* none */
+  172     1       
+  173     1       
+  174     1       
+  175     1           /* check if entry is not a directory and something is left on the track */
+  176     1           if (!cur_isDir() && (get_track_remaining_length() != get_track_length()))  {
+  177     2       
+  178     2               /* something is on the track & not a directory, can do reverse */
+  179     2       
+  180     2               /* clear out the timer for the reverse operation */
+  181     2               (void) elapsed_time();
+  182     2               /* also clear leftover time */
+  183     2               time_FFRev = 0;
+  184     2       
+  185     2               /* set status to reverse */
+  186     2               cur_status = STAT_REV;
+  187     2           }
+  188     1       
+  189     1       
+  190     1           /* return the possibly new status */
+  191     1           return  cur_status;
+  192     1       
+  193     1       }
+  194             
+  195             
+  196             
+  197             
+  198             /*
+  199                switch_FastFwd
+  200             
+  201                Description:      This function handles the <Fast Forward> key when playing
+  202                                  a track.  It turns off the audio output and then starts
+  203                                  the fast forward operation.
+  204             
+  205                Arguments:        cur_status (enum status) - the current system status (not
+  206                                                             used).
+  207                Return Value:     (enum status) - the new system status is returned (by
+  208                                  start_FastFwd actually).
+  209             
+  210                Input:            None.
+  211                Output:           None.
+  212             
+  213                Error Handling:   None.
+  214             
+  215                Algorithms:       None.
+  216                Data Structures:  None.
+  217             
+  218                Shared Variables: None.
+  219             
+  220                Author:           Glen George
+  221                Last Modified:    Mar. 11, 1995
+  222             
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   5
+
+
+  223             */
+  224             
+  225             enum status  switch_FastFwd(enum status cur_status)
+  226             {
+  227     1           /* variables */
+  228     1             /* none */
+  229     1       
+  230     1       
+  231     1       
+  232     1           /* first turn off the audio output */
+  233     1           audio_halt();
+  234     1       
+  235     1       
+  236     1           /* now start the fast forward operation (returning it's status) */
+  237     1           /* note: currently doing nothing so in Idle state */
+  238     1           return  start_FastFwd(STAT_IDLE);
+  239     1       
+  240     1       }
+  241             
+  242             
+  243             
+  244             
+  245             /*
+  246                switch_Reverse
+  247             
+  248                Description:      This function handles the <Reverse> key when playing a
+  249                                  track.  It turns off the audio output and then starts the
+  250                                  reverse operation.
+  251             
+  252                Arguments:        cur_status (enum status) - the current system status (not
+  253                                                             used).
+  254                Return Value:     (enum status) - the new system status is returned (by
+  255                                  start_Reverse actually).
+  256             
+  257                Input:            None.
+  258                Output:           None.
+  259             
+  260                Error Handling:   None.
+  261             
+  262                Algorithms:       None.
+  263                Data Structures:  None.
+  264             
+  265                Shared Variables: None.
+  266             
+  267                Author:           Glen George
+  268                Last Modified:    Mar. 11, 1995
+  269             
+  270             */
+  271             
+  272             enum status  switch_Reverse(enum status cur_status)
+  273             {
+  274     1           /* variables */
+  275     1             /* none */
+  276     1       
+  277     1       
+  278     1       
+  279     1           /* first turn off the audio output */
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   6
+
+
+  280     1           audio_halt();
+  281     1       
+  282     1       
+  283     1           /* now start up reverse, returning it's status */
+  284     1           /* note: currently doing nothing so in Idle state */
+  285     1           return  start_Reverse(STAT_IDLE);
+  286     1       
+  287     1       }
+  288             
+  289             
+  290             
+  291             
+  292             /*
+  293                begin_FastFwd
+  294             
+  295                Description:      This function handles the <Fast Forward> key when
+  296                                  currently going in reverse.  It just resets the time for
+  297                                  timing the fast forward operation and returns a new
+  298                                  status.
+  299             
+  300                Arguments:        cur_status (enum status) - the current system status (not
+  301                                                             used).
+  302                Return Value:     (enum status) - the new status (STAT_FF) is returned.
+  303             
+  304                Input:            None.
+  305                Output:           None.
+  306             
+  307                Error Handling:   None.
+  308             
+  309                Algorithms:       None.
+  310                Data Structures:  None.
+  311             
+  312                Shared Variables: time_FFRev - reset to 0.
+  313             
+  314                Author:           Glen George
+  315                Last Modified:    June 1, 2002
+  316             
+  317             */
+  318             
+  319             enum status  begin_FastFwd(enum status cur_status)
+  320             {
+  321     1           /* variables */
+  322     1             /* none */
+  323     1       
+  324     1       
+  325     1       
+  326     1           /* clear out the timer for the fast forward operation */
+  327     1           (void) elapsed_time();
+  328     1           /* also clear leftover time */
+  329     1           time_FFRev = 0;
+  330     1       
+  331     1           /* and return the new status */
+  332     1           return  STAT_FF;
+  333     1       
+  334     1       }
+  335             
+  336             
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   7
+
+
+  337             
+  338             
+  339             /*
+  340                begin_Reverse
+  341             
+  342                Description:      This function handles the <Reverse> key when currently
+  343                                  operating in fast forward.  It just resets the timer used
+  344                                  to time the reverse operation and returns STAT_REV as the
+  345                                  status.
+  346             
+  347                Arguments:        cur_status (enum status) - the current system status (not
+  348                                                             used).
+  349                Return Value:     (enum status) - the new status (STAT_REV) is returned.
+  350             
+  351                Input:            None.
+  352                Output:           None.
+  353             
+  354                Error Handling:   None.
+  355             
+  356                Algorithms:       None.
+  357                Data Structures:  None.
+  358             
+  359                Shared Variables: time_FFRev - reset to 0.
+  360             
+  361                Author:           Glen George
+  362                Last Modified:    June 1, 2002
+  363             
+  364             */
+  365             
+  366             enum status  begin_Reverse(enum status cur_status)
+  367             {
+  368     1           /* variables */
+  369     1             /* none */
+  370     1       
+  371     1       
+  372     1       
+  373     1           /* clear out the timer for the reverse operation */
+  374     1           (void) elapsed_time();
+  375     1           /* also clear leftover time */
+  376     1           time_FFRev = 0;
+  377     1       
+  378     1           /* and return STAT_REV as the new status */
+  379     1           return  STAT_REV;
+  380     1       
+  381     1       }
+  382             
+  383             
+  384             
+  385             
+  386             /*
+  387                stop_FFRev
+  388             
+  389                Description:      This function handles the <Stop> key when fast forwarding
+  390                                  or reversing.  It just changes to the idle status.  Note
+  391                                  that the time is left unaffected.
+  392             
+  393                Arguments:        cur_status (enum status) - the current system status (not
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   8
+
+
+  394                                                             used).
+  395                Return Value:     (enum status) - the new status (STAT_IDLE) is returned.
+  396             
+  397                Input:            None.
+  398                Output:           None.
+  399             
+  400                Error Handling:   None.
+  401             
+  402                Algorithms:       None.
+  403                Data Structures:  None.
+  404             
+  405                Shared Variables: None.
+  406             
+  407                Author:           Glen George
+  408                Last Modified:    June 1, 2002
+  409             
+  410             */
+  411             
+  412             enum status  stop_FFRev(enum status cur_status)
+  413             {
+  414     1           /* variables */
+  415     1             /* none */
+  416     1       
+  417     1       
+  418     1       
+  419     1           /* just return the idle status */
+  420     1           return  STAT_IDLE;
+  421     1       
+  422     1       }
+  423             
+  424             
+  425             
+  426             
+  427             /*
+  428                update_FastFwd
+  429             
+  430                Description:      This function handles updates when fast forwarding.  The
+  431                                  function gets the elapsed time, scales it appropriately,
+  432                                  and updates the track time and buffer pointer for the new
+  433                                  position.  When the end of the track is reached the
+  434                                  status is returned to idle (the time is left at 0).
+  435             
+  436                Arguments:        cur_status (enum status) - the current system status.
+  437                Return Value:     (enum status) - the new status: passed current status if
+  438                                  not at the end of the track and STAT_IDLE if at the end.
+  439             
+  440                Input:            None.
+  441                Output:           The new track time (if any) is output to the display.
+  442             
+  443                Error Handling:   None.
+  444             
+  445                Algorithms:       None.
+  446                Data Structures:  None.
+  447             
+  448                Shared Variables: time_FFRev - updated.
+  449             
+  450                Author:           Glen George
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE   9
+
+
+  451                Last Modified:    June 1, 2002
+  452             
+  453             */
+  454             
+  455             enum status  update_FastFwd(enum status cur_status)
+  456             {
+  457     1           /* variables */
+  458     1           long int  etime;            /* the elapsed time since the last call */
+  459     1       
+  460     1           long int  buffer_fwd;       /* amount to move forward on track */
+  461     1       
+  462     1       
+  463     1       
+  464     1           /* is there anything left in the track to fast forward through */
+  465     1           if (get_track_remaining_length() != 0)  {
+  466     2       
+  467     2       
+  468     2               /* something on track - get the elapsed time for fast forward operation */
+  469     2               /* it needs to be scaled and have any leftover time added in */
+  470     2               etime = FFREV_RATE * elapsed_time() + time_FFRev;
+  471     2       
+  472     2               /* has enough time elapsed for fast forwarding */
+  473     2               if (etime > MIN_FFREV_TIME)  {
+  474     3       
+  475     3                   /* can and should move forward - compute how many bytes */
+  476     3                   buffer_fwd = (get_track_length() * etime) / (100L * get_track_total_time());
+  477     3       
+  478     3                   /* truncate it to the nearest number of blocks */
+  479     3                   buffer_fwd = (buffer_fwd / IDE_BLOCK_SIZE);
+  480     3                   /* compute the leftover time and save it for next time */
+  481     3                   time_FFRev = etime - (100L * get_track_total_time() * buffer_fwd * IDE_BLOCK_SIZE) / get_t
+                -rack_length();
+  482     3                   /* make sure there isn't a minor math error */
+  483     3                   if (time_FFRev < 0)
+  484     3                       /* leftover amount shouldn't be negative */
+  485     3                       time_FFRev = 0;
+  486     3       
+  487     3                   /* if there are buffers to move forward, do so */
+  488     3                   if (buffer_fwd > 0)  {
+  489     4                       update_track_position(buffer_fwd * IDE_BLOCK_SIZE);
+  490     4       
+  491     4                       /* also display the new time */
+  492     4                       display_time(get_track_time());
+  493     4                   }
+  494     3               }
+  495     2               else  {
+  496     3       
+  497     3                   /* not enough time yet for fast forwarding - save the accumulated time */
+  498     3                   time_FFRev = etime;
+  499     3               }
+  500     2           }
+  501     1           else  {
+  502     2       
+  503     2       
+  504     2               /* done with this track - switch to the idle state */
+  505     2               cur_status = STAT_IDLE;
+  506     2           }
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE  10
+
+
+  507     1       
+  508     1       
+  509     1           /* done with update, return the new status */
+  510     1           return  cur_status;
+  511     1       
+  512     1       }
+  513             
+  514             
+  515             
+  516             
+  517             /*
+  518                update_Reverse
+  519             
+  520                Description:      This function handles updates when reversing.  The
+  521                                  function gets the elapsed time, scales it appropriately,
+  522                                  and updates the track time and buffer pointer for the new
+  523                                  position.  When the start of the track is reached the
+  524                                  status is returned to idle (the time is left at the
+  525                                  start).
+  526             
+  527                Arguments:        cur_status (enum status) - the current system status.
+  528                Return Value:     (enum status) - the new status: the passed current status
+  529                                  if not at the start of the track and STAT_IDLE if rewound
+  530                                  to the start of the track.
+  531             
+  532                Input:            None.
+  533                Output:           New track time (if any) is output to the display.
+  534             
+  535                Error Handling:   None.
+  536             
+  537                Algorithms:       None.
+  538                Data Structures:  None.
+  539             
+  540                Shared Variables: time_FFRev - updated.
+  541             
+  542                Author:           Glen George
+  543                Last Modified:    June 1, 2002
+  544             
+  545             */
+  546             
+  547             enum status  update_Reverse(enum status cur_status)
+  548             {
+  549     1           /* variables */
+  550     1           long int  etime;            /* the elapsed time since the last call */
+  551     1       
+  552     1           long int  buffer_rev;       /* amount to move backward on the track */
+  553     1       
+  554     1       
+  555     1       
+  556     1           /* check if already at the start of the track */
+  557     1           if (get_track_remaining_length() != get_track_length())  {
+  558     2       
+  559     2       
+  560     2               /* something on track - get the elapsed time for reverse operation */
+  561     2               /* it needs to be scaled and have any leftover time added in */
+  562     2               etime = FFREV_RATE * elapsed_time() + time_FFRev;
+  563     2       
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE  11
+
+
+  564     2               /* has enough time elapsed for reversing */
+  565     2               if (etime > MIN_FFREV_TIME)  {
+  566     3       
+  567     3                   /* can and should move backward - compute how many bytes */
+  568     3                   buffer_rev = (get_track_length() * etime) / (100L * get_track_total_time());
+  569     3       
+  570     3                   /* truncate it to the nearest number of blocks */
+  571     3                   buffer_rev = (buffer_rev / IDE_BLOCK_SIZE);
+  572     3                   /* compute the leftover time and save it for next time */
+  573     3                   time_FFRev = etime - (100L * get_track_total_time() * buffer_rev * IDE_BLOCK_SIZE) / get_t
+                -rack_length();
+  574     3                   /* make sure there isn't a minor math error */
+  575     3                   if (time_FFRev < 0)
+  576     3                       /* leftover amount shouldn't be negative */
+  577     3                       time_FFRev = 0;
+  578     3       
+  579     3                   /* if there are buffers to move back, do so */
+  580     3                   if (buffer_rev > 0)  {
+  581     4                       update_track_position(-buffer_rev * IDE_BLOCK_SIZE);
+  582     4       
+  583     4                       /* also display the new time */
+  584     4                       display_time(get_track_time());
+  585     4                   }
+  586     3               }
+  587     2               else  {
+  588     3       
+  589     3                   /* not enough time yet for reversing - save the accumulated time */
+  590     3                   time_FFRev = etime;
+  591     3               }
+  592     2           }
+  593     1           else  {
+  594     2       
+  595     2       
+  596     2               /* hit the start of the track - need to reload the pointers */
+  597     2               init_track();
+  598     2       
+  599     2               /* display the new time */
+  600     2               display_time(get_track_time());
+  601     2       
+  602     2               /* and switch back to idle state */
+  603     2               cur_status = STAT_IDLE;
+  604     2           }
+  605     1       
+  606     1       
+  607     1           /* all done, return the possibly new status */
+  608     1           return  cur_status;
+  609     1       
+  610     1       }
+
+
+
+MODULE INFORMATION:
+
+     CODE AREA SIZE               = 0346H    838D
+     CONSTANT AREA SIZE           = 0000H      0D
+     DATA AREA SIZE               = 0002H      2D
+     MAXIMUM STACK SIZE           = 0018H     24D
+iC-86  COMPILER   FFREV                                                                      05/04/:8 19:20:42  PAGE  12
+
+
+iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS

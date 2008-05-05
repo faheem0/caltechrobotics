@@ -49,7 +49,7 @@ EXTRN ClrIRQVectors:Near
 EXTRN InstallHandlerInt0:Near
 EXTRN InitKeypad:Near
 EXTRN InitDisplay:Near
-EXTRN   main2:NEAR               ;declare the main function
+EXTRN   main:NEAR               ;declare the main function
 ; segment register assumptions
         ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
 
@@ -89,7 +89,7 @@ CODE    SEGMENT   PUBLIC  'CODE'
        
 START:
 
-main:                                  ;start the program
+main0:                                  ;start the program
 	;PUBLIC  Start			;public so can jump to from power on code
 
 		MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
@@ -112,9 +112,9 @@ main:                                  ;start the program
 		CALL InitDisplay		
 		CALL InstallHandlerInt0
 		
-        CALL    main2                    ;run the main function (no arguments)
-
-        JMP     main                   ;if return - reinitialize and try again
+        ;CALL    main2                    ;run the main function (no arguments)
+		CALL main
+        JMP     main0                   ;if return - reinitialize and try again
 
 
 
