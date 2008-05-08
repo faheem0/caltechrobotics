@@ -82,11 +82,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GenericMotor\Proxy\obj\Debug\GenericMotor.Y2008.M03.Proxy.dll</HintPath>
     </Reference>
-    <Reference Include="GPSImpl.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=00557257f0c3f8b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\GPSImpl\Proxy\obj\Debug\GPSImpl.Y2008.M03.Proxy.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="mscorlib">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>

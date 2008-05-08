@@ -3,7 +3,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50215</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{916D9D58-347D-42B3-8043-2A8DC0566A22}</ProjectGuid>
+    <ProjectGuid>{37F09193-6A06-456B-B354-700EE1F9E945}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -65,11 +65,11 @@
     <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ccr.Core">
+    <Reference Include="mscorlib">
         <SpecificVersion>False</SpecificVersion>
         <Private>False</Private>
     </Reference>
-    <Reference Include="mscorlib">
+    <Reference Include="Ccr.Core">
         <SpecificVersion>False</SpecificVersion>
         <Private>False</Private>
     </Reference>

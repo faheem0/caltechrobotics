@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericMotor.Y2008.M03.proxy", "GenericMotor.Y2008.M03.proxy.csproj", "{AE28ECA4-8768-44FC-AAF5-01ED1E44A3A7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE28ECA4-8768-44FC-AAF5-01ED1E44A3A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE28ECA4-8768-44FC-AAF5-01ED1E44A3A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE28ECA4-8768-44FC-AAF5-01ED1E44A3A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE28ECA4-8768-44FC-AAF5-01ED1E44A3A7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

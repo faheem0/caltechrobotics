@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericIMU.Y2008.M03.proxy", "GenericIMU.Y2008.M03.proxy.csproj", "{916D9D58-347D-42B3-8043-2A8DC0566A22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericIMU.Y2008.M03.proxy", "GenericIMU.Y2008.M03.proxy.csproj", "{37F09193-6A06-456B-B354-700EE1F9E945}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,10 +8,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{916D9D58-347D-42B3-8043-2A8DC0566A22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{916D9D58-347D-42B3-8043-2A8DC0566A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{916D9D58-347D-42B3-8043-2A8DC0566A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{916D9D58-347D-42B3-8043-2A8DC0566A22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37F09193-6A06-456B-B354-700EE1F9E945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37F09193-6A06-456B-B354-700EE1F9E945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37F09193-6A06-456B-B354-700EE1F9E945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37F09193-6A06-456B-B354-700EE1F9E945}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,9 +3,9 @@ using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.Core.Transforms;
 
 #if NET_CF20
-[assembly: ServiceDeclaration(DssServiceDeclaration.Transform, SourceAssemblyKey = @"cf.genericimu.y2008.m03, version=0.0.0.0, culture=neutral, publickeytoken=3f3b6e33a7ff1111")]
+[assembly: ServiceDeclaration(DssServiceDeclaration.Transform, SourceAssemblyKey = @"cf.genericimu.y2008.m03, version=0.0.0.0, culture=neutral, publickeytoken=1ab751c944756d21")]
 #else
-[assembly: ServiceDeclaration(DssServiceDeclaration.Transform, SourceAssemblyKey = @"genericimu.y2008.m03, version=0.0.0.0, culture=neutral, publickeytoken=3f3b6e33a7ff1111")]
+[assembly: ServiceDeclaration(DssServiceDeclaration.Transform, SourceAssemblyKey = @"genericimu.y2008.m03, version=0.0.0.0, culture=neutral, publickeytoken=1ab751c944756d21")]
 #endif
 #if !URT_MINCLR
 [assembly: System.Security.SecurityTransparent]

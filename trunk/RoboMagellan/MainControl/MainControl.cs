@@ -20,7 +20,6 @@ using System.Xml;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
 using gps = RoboMagellan.GenericGPS.Proxy;
-using gpsimpl = RoboMagellan.GPSImpl.Proxy;
 using motor = RoboMagellan.MotorControl.Proxy;
 namespace RoboMagellan
 {
@@ -39,7 +38,7 @@ namespace RoboMagellan
         private static double ANGLE_THRESHOLD = 2;
 
 
-        [Partner("Gps", Contract = gpsimpl.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        [Partner("Gps", Contract = gps.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private gps.GenericGPSOperations _gpsPort = new gps.GenericGPSOperations();
         private gps.GenericGPSOperations _gpsNotify = new gps.GenericGPSOperations();
 
@@ -66,7 +65,6 @@ namespace RoboMagellan
         public MainControlService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
-            _state._destination = _state._destinations.Dequeue();
         }
         
         /// <summary>
@@ -77,23 +75,27 @@ namespace RoboMagellan
         {
 			base.Start();
 			// Add service specific initialization here.
-
+            Console.WriteLine("MainControl initializing");
             _state._destination = new gps.UTMData();
-            _state._destination.East = 10;
-            _state._destination.North = 10;
+            _state._destination.East = 396508.02;
+            _state._destination.North = 3777901.85;
 
+            _state._destinations.Enqueue(_state._destination);
 
+            _state._destination = _state._destinations.Dequeue();
             Activate<ITask>(
                 Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
                 );
 
             _gpsPort.Subscribe(_gpsNotify);
+            Console.WriteLine("Subscribed to GPS, standing by");
         }
 
         // UPDATES STATE!
         // fix concurrency!
         public void NotifyUTMHandler(gps.UTMNotification n)
         {
+            Console.WriteLine("Received GPS notification, current state: " + _state._state);
             _state._location = n.Body;
 
             switch (_state._state)

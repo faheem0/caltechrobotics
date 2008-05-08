@@ -7,3 +7,9 @@ F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug
 F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.Proxy.pdb
 F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\RoboMagellan.GenericIMU.Resources.DssModel.dss
 F:\Documents\Visual Studio 2008\Projects\RoboMagellan\GenericIMU\Proxy\obj\Debug\RoboMagellan.GenericIMU.Properties.Resources.resources
+C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericIMU\Proxy\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericIMU\Proxy\obj\Debug\RoboMagellan.GenericIMU.Resources.DssModel.dss
+C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericIMU\Proxy\obj\Debug\RoboMagellan.GenericIMU.Properties.Resources.resources
+C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.proxy.csproj.GenerateResource.Cache
+C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.Proxy.dll
+C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericIMU\Proxy\obj\Debug\GenericIMU.Y2008.M03.Proxy.pdb
