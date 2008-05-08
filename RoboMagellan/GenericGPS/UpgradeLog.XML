@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="GenericGPS">
+</Property><Property Name="Solution File" Value="C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\GenericGPS.sln">
+</Property><Property Name="Date" Value="Wednesday, May 07, 2008">
+</Property><Property Name="Time" Value="22:30 PM">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="GenericGPS.sln" Description="File successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\GenericGPS.sln">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS.csproj" Description="Project file successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\GenericGPS.csproj">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS.csproj.user" Description="Project user file successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\GenericGPS.csproj.user">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="AC12GPS.cs" Description="File successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\AC12GPS.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="AssemblyInfo.cs" Description="File successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPSService.cs" Description="File successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\GenericGPSService.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPSTypes.cs" Description="File successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\GenericGPSTypes.cs">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS.manifest.xml" Description="File successfully backed up as C:\Documents and Settings\tonyfwu\Desktop\RoboMagellan_HEAD\GenericGPS\Backup\GenericGPS.manifest.xml">
+</Event><Event ErrorLevel="0" Project="GenericGPS" Source="GenericGPS.csproj" Description="The project file does not require conversion.">
+</Event><Event ErrorLevel="3" Project="GenericGPS" Source="GenericGPS.csproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="0" Project="" Source="GenericGPS.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="GenericGPS.sln" Description="Converted">
+</Event></UpgradeLog>
