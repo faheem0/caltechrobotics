@@ -1,0 +1,8 @@
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\obj\Debug\MotorTestGUI.MotorTestGUI.resources
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\obj\Debug\MotorTestGUI.Properties.Resources.resources
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\obj\Debug\MotorTestGUI.csproj.GenerateResource.Cache
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\bin\Debug\MotorTestGUI.exe
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\bin\Debug\MotorTestGUI.pdb
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\obj\Debug\MotorTestGUI.exe
+C:\Documents and Settings\tonyfwu\My Documents\Visual Studio 2008\Projects\MotorTestGUI\MotorTestGUI\obj\Debug\MotorTestGUI.pdb
