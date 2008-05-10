@@ -95,6 +95,7 @@ namespace RoboMagellan.GenericGPS
             s = s + "\r\n";
             byte[] asciiString = System.Text.Encoding.ASCII.GetBytes(s.ToCharArray());
             myGPS.Write(asciiString, 0, asciiString.Length);
+            Console.WriteLine(s);
         }
 
         private void serialPort_dataRecieved(object sender, SerialDataReceivedEventArgs e)

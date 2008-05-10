@@ -34,7 +34,7 @@ namespace RoboMagellan.MotorControl
     /// </summary>
     public class MotorControl
     {
-        static int DEFAULT_BAUD_RATE = 9600;
+        static int DEFAULT_BAUD_RATE = 115200;
         static int DEFAULT_DATA_BITS = 8;
         static int DEFAULT_TIMEOUT = 500;
         static Parity DEFAULT_PARITY = Parity.None;
@@ -192,7 +192,11 @@ namespace RoboMagellan.MotorControl
             cmdString[1] = (byte) cmd;
             if (bytes != null) System.Array.Copy(bytes, 0, cmdString,2, bytes.Length);
             cmdString[size-1] = (byte)MotorCommands.COMMAND_STOP;
-            
+            Console.WriteLine("Sending Command: ");
+            for (int i = 0; i < cmdString.Length; i++)
+            {
+                Console.WriteLine(cmdString[i]);
+            }
             myMotors.Write(cmdString, 0, cmdString.Length);
         }
 
