@@ -45,7 +45,7 @@ namespace RoboMagellan.MotorControl
         [ServicePort("/genericmotor", AllowMultipleInstances=false)]
         private GenericMotorOperations _mainPort = new GenericMotorOperations();
 
-        private static string MOTOR_PORT = "COM9";
+        private static string MOTOR_PORT = "COM2";
 
         private MotorControl _motor;
 
@@ -65,10 +65,26 @@ namespace RoboMagellan.MotorControl
         {
 			base.Start();
 			// Add service specific initialization here.
+            SpawnIterator(activateMotorIterator);
+
+
+
+
+        }
+
+        public IEnumerator<ITask> activateMotorIterator()
+        {
             if (!_motor.connect())
             {
                 LogError("Failed to initialize motor control!");
+                yield break;
             }
+            else
+            {
+                yield return Arbiter.Receive(false, TimeoutPort(10), delegate(DateTime time) { });
+                _motor.installReceiveHandler();
+            }
+
         }
 
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]

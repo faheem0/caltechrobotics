@@ -21,7 +21,7 @@ namespace RoboMagellan.GenericGPS
     public class GenericGPSService : DsspServiceBase
     {
 
-        private static string PORT = "COM8";
+        private static string PORT = "COM3";
 
         private GenericGPSState _state = new GenericGPSState();
         private AC12GPS _gps = null;
@@ -130,7 +130,7 @@ namespace RoboMagellan.GenericGPS
 
         private void DataReceivedHandler(UTMData d)
         {
-            Console.WriteLine("Received GPS data");
+            //Console.WriteLine("Received GPS data");
             _state.Coords = d;
 
             SendNotification(_subMgrPort, new UTMNotification(d)); 

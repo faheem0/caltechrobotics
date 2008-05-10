@@ -65,6 +65,7 @@ namespace RoboMagellan
         public MainControlService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
+            _state._state = MainControlStates.STATE_STOPPED;
         }
         
         /// <summary>
