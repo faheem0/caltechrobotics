@@ -35,9 +35,28 @@ INTCtrlrCVal    EQU     00001H          ;set priority for timers to 1 and enable
                                         ;000000000000----  reserved
                                         ;------------0---  enable timer interrupt
                                         ;-------------001  timer priority
-INT0CtrlrVal    EQU		00011H										
-INT1CtrlrVal    EQU		00011H											
-
+INT0CtrlrVal    EQU		00011H			;set to level triggering, priority 2, enable
+                                        ;000000000-------  reserved
+                                        ;---------0------  disable fully nested mode
+                                        ;----------0-----  disable cascade mode
+										;-----------1----  level triggering
+                                        ;------------0---  enable interrupt
+                                        ;-------------010  int priority							
+INT1CtrlrVal    EQU		00012H			;set to level triggering, priority 2, enable
+                                        ;000000000-------  reserved
+                                        ;---------0------  disable fully nested mode
+                                        ;----------0-----  disable cascade mode
+										;-----------1----  level triggering
+                                        ;------------0---  enable interrupt
+                                        ;-------------010  int priority									
+INT1CtrlrValDisable EQU	0001AH			;set to level triggering, priority 2, disable
+                                        ;000000000-------  reserved
+                                        ;---------0------  disable fully nested mode
+                                        ;----------0-----  disable cascade mode
+										;-----------1----  level triggering
+                                        ;------------1---  disable interrupt
+                                        ;-------------010  int priority	
+										
 TimerEOI        EQU     00008H          ;Timer EOI command (samNone for all timers)
 NonSpecEOI      EQU     08000H          ;Non-specific EOI command
 
@@ -50,7 +69,7 @@ MPCSreg         EQU     0FFA8H          ;address of MPCS register
 
 
 ; Control Register Values
-PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
+PACSval         EQU     00000H          ;PCS base at 0, 3 wait states
                                         ;0000000000------  starts at address 0
                                         ;----------000---  reserved
                                         ;-------------0--  wait for RDY inputs
