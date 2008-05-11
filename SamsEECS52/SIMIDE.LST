@@ -1,4 +1,4 @@
-iC-86  COMPILER   SIMIDE                                                                     05/04/:8 19:20:42  PAGE   1
+iC-86  COMPILER   SIMIDE                                                                     05/10/:8 19:20:19  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE SIMIDE
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE SIMIDE.C DEBUG EXTEND MOD186 SMALL OPT
    49             
    50             
    51             
-iC-86  COMPILER   SIMIDE                                                                     05/04/:8 19:20:42  PAGE   2
+iC-86  COMPILER   SIMIDE                                                                     05/10/:8 19:20:19  PAGE   2
 
 
    52             /* useful definitions */
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE SIMIDE.C DEBUG EXTEND MOD186 SMALL OPT
   106     1           /* variables */
   107     1       
   108     1           /* array of containing the "fake" data for the boot sector */
-iC-86  COMPILER   SIMIDE                                                                     05/04/:8 19:20:42  PAGE   3
+iC-86  COMPILER   SIMIDE                                                                     05/10/:8 19:20:19  PAGE   3
 
 
   109     1           static const unsigned char  boot_sector[] = {
@@ -178,7 +178,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE SIMIDE.C DEBUG EXTEND MOD186 SMALL OPT
   163     1           0x67, 0x00, 0x65, 0x00, 0x7F, 0x00, 0x42, 0x00,
   164     1           0x6C, 0x00, 0x00, 0x00, 0x69, 0x00, 0x6E, 0x00,
   165     1           0x01, 0x47, 0x00, 0x6F, 0x00, 0x69, 0x00, 0x6E,
-iC-86  COMPILER   SIMIDE                                                                     05/04/:8 19:20:42  PAGE   4
+iC-86  COMPILER   SIMIDE                                                                     05/10/:8 19:20:19  PAGE   4
 
 
   166     1           0x00, 0x67, 0x00, 0x0F, 0x00, 0x38, 0x20, 0x00,
@@ -238,7 +238,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE SIMIDE.C DEBUG EXTEND MOD186 SMALL OPT
   220     4                       *dest++ = dir_sector[2 * j] | (dir_sector[2 * j + 1] << 8);
   221     4               else
   222     4                   /* unused part of directory sector - zero it */
-iC-86  COMPILER   SIMIDE                                                                     05/04/:8 19:20:42  PAGE   5
+iC-86  COMPILER   SIMIDE                                                                     05/10/:8 19:20:19  PAGE   5
 
 
   223     4                   *dest++ = 0;

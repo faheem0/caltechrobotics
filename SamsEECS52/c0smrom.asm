@@ -47,9 +47,11 @@ DGROUP  GROUP   DATA, STACK
 EXTRN InitCS:Near
 EXTRN ClrIRQVectors:Near
 EXTRN InstallHandlerInt0:Near
+EXTRN InstallHandlerInt1:Near
 EXTRN InitKeypad:Near
+EXTRN InitMP3Port:Near
 EXTRN InitDisplay:Near
-EXTRN   main:NEAR               ;declare the main function
+;EXTRN   main:NEAR               ;declare the main function
 ; segment register assumptions
         ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
 
@@ -109,11 +111,13 @@ main0:                                  ;start the program
 		CALL InitCS
 		CALL ClrIRQVectors
 		CALL InitKeypad
-		CALL InitDisplay		
+		CALL InitDisplay	
+		CALL InitMP3Port		
+		CALL InstallHandlerInt1		
 		CALL InstallHandlerInt0
-		
+infLoop: JMP infLoop		
         ;CALL    main2                    ;run the main function (no arguments)
-		CALL main
+		;CALL main
         JMP     main0                   ;if return - reinitialize and try again
 
 
