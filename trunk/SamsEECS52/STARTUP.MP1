@@ -4,7 +4,7 @@ DOS 5.0 (038-N) 8086 LINKER, V2.7
 INPUT FILES: C0SMROM.OBJ, MP3PORT.OBJ, KEYPAD.OBJ, DISPLAY.OBJ
 OUTPUT FILE: STARTUP.LNK
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
-DATE:  05/10/:8  TIME:  20:19:39
+DATE:  05/10/:8  TIME:  20:27:59
 
 
 LINK MAP OF MODULE STARTUP
@@ -12,7 +12,7 @@ LINK MAP OF MODULE STARTUP
 LOGICAL SEGMENTS INCLUDED:
 LENGTH ADDRESS ALIGN  SEGMENT         CLASS           OVERLAY
  0000H ------    G    ??SEG                                         
- 03ACH ------    G    CODE            CODE                          
+ 03CCH ------    G    CODE            CODE                          
  2038H ------    G    DATA            DATA                          
  0280H ------    W    STACK           STACK                         
 

@@ -249,15 +249,35 @@ Int1EventHandler       PROC    NEAR
 		
 		MOV BX, mp3index
 		INC BX
+		INC BX
 		;do wrap here
 		AND BX, mp3testbufflength-1
 		MOV mp3index, BX
-		MOV AL, mp3buff[BX]
+		MOV AX, mp3buff[BX]
+	
 dataReady:
 		MOV DX, mp3portAddress
 		ROL AL, 1
+		ROL AH, 1
 		
 outputBits:		
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		OUT DX, AL
+		ROL AL, 1
+		XCHG AH, AL
 		OUT DX, AL
 		ROL AL, 1
 		OUT DX, AL
@@ -444,7 +464,7 @@ mp3bufflength DW 2 DUP(?)
 bufferRequired DB ?
 bufferInUse    DW ?
 
-mp3buff DB (mp3testbufflength)	DUP(?)
+mp3buff DW (mp3testbufflength/2)	DUP(?)
 DATA    ENDS
 
 
