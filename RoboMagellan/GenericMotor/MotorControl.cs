@@ -166,6 +166,7 @@ namespace RoboMagellan.MotorControl
                 Arbiter.Receive<TurnComplete>(false, motorAckRecieve, 
                     delegate(TurnComplete a)
                     {
+                        Console.WriteLine("MotorControl sendTurn received turn complete");
                         responsePort.Post(new DefaultSubmitResponseType());
                     }));
         }
@@ -251,7 +252,7 @@ namespace RoboMagellan.MotorControl
                                 state = 2;
                                 break;
                             case (int)MotorCommands.TURN_COMPLETE:
-                                receive_ack = "Turn complete";
+                                receive_ack = "Turn complete in serial handler";
                                 TurnComplete tc = new TurnComplete();
                                 motorAckRecieve.Post(tc);
                                 state = 2;

@@ -113,7 +113,7 @@ namespace RoboMagellan
                     else
                     {
                         double absoluteBearing = GetAbsoluteBearing(n.Body, _state._destination);
-
+                        Console.WriteLine("Beginning turn");
                         motor.TurnData td = new motor.TurnData();
                         td.heading = (int)absoluteBearing;
                         motor.Turn t = new motor.Turn(td);
@@ -121,12 +121,12 @@ namespace RoboMagellan
 
                         _state._state = MainControlStates.STATE_TURNING;
 
-                        _motorPort.Post(t);
 
 
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
                             delegate(DefaultSubmitResponseType s)
                             {
+                                Console.WriteLine("Received turn complete!");
                                 _state._state = MainControlStates.STATE_DRIVING;
                                 motor.MotorSpeed ms = new motor.MotorSpeed();
                                 ms.Left = 60;
@@ -135,7 +135,8 @@ namespace RoboMagellan
                                 _motorPort.Post(setspeed);
                             }));
 //                            delegate(Exception ex) { _state._state = MainControlStates.STATE_ERROR; }));
-                        
+
+                        _motorPort.Post(t);
                     }
                     break;
                 case MainControlStates.STATE_TURNING:
@@ -146,6 +147,7 @@ namespace RoboMagellan
                     {
                         motor.Stop stop = new motor.Stop();
 
+                        Console.WriteLine("Stopping!");
                         _state._state = MainControlStates.STATE_STOPPING;
 
                         _motorPort.Post(stop);
@@ -153,6 +155,7 @@ namespace RoboMagellan
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
                             delegate(DefaultSubmitResponseType a) { 
                                 _state._state = MainControlStates.STATE_STOPPED;
+                                Console.WriteLine("Received stop!");
                                 if (_state._destinations.Count > 0)
                                 {
                                     _state._destination = _state._destinations.Dequeue();
