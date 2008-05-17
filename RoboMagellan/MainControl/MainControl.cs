@@ -37,6 +37,7 @@ namespace RoboMagellan
 
         private static double ANGLE_THRESHOLD = 2;
 
+        Port<DefaultSubmitResponseType> tempt;
 
         [Partner("Gps", Contract = gps.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private gps.GenericGPSOperations _gpsPort = new gps.GenericGPSOperations();
@@ -78,8 +79,14 @@ namespace RoboMagellan
 			// Add service specific initialization here.
             Console.WriteLine("MainControl initializing");
             _state._destination = new gps.UTMData();
-            _state._destination.East = 396508.02;
-            _state._destination.North = 3777901.85;
+            _state._destination.East = 396380.74;
+            _state._destination.North = 3778304.56;
+
+            _state._destinations.Enqueue(_state._destination);
+
+            _state._destination = new gps.UTMData();
+            _state._destination.East = 396180.74;
+            _state._destination.North = 3778404.56;
 
             _state._destinations.Enqueue(_state._destination);
 
@@ -122,7 +129,6 @@ namespace RoboMagellan
                         _state._state = MainControlStates.STATE_TURNING;
 
 
-
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
                             delegate(DefaultSubmitResponseType s)
                             {
@@ -135,6 +141,7 @@ namespace RoboMagellan
                                 _motorPort.Post(setspeed);
                             }));
 //                            delegate(Exception ex) { _state._state = MainControlStates.STATE_ERROR; }));
+
 
                         _motorPort.Post(t);
                     }
@@ -149,8 +156,6 @@ namespace RoboMagellan
 
                         Console.WriteLine("Stopping!");
                         _state._state = MainControlStates.STATE_STOPPING;
-
-                        _motorPort.Post(stop);
 
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
                             delegate(DefaultSubmitResponseType a) { 
@@ -169,7 +174,9 @@ namespace RoboMagellan
                                 }
                             }));
 //                            delegate(Exception ex) { _state._state = STATE_ERROR; }));
-                        
+
+                        _motorPort.Post(stop);
+
                     }
                     else
                     {
