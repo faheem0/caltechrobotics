@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,9 +53,15 @@
             this.SatText = new System.Windows.Forms.TextBox();
             this.log = new System.Windows.Forms.RichTextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.statusBox = new System.Windows.Forms.GroupBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.UpTimeText = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.StatusText = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.gpsBox.SuspendLayout();
+            this.statusBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -81,14 +88,14 @@
             // connectToolStripMenuItem
             // 
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.connectToolStripMenuItem.Text = "Connect";
             this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.quitToolStripMenuItem.Text = "Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
             // 
@@ -104,13 +111,13 @@
             // motorsToolStripMenuItem
             // 
             this.motorsToolStripMenuItem.Name = "motorsToolStripMenuItem";
-            this.motorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.motorsToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.motorsToolStripMenuItem.Text = "Motors";
             // 
             // gPSToolStripMenuItem
             // 
             this.gPSToolStripMenuItem.Name = "gPSToolStripMenuItem";
-            this.gPSToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.gPSToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.gPSToolStripMenuItem.Text = "GPS";
             // 
             // aboutToolStripMenuItem
@@ -261,11 +268,53 @@
             this.label5.TabIndex = 8;
             this.label5.Text = "Console:";
             // 
+            // statusBox
+            // 
+            this.statusBox.Controls.Add(this.StatusText);
+            this.statusBox.Controls.Add(this.label6);
+            this.statusBox.Location = new System.Drawing.Point(12, 126);
+            this.statusBox.Name = "statusBox";
+            this.statusBox.Size = new System.Drawing.Size(200, 100);
+            this.statusBox.TabIndex = 9;
+            this.statusBox.TabStop = false;
+            this.statusBox.Text = "Status";
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            // 
+            // UpTimeText
+            // 
+            this.UpTimeText.Location = new System.Drawing.Point(574, 364);
+            this.UpTimeText.Name = "UpTimeText";
+            this.UpTimeText.ReadOnly = true;
+            this.UpTimeText.Size = new System.Drawing.Size(100, 20);
+            this.UpTimeText.TabIndex = 10;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 28);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(40, 13);
+            this.label6.TabIndex = 0;
+            this.label6.Text = "Status:";
+            // 
+            // StatusText
+            // 
+            this.StatusText.Location = new System.Drawing.Point(47, 25);
+            this.StatusText.Name = "StatusText";
+            this.StatusText.ReadOnly = true;
+            this.StatusText.Size = new System.Drawing.Size(100, 20);
+            this.StatusText.TabIndex = 1;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(694, 385);
+            this.Controls.Add(this.UpTimeText);
+            this.Controls.Add(this.statusBox);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.log);
             this.Controls.Add(this.gpsBox);
@@ -282,6 +331,8 @@
             this.statusStrip1.PerformLayout();
             this.gpsBox.ResumeLayout(false);
             this.gpsBox.PerformLayout();
+            this.statusBox.ResumeLayout(false);
+            this.statusBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -313,6 +364,11 @@
         private System.Windows.Forms.TextBox SatText;
         private System.Windows.Forms.RichTextBox log;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.GroupBox statusBox;
+        private System.Windows.Forms.TextBox StatusText;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.TextBox UpTimeText;
     }
 }
 
