@@ -9,6 +9,7 @@ using Microsoft.Dss.ServiceModel.Dssp;
 
 using RoboMagellan.MotorControl;
 
+
 namespace RoboMagellan.MotorControl
 {
     /// <summary>
@@ -130,14 +131,14 @@ namespace RoboMagellan.MotorControl
         /// response port when the stop is complete.
         /// </summary>
         /// <param name="responsePort">The response port to respond on.</param>
-        public void sendStop(Port<DefaultSubmitResponseType> responsePort)
+        public void sendStop(Stop s)
         {
             command(MotorCommands.STOP, null);
             Arbiter.Activate(dq,
                 Arbiter.Receive<StopComplete>(false, motorAckRecieve,
                     delegate(StopComplete a)
                     {
-                        responsePort.Post(new DefaultSubmitResponseType());
+                        s.ResponsePort.Post(new DefaultSubmitResponseType());
                     }));
         }
 
@@ -147,7 +148,7 @@ namespace RoboMagellan.MotorControl
         /// </summary>
         /// <param name="bearing">The absolute bearing (in degrees) to turn to (will be truncated to integer)</param>
         /// <param name="responsePort">The response port to post completion on</param>
-        public void sendTurn(int bearing, Port<DefaultSubmitResponseType> responsePort)
+        public void sendTurn(int bearing, Turn t)
         {
             byte[] bytes = new byte[2];
 
@@ -167,7 +168,8 @@ namespace RoboMagellan.MotorControl
                     delegate(TurnComplete a)
                     {
                         Console.WriteLine("MotorControl sendTurn received turn complete");
-                        responsePort.Post(new DefaultSubmitResponseType());
+                        t.ResponsePort.Post(new DefaultSubmitResponseType());
+                        Console.WriteLine(t.ResponsePort);
                     }));
         }
 

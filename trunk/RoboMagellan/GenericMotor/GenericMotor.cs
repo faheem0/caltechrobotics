@@ -98,7 +98,7 @@ namespace RoboMagellan.MotorControl
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
         public IEnumerator<ITask> StopHandler(Stop s)
         {
-            _motor.sendStop(s.ResponsePort);
+            _motor.sendStop(s);
             yield break;
         }
 
@@ -114,7 +114,7 @@ namespace RoboMagellan.MotorControl
         public IEnumerator<ITask> TurnHandler(Turn t)
         {
             int heading = (int)t.Body.heading;
-            _motor.sendTurn(heading, t.ResponsePort);
+            _motor.sendTurn(heading, t);
             yield break;
         }
 
