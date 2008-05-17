@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsolePipe.cs" />
     <Compile Include="LocationGraph.cs">
       <SubType>Component</SubType>
     </Compile>

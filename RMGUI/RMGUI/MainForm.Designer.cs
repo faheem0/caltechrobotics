@@ -38,18 +38,20 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ConStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.WaypointQueue = new System.Windows.Forms.ListBox();
             this.label_queue = new System.Windows.Forms.Label();
             this.gpsBox = new System.Windows.Forms.GroupBox();
-            this.SatText = new System.Windows.Forms.TextBox();
-            this.TimeText = new System.Windows.Forms.TextBox();
-            this.EastText = new System.Windows.Forms.TextBox();
-            this.NorthText = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.NorthText = new System.Windows.Forms.TextBox();
+            this.EastText = new System.Windows.Forms.TextBox();
+            this.TimeText = new System.Windows.Forms.TextBox();
+            this.SatText = new System.Windows.Forms.TextBox();
+            this.log = new System.Windows.Forms.RichTextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.gpsBox.SuspendLayout();
@@ -79,14 +81,16 @@
             // connectToolStripMenuItem
             // 
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.connectToolStripMenuItem.Text = "Connect";
+            this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.quitToolStripMenuItem.Text = "Quit";
+            this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
             // 
             // portsToolStripMenuItem
             // 
@@ -100,13 +104,13 @@
             // motorsToolStripMenuItem
             // 
             this.motorsToolStripMenuItem.Name = "motorsToolStripMenuItem";
-            this.motorsToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.motorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.motorsToolStripMenuItem.Text = "Motors";
             // 
             // gPSToolStripMenuItem
             // 
             this.gPSToolStripMenuItem.Name = "gPSToolStripMenuItem";
-            this.gPSToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.gPSToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.gPSToolStripMenuItem.Text = "GPS";
             // 
             // aboutToolStripMenuItem
@@ -119,7 +123,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBar1,
-            this.toolStripStatusLabel1});
+            this.ConStatus});
             this.statusStrip1.Location = new System.Drawing.Point(0, 363);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(694, 22);
@@ -131,11 +135,11 @@
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
             this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
-            // toolStripStatusLabel1
+            // ConStatus
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(71, 17);
-            this.toolStripStatusLabel1.Text = "Disconnected";
+            this.ConStatus.Name = "ConStatus";
+            this.ConStatus.Size = new System.Drawing.Size(71, 17);
+            this.ConStatus.Text = "Disconnected";
             // 
             // WaypointQueue
             // 
@@ -171,56 +175,14 @@
             this.gpsBox.TabStop = false;
             this.gpsBox.Text = "GPS Information";
             // 
-            // SatText
+            // label4
             // 
-            this.SatText.Location = new System.Drawing.Point(73, 23);
-            this.SatText.Name = "SatText";
-            this.SatText.ReadOnly = true;
-            this.SatText.Size = new System.Drawing.Size(74, 20);
-            this.SatText.TabIndex = 0;
-            // 
-            // TimeText
-            // 
-            this.TimeText.Location = new System.Drawing.Point(73, 57);
-            this.TimeText.Name = "TimeText";
-            this.TimeText.ReadOnly = true;
-            this.TimeText.Size = new System.Drawing.Size(74, 20);
-            this.TimeText.TabIndex = 1;
-            // 
-            // EastText
-            // 
-            this.EastText.Location = new System.Drawing.Point(215, 23);
-            this.EastText.Name = "EastText";
-            this.EastText.ReadOnly = true;
-            this.EastText.Size = new System.Drawing.Size(100, 20);
-            this.EastText.TabIndex = 2;
-            this.EastText.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
-            // 
-            // NorthText
-            // 
-            this.NorthText.Location = new System.Drawing.Point(215, 57);
-            this.NorthText.Name = "NorthText";
-            this.NorthText.ReadOnly = true;
-            this.NorthText.Size = new System.Drawing.Size(100, 20);
-            this.NorthText.TabIndex = 3;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 26);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(52, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Satellites:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 60);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(61, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Timestamp:";
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(169, 60);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(36, 13);
+            this.label4.TabIndex = 10;
+            this.label4.Text = "North:";
             // 
             // label3
             // 
@@ -231,20 +193,81 @@
             this.label3.TabIndex = 8;
             this.label3.Text = "East:";
             // 
-            // label4
+            // label2
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(169, 60);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(36, 13);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "North:";
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 60);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(61, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Timestamp:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 26);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(52, 13);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Satellites:";
+            // 
+            // NorthText
+            // 
+            this.NorthText.Location = new System.Drawing.Point(215, 57);
+            this.NorthText.Name = "NorthText";
+            this.NorthText.ReadOnly = true;
+            this.NorthText.Size = new System.Drawing.Size(100, 20);
+            this.NorthText.TabIndex = 3;
+            // 
+            // EastText
+            // 
+            this.EastText.Location = new System.Drawing.Point(215, 23);
+            this.EastText.Name = "EastText";
+            this.EastText.ReadOnly = true;
+            this.EastText.Size = new System.Drawing.Size(100, 20);
+            this.EastText.TabIndex = 2;
+            // 
+            // TimeText
+            // 
+            this.TimeText.Location = new System.Drawing.Point(73, 57);
+            this.TimeText.Name = "TimeText";
+            this.TimeText.ReadOnly = true;
+            this.TimeText.Size = new System.Drawing.Size(74, 20);
+            this.TimeText.TabIndex = 1;
+            // 
+            // SatText
+            // 
+            this.SatText.Location = new System.Drawing.Point(73, 23);
+            this.SatText.Name = "SatText";
+            this.SatText.ReadOnly = true;
+            this.SatText.Size = new System.Drawing.Size(74, 20);
+            this.SatText.TabIndex = 0;
+            // 
+            // log
+            // 
+            this.log.Location = new System.Drawing.Point(12, 260);
+            this.log.Name = "log";
+            this.log.ReadOnly = true;
+            this.log.Size = new System.Drawing.Size(556, 96);
+            this.log.TabIndex = 7;
+            this.log.Text = "";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 241);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(48, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Console:";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(694, 385);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.log);
             this.Controls.Add(this.gpsBox);
             this.Controls.Add(this.label_queue);
             this.Controls.Add(this.WaypointQueue);
@@ -276,7 +299,7 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel ConStatus;
         private System.Windows.Forms.ListBox WaypointQueue;
         private System.Windows.Forms.Label label_queue;
         private System.Windows.Forms.GroupBox gpsBox;
@@ -288,6 +311,8 @@
         private System.Windows.Forms.TextBox EastText;
         private System.Windows.Forms.TextBox TimeText;
         private System.Windows.Forms.TextBox SatText;
+        private System.Windows.Forms.RichTextBox log;
+        private System.Windows.Forms.Label label5;
     }
 }
 

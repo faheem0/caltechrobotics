@@ -42,9 +42,12 @@ namespace RMGUI
             _gpsPort.Subscribe(gpsNotificationPort);
 
             //Install a notification handler
-            Activate<ITask>(
+            //Arbiter.
+            Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler);
+            /*Activate(
                 Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
-                );
+                );*/
+            
             Console.WriteLine("Subscribed to GPS");
         }
         private void NotifyUTMHandler(gps.UTMNotification n)
