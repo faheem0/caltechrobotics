@@ -34,17 +34,11 @@
     <Reference Include="Ccr.Core, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="DssBase, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="DssRuntime, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="GenericGPS.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1ab751c944756d21, processorArchitecture=MSIL" />
-    <Reference Include="GenericMotor.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1ab751c944756d21, processorArchitecture=MSIL" />
-    <Reference Include="MainControl.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1ab751c944756d21, processorArchitecture=MSIL" />
+    <Reference Include="GenericGPS.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=3f3b6e33a7ff1111, processorArchitecture=MSIL" />
+    <Reference Include="GenericMotor.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=3f3b6e33a7ff1111, processorArchitecture=MSIL" />
+    <Reference Include="MainControl.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=3f3b6e33a7ff1111, processorArchitecture=MSIL" />
     <Reference Include="RoboticsCommon.proxy, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
