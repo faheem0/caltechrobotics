@@ -45,7 +45,7 @@ namespace RoboMagellan.MotorControl
         [ServicePort("/genericmotor", AllowMultipleInstances=false)]
         private GenericMotorOperations _mainPort = new GenericMotorOperations();
 
-        private static string MOTOR_PORT = "COM2";
+        private static string MOTOR_PORT = "COM1";
 
         private MotorControl _motor;
 
