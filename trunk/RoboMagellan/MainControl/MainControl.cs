@@ -12,6 +12,7 @@ using Microsoft.Ccr.Core;
 using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
+using Microsoft.Dss.Core.DsspHttp;
 using Microsoft.Dss.ServiceModel.DsspServiceBase;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,12 @@ using W3C.Soap;
 using robomagellan = RoboMagellan;
 using gps = RoboMagellan.GenericGPS.Proxy;
 using motor = RoboMagellan.MotorControl.Proxy;
+using submgr = Microsoft.Dss.Services.SubscriptionManager;
+
 namespace RoboMagellan
 {
     
+    public class ControlDataPort : PortSet<MainControlUpdateState, Exception>{ }
     
     /// <summary>
     /// Implementation class for MainControl
@@ -37,6 +41,8 @@ namespace RoboMagellan
 
         private static double ANGLE_THRESHOLD = 2;
 
+        private ControlDataPort CPort = new ControlDataPort();
+
         Port<DefaultSubmitResponseType> tempt;
 
         [Partner("Gps", Contract = gps.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
@@ -47,12 +53,16 @@ namespace RoboMagellan
         // NEEDS PARTNER!
         [Partner("Motor", Contract = motor.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private motor.GenericMotorOperations _motorPort = new motor.GenericMotorOperations();
-        
+
+        [Partner("SubMgr", Contract = submgr.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.CreateAlways)]
+        submgr.SubscriptionManagerPort _subMgrPort = new submgr.SubscriptionManagerPort();
 
         /// <summary>
         /// _state
         /// </summary>
         private MainControlState _state = new MainControlState();
+
+        private MainControlUpdateState _update = new MainControlUpdateState();
         
         /// <summary>
         /// _main Port
@@ -71,12 +81,18 @@ namespace RoboMagellan
 
         private void EnqueueWaypoints()
         {
+            
             _state._destination = new gps.UTMData();
             _state._destination.East = 396499.33;
             _state._destination.North = 3777944.93;
 
             _state._destinations.Enqueue(_state._destination);
+            /*
+            _state._destination = new gps.UTMData();
+            _state._destination.East = 396499.33;
+            _state._destination.North = 3777944.93;
 
+            _state._destinations.Enqueue(_state._destination);
             _state._destination = new gps.UTMData();
             _state._destination.East = 396497.06;
             _state._destination.North = 3777944.35;
@@ -86,7 +102,7 @@ namespace RoboMagellan
             _state._destination = new gps.UTMData();
             _state._destination.East = 396496.79;
             _state._destination.North = 3777942.28;
-
+            */
         }
         
         /// <summary>
@@ -98,16 +114,22 @@ namespace RoboMagellan
 			base.Start();
 			// Add service specific initialization here.
             Console.WriteLine("MainControl initializing");
-
+            DirectoryInsert();
             this.EnqueueWaypoints();
 
-            _state._destinations.Enqueue(_state._destination);
+            
 
             _state._destination = _state._destinations.Dequeue();
             Activate<ITask>(
                 Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
                 );
 
+            /*Interleave mainInterleave = ActivateDsspOperationHandlers();
+            mainInterleave.CombineWith(new Interleave(new ExclusiveReceiverGroup(
+                Arbiter.Receive<MainControlUpdateState>(true, CPort, DataReceivedHandler)),
+                new ConcurrentReceiverGroup()));
+            */
+            PostUpdate();
             _gpsPort.Subscribe(_gpsNotify);
             Console.WriteLine("Subscribed to GPS, standing by");
         }
@@ -118,6 +140,7 @@ namespace RoboMagellan
         {
             Console.WriteLine("Received GPS notification, current state: " + _state._state);
             _state._location = n.Body;
+            PostUpdate();
 
             switch (_state._state)
             {
@@ -140,13 +163,14 @@ namespace RoboMagellan
 
 
                         _state._state = MainControlStates.STATE_TURNING;
-
+                        PostUpdate();
 
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
                             delegate(DefaultSubmitResponseType s)
                             {
                                 Console.WriteLine("Received turn complete!");
                                 _state._state = MainControlStates.STATE_DRIVING;
+                                PostUpdate();
                                 motor.MotorSpeed ms = new motor.MotorSpeed();
                                 ms.Left = 20;
                                 ms.Right = 20;
@@ -169,14 +193,16 @@ namespace RoboMagellan
 
                         Console.WriteLine("Stopping!");
                         _state._state = MainControlStates.STATE_STOPPING;
-
+                        PostUpdate();
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
                             delegate(DefaultSubmitResponseType a) { 
                                 _state._state = MainControlStates.STATE_STOPPED;
+                                PostUpdate();
                                 Console.WriteLine("Received stop!");
                                 if (_state._destinations.Count > 0)
                                 {
                                     _state._destination = _state._destinations.Dequeue();
+                                    PostUpdate();
                                 }
                                 else
                                 {
@@ -184,6 +210,7 @@ namespace RoboMagellan
                                     empty.East = 0.0;
                                     empty.North = 0.0;
                                     _state._destination = empty;
+                                    PostUpdate();
                                 }
                             }));
 //                            delegate(Exception ex) { _state._state = STATE_ERROR; }));
@@ -202,6 +229,15 @@ namespace RoboMagellan
             }
         }
 
+        private void PostUpdate()
+        {
+            _update._state = _state._state;
+            _update._location = (gps.UTMData) _state._location.Clone();
+            _update._destination = (gps.UTMData) _state._destination.Clone();
+            _update._destinations = _state._destinations.ToArray();
+            CPort.Post(_update);
+            SendNotification(_subMgrPort, new StateNotification(_update)); 
+        }
         public double GetDistance(gps.UTMData a, gps.UTMData b)
         {
             return Math.Sqrt(GetDistanceSquared(a, b));
@@ -230,6 +266,57 @@ namespace RoboMagellan
         public virtual IEnumerator<ITask> GetHandler(Get get)
         {
             get.ResponsePort.Post(_state);
+            yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public virtual IEnumerator<ITask> HttpGetHandler(HttpGet httpGet)
+        {
+            httpGet.ResponsePort.Post(new HttpResponseType(_update));
+            yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public IEnumerator<ITask> HttpPostHandler(HttpPost httpPost)
+        {
+            yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public virtual IEnumerator<ITask> SubscribeHandler(Subscribe subscribe)
+        {
+            SubscribeRequestType request = subscribe.Body;
+            Console.WriteLine("Control received subscribe request");
+            yield return Arbiter.Choice(
+                SubscribeHelper(_subMgrPort, request, subscribe.ResponsePort),
+                delegate(SuccessResult success)
+                {
+                    Console.WriteLine("Subscription confirmed");
+                    SendNotification<StateNotification>(_subMgrPort, request.Subscriber, _update);
+                },
+                delegate(Exception e)
+                {
+                    LogError(null, "Subscribe failed", e);
+                }
+            );
+
+            yield break;
+        }
+
+        private void DataReceivedHandler(MainControlUpdateState d)
+        {
+            //Console.WriteLine("Received Control data");
+            //_state.Coords = d;
+
+            SendNotification(_subMgrPort, new StateNotification(d));
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> EnqueueHandler(Enqueue s)
+        {
+            gps.UTMData data = s.Body;
+            _state._destinations.Enqueue(data);
+            PostUpdate();
             yield break;
         }
     }

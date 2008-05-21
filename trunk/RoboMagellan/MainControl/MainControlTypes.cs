@@ -9,8 +9,10 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Ccr.Core;
+using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
+using Microsoft.Dss.Core.DsspHttp;
 using System;
 using System.Collections.Generic;
 using W3C.Soap;
@@ -58,15 +60,55 @@ namespace RoboMagellan
 
         public Queue<gps.UTMData> _destinations = new Queue<gps.UTMData>();
     }
-    
+
+    /// <summary>
+    /// The MainControl Update State
+    /// </summary>
+    [DataContract()]
+    public struct MainControlUpdateState
+    {
+        [DataMember]
+        public MainControlStates _state;
+
+        [DataMember]
+        public gps.UTMData _location;
+
+        [DataMember]
+        public gps.UTMData _destination;
+
+        [DataMember]
+        public gps.UTMData[] _destinations;
+    }
+
+    public class Subscribe : Subscribe<SubscribeRequestType, PortSet<SubscribeResponseType, Fault>, MainControlOperations> { }
+
+    public class StateNotification : Update<MainControlUpdateState, DsspResponsePort<DefaultUpdateResponseType>>
+    {
+        public StateNotification(MainControlUpdateState s) { this.Body = s; }
+
+        public StateNotification() { }
+    }
     /// <summary>
     /// MainControl Main Operations Port
     /// </summary>
     [ServicePort()]
-    public class MainControlOperations : PortSet<DsspDefaultLookup, DsspDefaultDrop, Get>
+    public class MainControlOperations : PortSet<DsspDefaultLookup, 
+                                                DsspDefaultDrop, 
+                                                Get, 
+                                                Subscribe, 
+                                                HttpGet,
+                                                HttpPost, 
+                                                StateNotification,
+                                                Enqueue>
     {
     }
-    
+
+    public class Enqueue : Submit<gps.UTMData, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public Enqueue() { }
+        public Enqueue(gps.UTMData a) { this.Body = a; }
+    }
+
     /// <summary>
     /// MainControl Get Operation
     /// </summary>

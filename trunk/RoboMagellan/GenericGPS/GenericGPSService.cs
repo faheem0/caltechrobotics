@@ -72,14 +72,6 @@ namespace RoboMagellan.GenericGPS
                 _gps.command("$PASHQ,RID");
                 yield return Arbiter.Receive(false, TimeoutPort(10), delegate(DateTime time) { });
                 _gps.command("$PASHS,OUT,A,NMEA");
-                /*System.Threading.Thread.Sleep(10);
-                command("$PASHS,NME,GSV,A,ON");*/
-                /*System.Threading.Thread.Sleep(10);
-                command("$PASHS,NME,GGA,A,ON");*/
-                /*System.Threading.Thread.Sleep(10);
-                command("$PASHS,NME,GSA,A,ON");
-                System.Threading.Thread.Sleep(10);
-                command("$PASHS,NME,VTG,A,ON");*/
                 yield return Arbiter.Receive(false, TimeoutPort(10), delegate(DateTime time) { });
                 _gps.command("$PASHS,NME,UTM,A,ON");     //Make GPS send UTM coordinate string
                 yield return Arbiter.Receive(false, TimeoutPort(10), delegate(DateTime time) { });
