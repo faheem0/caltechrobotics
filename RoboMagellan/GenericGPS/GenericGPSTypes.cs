@@ -86,6 +86,7 @@ namespace RoboMagellan.GenericGPS
         public UTMNotification() { }
     }
 
+
     /// <summary>
     /// GenericGPS Get Operation
     /// </summary>
