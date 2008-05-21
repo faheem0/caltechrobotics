@@ -33,7 +33,7 @@ namespace RoboMagellan
     [Contract(Contract.Identifier)]
     public class MainControlService : DsspServiceBase
     {
-        private static double DISTANCE_THRESHOLD = 10;
+        private static double DISTANCE_THRESHOLD = 1;
 
         private static double ANGLE_THRESHOLD = 2;
 
@@ -68,6 +68,26 @@ namespace RoboMagellan
         {
             _state._state = MainControlStates.STATE_STOPPED;
         }
+
+        private void EnqueueWaypoints()
+        {
+            _state._destination = new gps.UTMData();
+            _state._destination.East = 396499.33;
+            _state._destination.North = 3777944.93;
+
+            _state._destinations.Enqueue(_state._destination);
+
+            _state._destination = new gps.UTMData();
+            _state._destination.East = 396497.06;
+            _state._destination.North = 3777944.35;
+
+            _state._destinations.Enqueue(_state._destination);
+
+            _state._destination = new gps.UTMData();
+            _state._destination.East = 396496.79;
+            _state._destination.North = 3777942.28;
+
+        }
         
         /// <summary>
         /// Service Start
@@ -78,15 +98,8 @@ namespace RoboMagellan
 			base.Start();
 			// Add service specific initialization here.
             Console.WriteLine("MainControl initializing");
-            _state._destination = new gps.UTMData();
-            _state._destination.East = 396380.74;
-            _state._destination.North = 3778304.56;
 
-            _state._destinations.Enqueue(_state._destination);
-
-            _state._destination = new gps.UTMData();
-            _state._destination.East = 396180.74;
-            _state._destination.North = 3778404.56;
+            this.EnqueueWaypoints();
 
             _state._destinations.Enqueue(_state._destination);
 
@@ -135,8 +148,8 @@ namespace RoboMagellan
                                 Console.WriteLine("Received turn complete!");
                                 _state._state = MainControlStates.STATE_DRIVING;
                                 motor.MotorSpeed ms = new motor.MotorSpeed();
-                                ms.Left = 60;
-                                ms.Right = 60;
+                                ms.Left = 20;
+                                ms.Right = 20;
                                 motor.SetSpeed setspeed = new motor.SetSpeed(ms);
                                 _motorPort.Post(setspeed);
                             }));
