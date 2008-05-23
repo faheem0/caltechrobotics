@@ -1,0 +1,9 @@
+C:\Microsoft Robotics Studio (1.5)\bin\GenericCompass.Y2008.M05.Proxy.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GenericCompass.Y2008.M05.Proxy.pdb
+C:\Microsoft Robotics Studio (1.5)\bin\GenericCompass.Y2008.M05.proxy.xml
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\Proxy\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\Proxy\obj\Debug\RoboMagellan.GenericCompass.Resources.DssModel.dss
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\Proxy\obj\Debug\RoboMagellan.GenericCompass.Properties.Resources.resources
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\Proxy\obj\Debug\GenericCompass.Y2008.M05.proxy.csproj.GenerateResource.Cache
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\Proxy\obj\Debug\GenericCompass.Y2008.M05.Proxy.dll
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\Proxy\obj\Debug\GenericCompass.Y2008.M05.Proxy.pdb

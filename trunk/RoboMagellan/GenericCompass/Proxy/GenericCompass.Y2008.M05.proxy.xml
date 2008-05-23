@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GenericCompass.Y2008.M05.Proxy</name>
+    </assembly>
+    <members>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.Contract">
+            <summary>
+            GenericCompass Contract
+            </summary>
+        </member>
+        <member name="F:RoboMagellan.GenericCompass.Proxy.Contract.Identifier">
+            The Unique Contract Identifier for the GenericCompass service
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Contract.ServiceModel">
+            The Dss Service dssModel Contract(s)
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Contract.CreateService(Microsoft.Dss.Services.Constructor.ConstructorPort,Microsoft.Dss.ServiceModel.Dssp.PartnerType[])">
+            <summary>
+            Creates an instance of the service associated with this contract
+            </summary>
+            <param name="contructorServicePort">Contractor Service that will create the instance</param>
+            <param name="partners">Optional list of service partners for new service instance</param>
+            <returns>Result PortSet for retrieving service creation response</returns>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Contract.CreateService(Microsoft.Dss.Services.Constructor.ConstructorPort)">
+            <summary>
+            Creates an instance of the service associated with this contract
+            </summary>
+            <param name="contructorServicePort">Contractor Service that will create the instance</param>
+            <returns>Result PortSet for retrieving service creation response</returns>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.GenericCompassState">
+            <summary>
+            Generic Compass State
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassState.CopyTo(Microsoft.Dss.Core.IDssSerializable)">
+            <summary>
+            Copy To Generic Compass State
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassState.Clone">
+            <summary>
+            Clone Generic Compass State
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassState.Serialize(System.IO.BinaryWriter)">
+            <summary>
+            Serialize Serialize
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassState.Deserialize(System.IO.BinaryReader)">
+            <summary>
+            Deserialize Deserialize
+            </summary>
+        </member>
+        <member name="P:RoboMagellan.GenericCompass.Proxy.GenericCompassState.currentAngle">
+            <summary>
+            Current Angle
+            </summary>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.CompassData">
+            <summary>
+            Compass Data
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassData.CopyTo(Microsoft.Dss.Core.IDssSerializable)">
+            <summary>
+            Copy To Compass Data
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassData.Clone">
+            <summary>
+            Clone Compass Data
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassData.Serialize(System.IO.BinaryWriter)">
+            <summary>
+            Serialize Serialize
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassData.Deserialize(System.IO.BinaryReader)">
+            <summary>
+            Deserialize Deserialize
+            </summary>
+        </member>
+        <member name="P:RoboMagellan.GenericCompass.Proxy.CompassData.angle">
+            <summary>
+            Angle
+            </summary>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations">
+            <summary>
+            Generic Compass Operations
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.DsspDefaultLookup">
+            <summary>
+            Required Lookup request body type
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.DsspDefaultLookup(Microsoft.Dss.ServiceModel.Dssp.LookupRequestType)">
+            <summary>
+            Post Dssp Default Lookup and return the response port.
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.DsspDefaultDrop">
+            <summary>
+            A request to drop the service.
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.DsspDefaultDrop(Microsoft.Dss.ServiceModel.Dssp.DropRequestType)">
+            <summary>
+            Post Dssp Default Drop and return the response port.
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.Get">
+            <summary>
+            Required Get body type
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.Get(Microsoft.Dss.ServiceModel.Dssp.GetRequestType)">
+            <summary>
+            Post Get and return the response port.
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.Subscribe(Microsoft.Ccr.Core.IPort)">
+            <summary>
+            Post Subscribe and return the response port.
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.Subscribe(Microsoft.Dss.ServiceModel.Dssp.SubscribeRequestType,Microsoft.Ccr.Core.IPort)">
+            <summary>
+            Post Subscribe and return the response port.
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.CompassNotification">
+            <summary>
+            Compass Data
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.GenericCompassOperations.CompassNotification(RoboMagellan.GenericCompass.Proxy.CompassData)">
+            <summary>
+            Post Compass Notification and return the response port.
+            </summary>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.Get">
+            <summary>
+            Get
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Get.#ctor">
+            <summary>
+            Get
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Get.#ctor(Microsoft.Dss.ServiceModel.Dssp.GetRequestType)">
+            <summary>
+            Get
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Get.#ctor(Microsoft.Dss.ServiceModel.Dssp.GetRequestType,Microsoft.Ccr.Core.PortSet{RoboMagellan.GenericCompass.Proxy.GenericCompassState,W3C.Soap.Fault})">
+            <summary>
+            Get
+            </summary>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.Subscribe">
+            <summary>
+            Subscribe
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Subscribe.#ctor">
+            <summary>
+            Subscribe
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Subscribe.#ctor(Microsoft.Dss.ServiceModel.Dssp.SubscribeRequestType)">
+            <summary>
+            Subscribe
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Subscribe.#ctor(Microsoft.Dss.ServiceModel.Dssp.SubscribeRequestType,Microsoft.Ccr.Core.PortSet{Microsoft.Dss.ServiceModel.Dssp.SubscribeResponseType,W3C.Soap.Fault})">
+            <summary>
+            Subscribe
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.Subscribe.#ctor(Microsoft.Dss.ServiceModel.Dssp.SubscribeRequestType,Microsoft.Ccr.Core.PortSet{Microsoft.Dss.ServiceModel.Dssp.SubscribeResponseType,W3C.Soap.Fault},RoboMagellan.GenericCompass.Proxy.GenericCompassOperations)">
+            <summary>
+            Subscribe
+            </summary>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Proxy.CompassNotification">
+            <summary>
+            Compass Notification
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassNotification.#ctor">
+            <summary>
+            Compass Notification
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassNotification.#ctor(RoboMagellan.GenericCompass.Proxy.CompassData)">
+            <summary>
+            Compass Notification
+            </summary>
+        </member>
+        <member name="M:RoboMagellan.GenericCompass.Proxy.CompassNotification.#ctor(RoboMagellan.GenericCompass.Proxy.CompassData,Microsoft.Dss.ServiceModel.Dssp.DsspResponsePort{Microsoft.Dss.ServiceModel.Dssp.DefaultUpdateResponseType})">
+            <summary>
+            Compass Notification
+            </summary>
+        </member>
+        <member name="T:RoboMagellan.GenericCompass.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:RoboMagellan.GenericCompass.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:RoboMagellan.GenericCompass.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:RoboMagellan.GenericCompass.Properties.Resources.DssModel">
+            <summary>
+              Looks up a resource file similar to DssModel.
+            </summary>
+        </member>
+    </members>
+</doc>
