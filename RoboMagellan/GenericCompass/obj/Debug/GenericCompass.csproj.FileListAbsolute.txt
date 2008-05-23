@@ -1,0 +1,5 @@
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\obj\Debug\ResolveAssemblyReference.cache
+C:\Microsoft Robotics Studio (1.5)\bin\GenericCompass.Y2008.M05.dll
+C:\Microsoft Robotics Studio (1.5)\bin\GenericCompass.Y2008.M05.pdb
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\obj\Debug\GenericCompass.Y2008.M05.dll
+C:\Documents and Settings\Karthik Sarma\My Documents\Visual Studio 2008\Projects\RoboMagellan\GenericCompass\obj\Debug\GenericCompass.Y2008.M05.pdb
