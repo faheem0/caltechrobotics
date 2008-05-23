@@ -81,7 +81,7 @@ namespace RoboMagellan
 
         private void EnqueueWaypoints()
         {
-            
+            /*
             _state._destination = new gps.UTMData();
             _state._destination.East = 396499.33;
             _state._destination.North = 3777944.93;
@@ -119,7 +119,7 @@ namespace RoboMagellan
 
             
 
-            _state._destination = _state._destinations.Dequeue();
+            //_state._destination = _state._destinations.Dequeue();
             Activate<ITask>(
                 Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
                 );
@@ -141,9 +141,21 @@ namespace RoboMagellan
             Console.WriteLine("Received GPS notification, current state: " + _state._state);
             _state._location = n.Body;
             PostUpdate();
-
+            if (_state._destination.East == 0 && _state._destination.North == 0)
+            {
+                _state._state = MainControlStates.STATE_STANDBY;
+                PostUpdate();
+            }
             switch (_state._state)
             {
+                case MainControlStates.STATE_STANDBY :
+                    if (_state._destinations.Count > 0)
+                    {
+                        _state._destination = _state._destinations.Dequeue();
+                        _state._state = MainControlStates.STATE_STOPPED;
+                        PostUpdate();
+                    }
+                    break;
                 case MainControlStates.STATE_STOPPING :
                     return;
                     break;
