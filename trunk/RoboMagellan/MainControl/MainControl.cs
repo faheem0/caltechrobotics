@@ -23,6 +23,7 @@ using robomagellan = RoboMagellan;
 using gps = RoboMagellan.GenericGPS.Proxy;
 using motor = RoboMagellan.MotorControl.Proxy;
 using submgr = Microsoft.Dss.Services.SubscriptionManager;
+using compass = RoboMagellan.GenericCompass.Proxy;
 
 namespace RoboMagellan
 {
@@ -43,14 +44,15 @@ namespace RoboMagellan
 
         private ControlDataPort CPort = new ControlDataPort();
 
-        Port<DefaultSubmitResponseType> tempt;
 
         [Partner("Gps", Contract = gps.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private gps.GenericGPSOperations _gpsPort = new gps.GenericGPSOperations();
         private gps.GenericGPSOperations _gpsNotify = new gps.GenericGPSOperations();
 
+        [Partner("Compass", Contract = compass.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        private compass.GenericCompassOperations _compassPort = new compass.GenericCompassOperations();
+        private compass.GenericCompassOperations _compassNotify = new compass.GenericCompassOperations();
 
-        // NEEDS PARTNER!
         [Partner("Motor", Contract = motor.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private motor.GenericMotorOperations _motorPort = new motor.GenericMotorOperations();
 
@@ -117,12 +119,18 @@ namespace RoboMagellan
             DirectoryInsert();
             this.EnqueueWaypoints();
 
-            
+            Activate<ITask>(
+                Arbiter.Interleave(
+                    new TeardownReceiverGroup(),
+                    new ExclusiveReceiverGroup(
+                       Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler),
+                       Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler)),
+                   new ConcurrentReceiverGroup()));
 
             //_state._destination = _state._destinations.Dequeue();
-            Activate<ITask>(
-                Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
-                );
+//            Activate<ITask>(
+//                Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
+//                );
 
             /*Interleave mainInterleave = ActivateDsspOperationHandlers();
             mainInterleave.CombineWith(new Interleave(new ExclusiveReceiverGroup(
@@ -130,8 +138,36 @@ namespace RoboMagellan
                 new ConcurrentReceiverGroup()));
             */
             PostUpdate();
+            _compassPort.Subscribe(_compassNotify);
+            Console.WriteLine("Subscribed to compass");
             _gpsPort.Subscribe(_gpsNotify);
             Console.WriteLine("Subscribed to GPS, standing by");
+        }
+
+        public void NotifyCompassHandler(compass.CompassNotification c)
+        {
+            if (_state._state != MainControlStates.STATE_DRIVING) return;
+
+            // if the compass bearings arent in the same reference as the gps generated bearings this wont work, should ask EEs about this
+
+            double absoluteBearing = GetAbsoluteBearing(_state._location, _state._destination);
+            double actualBearing = c.Body.angle;
+
+            if (Math.Abs(absoluteBearing - actualBearing) > ANGLE_THRESHOLD)
+            {
+                Console.WriteLine("Stopping because actual bearing (" + actualBearing + ") outside angle threshold (intended bearing is " + actualBearing + ")");
+                _state._state = MainControlStates.STATE_STOPPING;
+                PostUpdate();
+                Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
+                    delegate(DefaultSubmitResponseType a)
+                    {
+                        _state._state = MainControlStates.STATE_STOPPED;
+                        PostUpdate();
+                        Console.WriteLine("Received stop!");
+                    }));
+
+                _motorPort.Post(stop);
+            }
         }
 
         // UPDATES STATE!
@@ -244,12 +280,14 @@ namespace RoboMagellan
         private void PostUpdate()
         {
             _update._state = _state._state;
-            _update._location = (gps.UTMData) _state._location.Clone();
-            _update._destination = (gps.UTMData) _state._destination.Clone();
+            _update._location = _state._location;
+            _update._destination = _state._destination;
+            // double check that this is safe...
             _update._destinations = _state._destinations.ToArray();
             CPort.Post(_update);
             SendNotification(_subMgrPort, new StateNotification(_update)); 
         }
+
         public double GetDistance(gps.UTMData a, gps.UTMData b)
         {
             return Math.Sqrt(GetDistanceSquared(a, b));
