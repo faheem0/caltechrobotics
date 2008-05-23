@@ -43,7 +43,9 @@ namespace RoboMagellan
         STATE_STOPPED,
         STATE_TURNING,
         STATE_DRIVING,
-        STATE_ERROR
+        STATE_ERROR,
+        STATE_STANDBY,
+        STATE_SCANNING
     }
 
     /// <summary>
