@@ -20,10 +20,12 @@ using System.ComponentModel;
 using System.Xml;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.IO;
 using W3C.Soap;
 using conedetect = RoboMagellan.ConeDetect;
 using webcam = Microsoft.Robotics.Services.WebCam.Proxy;
+using multiwebcam = Microsoft.Robotics.Services.MultiDeviceWebCam.Proxy;
 using physics = Microsoft.Robotics.PhysicalModel.Proxy;
 using submgr = Microsoft.Dss.Services.SubscriptionManager;
 
@@ -44,8 +46,10 @@ namespace RoboMagellan.ConeDetect
         private static float DIMENSION_Y = 480;
 
         private static physics.Vector2 SIZE;
-        private static int TOLERANCE = 10;
+        private static int TOLERANCE = 70;
         private static int FPS = 10;
+        private static Color ConeColor = Color.FromArgb(239,58,31);
+        private static Color MaskColor = Color.Black;
         
         /// <summary>
         /// _state
@@ -58,13 +62,16 @@ namespace RoboMagellan.ConeDetect
         [ServicePort("/conedetect", AllowMultipleInstances=false)]
         private ConeDetectOperations _mainPort = new ConeDetectOperations();
 
-
-        [Partner("Webcam", Contract = webcam.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UsePartnerListEntry)]
-        //webcam.WebCamOperations _camNotify = new webcam.WebCamOperations();
-        webcam.WebCamOperations _camData = new webcam.WebCamOperations();
         
         [Partner("SubMgr", Contract = submgr.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.CreateAlways)]
         submgr.SubscriptionManagerPort _subMgrPort = new submgr.SubscriptionManagerPort();
+
+        /*[Partner("MultiWebcam", Contract = multiwebcam.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        multiwebcam.WebCamServiceOperations _multiWebcam = new multiwebcam.WebCamServiceOperations();*/
+
+        [Partner("Webcam", Contract = webcam.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        webcam.WebCamOperations _camData = new webcam.WebCamOperations();
+        webcam.WebCamOperations _camNotify = new webcam.WebCamOperations();
 
         /// <summary>
         /// Default Service Constructor
@@ -79,7 +86,22 @@ namespace RoboMagellan.ConeDetect
         /// </summary>
         protected override void Start()
         {
-			//base.Start();
+            if (_state == null)
+            {
+                _state = new ConeDetectState();
+
+                _state.WebCamPollingIntervalInMs = 100;
+
+                _state.TrackingObjectColor = new ColorVector(0.51, 0.23, 0.26, 0.99);
+                _state.ColorAreaThreshold = 200;
+                _state.SkinAreaThreshold = 250;
+                _state.HeadAreaThreshold = 250;
+
+                base.SaveState(_state);
+            }
+
+			base.Start();
+            DirectoryInsert();
             Console.WriteLine("Webcam Starting");
             //DirectoryInsert();
             /*webcam.WebCamState f = new Microsoft.Robotics.Services.WebCam.WebCamState();
@@ -90,13 +112,13 @@ namespace RoboMagellan.ConeDetect
             SIZE.X = DIMENSION_X;
             SIZE.Y = DIMENSION_Y;
 
-            //Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(3000), GetFrame));
+            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(3000), GetFrame));
 
-            //_camData.Subscribe(_camNotify);
+            _camData.Subscribe(_camNotify);
             Console.WriteLine("Webcam started");
 			// Add service specific initialization here.
         }
-        /*public IEnumerator<ITask> GetFrame(DateTime timeout)
+        public IEnumerator<ITask> GetFrame(DateTime timeout)
         {
             
             Fault fault = null;
@@ -142,29 +164,31 @@ namespace RoboMagellan.ConeDetect
             }
 
             Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(FPS), GetFrame));
-        }*/
+        }
 
         private CamData processImage(Bitmap frame)
         {
             CamData data = new CamData();
            
             Color c;
-            for (int i = 0; i < frame.Width; i++)
+           for (int i = 0; i < frame.Width; i++)
             {
                 for (int j = 0; j < frame.Height; j++)
                 {
                     c = frame.GetPixel(i, j);
-                    if (isBetween(c.G, Color.Orange.G - TOLERANCE, Color.Orange.G + TOLERANCE)
-                        && isBetween(c.R, Color.Orange.R - TOLERANCE, Color.Orange.R + TOLERANCE)
-                        && isBetween(c.B, Color.Orange.B - TOLERANCE, Color.Orange.B + TOLERANCE)
-                        )
-                    {
 
+                    /*if (!(isBetween(c.G, ConeColor.G - TOLERANCE, ConeColor.G + TOLERANCE)
+                        && isBetween(c.R, ConeColor.R - TOLERANCE, ConeColor.R + TOLERANCE)
+                        && isBetween(c.B, ConeColor.B - TOLERANCE, ConeColor.B + TOLERANCE)
+                        ))
+                    {
+                        
+                        frame.SetPixel(i, j, MaskColor);
                     }
                     else
                     {
-                        frame.SetPixel(i, j, Color.Black);
-                    }
+                        
+                    }*/
                     
                 }
                 
@@ -174,9 +198,9 @@ namespace RoboMagellan.ConeDetect
         }
         private bool isBetween(int v, int l, int u)
         {
-            return (v >= l && v <= u);
+            return v > l && v < u;
         }
-
+        
         [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
         public virtual IEnumerator<ITask> SubscribeHandler(Subscribe subscribe)
         {

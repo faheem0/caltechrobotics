@@ -112,9 +112,11 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
+    <Reference Include="WebCamService.Y2006.M05.proxy, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="ConeDetect.cs" />
     <Compile Include="ConeDetectTypes.cs" />
     <AppDesigner Include="Properties" />

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using W3C.Soap;
 using conedetect = RoboMagellan.ConeDetect;
+using System.ComponentModel;
 
 
 namespace RoboMagellan.ConeDetect
@@ -92,6 +93,74 @@ namespace RoboMagellan.ConeDetect
     [DataContract()]
     public class ConeDetectState
     {
+
+        /// <summary>
+        /// Image Width
+        /// </summary>
+        [DataMember]
+        [Description("Specifies the image width.")]
+        public const int ImageWidth = 160;
+        /// <summary>
+        /// Image Height
+        /// </summary>
+        [DataMember]
+        [Description("Specifies the image height.")]
+        public const int ImageHeight = 120;
+        /// <summary>
+        /// Face Width
+        /// </summary>
+        [DataMember]
+        [Description("Specifies the face width.")]
+        public const int FaceWidth = 60;
+        /// <summary>
+        /// Face Height
+        /// </summary>
+        [DataMember]
+        [Description("Specifies the face height.")]
+        public const int FaceHeight = 60;
+        /// <summary>
+        /// Max Regions for segmentation  
+        /// </summary>
+        [DataMember]
+        [Description("Specifies maximum number of regions for segmentation.")]
+        public const int MaxRegions = 5;
+
+        /// <summary>
+        /// WebCam PollingInterval In Ms
+        /// </summary>
+        [DataMember]
+        [Description("Indicates the polling interval for the webcam service (in ms).")]
+        public int WebCamPollingIntervalInMs;
+
+        /// <summary>
+        /// ColorVector of Tracking Object Color
+        /// </summary>
+        [DataMember]
+        [Description("Specifies the color to be tracked (RGB and similarity threshold).")]
+        public ColorVector TrackingObjectColor;
+
+        /// <summary>
+        /// AreaThreshold of Color Object detection
+        /// </summary>
+        [DataMember]
+        [Description("Specifies the color object detection area threshold (minimum number of pixels).\n(Default value = 200, typical range = 50-5000)")]
+        public int ColorAreaThreshold;
+
+        /// <summary>
+        /// AreaThreshold of Skin region detection
+        /// </summary>
+
+        [DataMember]
+        [Description("Indicates the skin region detection area threshold (minimum number of pixels).\n(Default value = 250, typical range = 50-5000)")]
+        public int SkinAreaThreshold;
+
+        /// <summary>
+        /// AreaThreshold of Head region detection
+        /// </summary>
+        [DataMember]
+        [Description("Indicates the head region detection area threshold (minimum number of pixels).\n(Default value = 250, typical range = 50-5000)")]
+        public int HeadAreaThreshold;
+
     }
     
     /// <summary>
@@ -135,6 +204,108 @@ namespace RoboMagellan.ConeDetect
         public Get(Microsoft.Dss.ServiceModel.Dssp.GetRequestType body, Microsoft.Ccr.Core.PortSet<ConeDetectState,W3C.Soap.Fault> responsePort) : 
                 base(body, responsePort)
         {
+        }
+
+
+    }
+    [DataContract]
+    public class ColorVector
+    {
+        /// <summary>
+        /// Normalized Red Component
+        /// </summary>
+        [Description("Indicates the normalized Red value = Red/(Red+Green+Blue).\n(Range = 0.0-1.0)")]
+        [DataMember]
+        public double Red;
+        /// <summary>
+        /// Normalized Green Component
+        /// </summary>
+        [Description("Indicates the normalized Green value = Green/(Red+Green+Blue).\n(Range = 0.0-1.0)")]
+        [DataMember]
+        public double Green;
+        /// <summary>
+        /// Normalized Blue Component
+        /// </summary>
+        [Description("Indicates the normalized Blue value = Blue/(Red+Green+Blue).\n(Range = 0.0-1.0)")]
+        [DataMember]
+        public double Blue;
+
+        /// <summary>
+        /// Similarity Threshold Value 
+        /// </summary>
+        [Description("Indicates the similarity threshold value; comparing two color vectors.\n(Typical range = 0.9~1.0)")]
+        [DataMember]
+        public double SimilarityMeasure;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public ColorVector()
+        {
+            SimilarityMeasure = 0.995;
+        }
+        /// <summary>
+        /// Constructor with red, green
+        /// </summary>
+        public ColorVector(double red, double green)
+        {
+            Red = red;
+            Green = green;
+            SimilarityMeasure = 0.995;
+        }
+        /// <summary>
+        /// Constructor with red, green, blue
+        /// </summary>
+        public ColorVector(double red, double green, double blue)
+        {
+            Red = red;
+            Green = green;
+            Blue = blue;
+            SimilarityMeasure = 0.995;
+        }
+        /// <summary>
+        /// Constructor with red, green, blue, similarity
+        /// </summary>
+        public ColorVector(double red, double green, double blue, double similarity)
+        {
+            Red = red;
+            Green = green;
+            Blue = blue;
+            SimilarityMeasure = similarity;
+        }
+        /// <summary>
+        /// Return the Magnitude of the vector
+        /// </summary>
+        public double Magnitude()
+        {
+            return Math.Sqrt(Red * Red + Green * Green + Blue * Blue);
+        }
+        /// <summary>
+        /// Return the Dot Product of two Vectors
+        /// </summary>
+        public static double DotProduct(ColorVector cv1, ColorVector cv2)
+        {
+            if (cv1 == null)
+                return 0;
+            if (cv2 == null)
+                return 0;
+
+            return (cv1.Red * cv2.Red) + (cv1.Green * cv2.Green) + (cv1.Blue * cv2.Blue);
+        }
+        /// <summary>
+        /// Calculate the similarity between two color vectors
+        /// </summary>
+        public static double CompareSimilarity(ColorVector cv1, ColorVector cv2)
+        {
+            if (cv1 == null)
+                return 0;
+            if (cv2 == null)
+                return 0;
+
+            double mag = (cv1.Magnitude() * cv2.Magnitude());
+            if (mag != 0)
+                return (DotProduct(cv1, cv2) / mag);
+            return 0;
         }
     }
 }
