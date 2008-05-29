@@ -3,7 +3,7 @@
  using System.Text;
  using System.Drawing;
   
- namespace ColorDemo
+ namespace RoboMagellan.ConeDetect
  {
      public class HSLColor
      {

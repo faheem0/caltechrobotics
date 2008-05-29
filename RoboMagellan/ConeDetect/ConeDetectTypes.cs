@@ -34,6 +34,21 @@ namespace RoboMagellan.ConeDetect
         /// </summary>
         public const String Identifier = "http://schemas.tempuri.org/2008/05/conedetect.html";
     }
+    public struct CamCalibrate
+    {
+        private Color _c;
+        [DataMember]
+        public Color Color
+        {
+            get { return _c; }
+            set { _c = value; }
+        }
+    }
+    public struct Density_Check
+    {
+        public Rectangle r;
+        public bool pass;
+    }
 
     public struct CamData
     {
@@ -41,7 +56,9 @@ namespace RoboMagellan.ConeDetect
         private bool _detected;
         private int _x;
         private int _y;
+        private Rectangle _box;
         private Bitmap _image;
+        private Bitmap _orgImage;
 
         [DataMember]
         public long Timestamp
@@ -72,12 +89,26 @@ namespace RoboMagellan.ConeDetect
         }
 
         [DataMember]
+        public Rectangle Box
+        {
+            get { return _box; }
+            set { _box = value; }
+
+        }
+
+        [DataMember]
         public Bitmap Image
         {
             get { return _image; }
             set { _image = value; }
         }
 
+        [DataMember]
+        public Bitmap OrgImage
+        {
+            get { return _orgImage; }
+            set { _orgImage = value; }
+        }
     }
 
     public class ConeNotification : Update<CamData, DsspResponsePort<DefaultUpdateResponseType>>
@@ -171,9 +202,16 @@ namespace RoboMagellan.ConeDetect
                                                 DsspDefaultDrop, 
                                                 Get,
                                                 Subscribe,
-                                                ConeNotification
+                                                ConeNotification,
+                                                Calibrate
                                                 >
     {
+    }
+
+    public class Calibrate : Submit<CamCalibrate, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public Calibrate() { }
+        public Calibrate(CamCalibrate a) { this.Body = a; }
     }
 
     public class Subscribe : Subscribe<SubscribeRequestType, PortSet<SubscribeResponseType, Fault>, ConeDetectOperations> { }
