@@ -42,14 +42,19 @@ namespace RoboMagellan.ConeDetect
     public class ConeDetectService : DsspServiceBase
     {
 
-        private static float DIMENSION_X = 600;
-        private static float DIMENSION_Y = 480;
+        private static float DIMENSION_X = 174;
+        private static float DIMENSION_Y = 144;
 
         private static physics.Vector2 SIZE;
-        private static int TOLERANCE = 70;
+        private static float TOLERANCE_H = 20.0f;
+        private static float TOLERANCE_S = 0.38f;
+        private static float TOLERANCE_B = 0.42f;
+        private static int DETECT_THRESHOLD = (int)(DIMENSION_X * DIMENSION_Y) / 17;
         private static int FPS = 10;
-        private static Color ConeColor = Color.FromArgb(239,58,31);
+        private static Color ConeColor = Color.FromArgb(239,58,31);//Color.OrangeRed;//Color.FromArgb(239,58,31);
         private static Color MaskColor = Color.Black;
+        private static float SMALL_DENSITY_THRESHOLD = 0.5f;
+        private static int SMALL_DENSITY_BOX = 15;
         
         /// <summary>
         /// _state
@@ -100,7 +105,7 @@ namespace RoboMagellan.ConeDetect
                 base.SaveState(_state);
             }
 
-			base.Start();
+	        base.Start();
             DirectoryInsert();
             Console.WriteLine("Webcam Starting");
             //DirectoryInsert();
@@ -112,11 +117,11 @@ namespace RoboMagellan.ConeDetect
             SIZE.X = DIMENSION_X;
             SIZE.Y = DIMENSION_Y;
 
-            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(3000), GetFrame));
+            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(2000), GetFrame));
 
             _camData.Subscribe(_camNotify);
             Console.WriteLine("Webcam started");
-			// Add service specific initialization here.
+	        // Add service specific initialization here.
         }
         public IEnumerator<ITask> GetFrame(DateTime timeout)
         {
@@ -163,40 +168,113 @@ namespace RoboMagellan.ConeDetect
                 }
             }
 
-            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(FPS), GetFrame));
+            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(1000/FPS), GetFrame));
         }
 
         private CamData processImage(Bitmap frame)
         {
             CamData data = new CamData();
-           
+            data.OrgImage = frame;
+            data.Image = new Bitmap(frame.Width,frame.Height);
+            float mass = 0.0f;
+            float center_x = 0.0f;
+            float center_y = 0.0f;
+            int count = 0;
+
             Color c;
-           for (int i = 0; i < frame.Width; i++)
+            for (int i = 0; i < frame.Width; i++)
             {
                 for (int j = 0; j < frame.Height; j++)
                 {
                     c = frame.GetPixel(i, j);
-
-                    /*if (!(isBetween(c.G, ConeColor.G - TOLERANCE, ConeColor.G + TOLERANCE)
-                        && isBetween(c.R, ConeColor.R - TOLERANCE, ConeColor.R + TOLERANCE)
-                        && isBetween(c.B, ConeColor.B - TOLERANCE, ConeColor.B + TOLERANCE)
-                        ))
+                    //tw.Write(String.Format("{0:0.00}", bm.GetPixel(i, j).GetHue()) + " ");
+                    if (isBetween(c.GetHue(), ConeColor.GetHue() - TOLERANCE_H, ConeColor.GetHue() + TOLERANCE_H))
                     {
-                        
-                        frame.SetPixel(i, j, MaskColor);
+                        if (isBetween(c.GetSaturation(), ConeColor.GetSaturation() - TOLERANCE_S, ConeColor.GetSaturation() + TOLERANCE_S))
+                        {
+                            if (isBetween(c.GetBrightness(), ConeColor.GetBrightness() - TOLERANCE_B, ConeColor.GetBrightness() + TOLERANCE_B))
+                            {
+                                data.Image.SetPixel(i, j, Color.White);
+                                mass += 1;
+                                center_x += i;
+                                center_y += j;
+                                count++;
+                            }
+                            else
+                            {
+                                data.Image.SetPixel(i, j, Color.Black);
+                            }
+                        }
+                        else
+                        {
+                            data.Image.SetPixel(i, j, Color.Black);
+                        }
                     }
                     else
                     {
-                        
-                    }*/
-                    
+                        data.Image.SetPixel(i, j, Color.Black);
+                    }
                 }
-                
             }
-            data.Image = frame;
+            data.X = (int)(center_x / mass);
+            data.Y = (int)(center_y / mass);
+            if (count > DETECT_THRESHOLD)
+            {
+                Density_Check d = checkDensity(data, SMALL_DENSITY_BOX, SMALL_DENSITY_THRESHOLD);
+                if (d.pass)
+                {
+                    data.Detected = true;
+                    data.Box = d.r;
+                }
+                else data.Detected = false;
+            }
+            else data.Detected = false;
+            //Console.WriteLine(data.Box.ToString());
             return data;
         }
-        private bool isBetween(int v, int l, int u)
+        private Density_Check checkDensity(CamData data, int size, float threshold)
+        {
+            int X_min = data.X - size;
+            int X_max = data.X + size;
+            int Y_min = data.Y - size;
+            int Y_max = data.Y + size;
+
+            if (X_min < 0) X_min = 0;
+            if (X_max > DIMENSION_X) X_max = (int)DIMENSION_X;
+            if (Y_min < 0) Y_min = 0;
+            if (Y_max > DIMENSION_Y) Y_max = (int)DIMENSION_Y;
+            Density_Check d = new Density_Check();
+            d.r = new Rectangle(X_min, Y_min, X_max - X_min, Y_max - Y_min);
+
+            float count = 0.0f;
+            float area = 4 * size * size;
+            Color c;
+            for (int i = X_min; i <= X_max; i++)
+            {
+                for (int j = Y_min; j <= Y_max; j++)
+                {
+                    c = data.Image.GetPixel(i,j);
+                    if (c.R == Color.White.R && c.G == Color.White.G && c.B == Color.White.B)
+                    {
+                        //Console.WriteLine("(" + i + "," + j + ")");
+                        count++;
+                    }
+                }
+            }
+            //Console.WriteLine(count / area);
+
+            if (count / area >= threshold)
+            {
+                d.pass = true;
+                return d;
+            }
+            else
+            {
+                d.pass = false;
+                return d;
+            }
+        }
+        private bool isBetween(float v, float l, float u)
         {
             return v > l && v < u;
         }
@@ -230,6 +308,13 @@ namespace RoboMagellan.ConeDetect
         public virtual IEnumerator<ITask> GetHandler(Get get)
         {
             get.ResponsePort.Post(_state);
+            yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> CalibrateHandler(Calibrate s)
+        {
+            ConeColor = s.Body.Color;
             yield break;
         }
     }

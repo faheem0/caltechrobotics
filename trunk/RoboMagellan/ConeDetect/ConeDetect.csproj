@@ -116,7 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="HSLColor.cs" />
     <Compile Include="ConeDetect.cs" />
     <Compile Include="ConeDetectTypes.cs" />
     <AppDesigner Include="Properties" />
