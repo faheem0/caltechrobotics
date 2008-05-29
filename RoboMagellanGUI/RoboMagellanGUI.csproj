@@ -86,6 +86,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ccr.Adapters.WinForms, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="ConeDetect.Y2008.M05.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1ab751c944756d21, processorArchitecture=MSIL" />
     <Reference Include="DssRuntime">
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>

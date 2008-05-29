@@ -32,6 +32,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.calibrateCameraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -61,12 +62,20 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.UpTimeText = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.camPic = new System.Windows.Forms.PictureBox();
+            this.orgCam = new System.Windows.Forms.PictureBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.filterColor = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.gpsBox.SuspendLayout();
             this.statusBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.camPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.orgCam)).BeginInit();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.filterColor)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -76,7 +85,7 @@
             this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(563, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(810, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -84,6 +93,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importToolStripMenuItem,
+            this.calibrateCameraToolStripMenuItem,
             this.quitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
@@ -96,6 +106,13 @@
             this.importToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.importToolStripMenuItem.Text = "Import...";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+            // 
+            // calibrateCameraToolStripMenuItem
+            // 
+            this.calibrateCameraToolStripMenuItem.Name = "calibrateCameraToolStripMenuItem";
+            this.calibrateCameraToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.calibrateCameraToolStripMenuItem.Text = "Calibrate Camera";
+            this.calibrateCameraToolStripMenuItem.Click += new System.EventHandler(this.calibrateCameraToolStripMenuItem_Click);
             // 
             // quitToolStripMenuItem
             // 
@@ -118,7 +135,7 @@
             this.ConStatus});
             this.statusStrip1.Location = new System.Drawing.Point(0, 363);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(563, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(810, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -351,11 +368,48 @@
             this.openFileDialog1.Filter = "Text Files (*.txt)|*.txt";
             this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
+            // camPic
+            // 
+            this.camPic.Location = new System.Drawing.Point(569, 36);
+            this.camPic.Name = "camPic";
+            this.camPic.Size = new System.Drawing.Size(174, 144);
+            this.camPic.TabIndex = 14;
+            this.camPic.TabStop = false;
+            // 
+            // orgCam
+            // 
+            this.orgCam.Location = new System.Drawing.Point(569, 198);
+            this.orgCam.Name = "orgCam";
+            this.orgCam.Size = new System.Drawing.Size(174, 144);
+            this.orgCam.TabIndex = 15;
+            this.orgCam.TabStop = false;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.filterColor);
+            this.groupBox3.Location = new System.Drawing.Point(749, 27);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(50, 64);
+            this.groupBox3.TabIndex = 16;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Filter";
+            // 
+            // filterColor
+            // 
+            this.filterColor.Location = new System.Drawing.Point(7, 20);
+            this.filterColor.Name = "filterColor";
+            this.filterColor.Size = new System.Drawing.Size(36, 35);
+            this.filterColor.TabIndex = 0;
+            this.filterColor.TabStop = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(563, 385);
+            this.ClientSize = new System.Drawing.Size(810, 385);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.orgCam);
+            this.Controls.Add(this.camPic);
             this.Controls.Add(this.UpTimeText);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -379,6 +433,10 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.camPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.orgCam)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.filterColor)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -418,6 +476,11 @@
         private System.Windows.Forms.Label UpTimeText;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.PictureBox camPic;
+        private System.Windows.Forms.PictureBox orgCam;
+        private System.Windows.Forms.ToolStripMenuItem calibrateCameraToolStripMenuItem;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.PictureBox filterColor;
     }
 }
 
