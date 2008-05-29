@@ -13,6 +13,7 @@ using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
 using Microsoft.Dss.ServiceModel.DsspServiceBase;
+using System.Drawing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +22,7 @@ using W3C.Soap;
 using robomagellan = RoboMagellan;
 using gps = RoboMagellan.GenericGPS.Proxy;
 using control = RoboMagellan.Proxy;
+using cone = RoboMagellan.ConeDetect.Proxy;
 using System.Windows.Forms;
 using Microsoft.Ccr.Adapters.WinForms;
 
@@ -44,7 +46,11 @@ namespace RoboMagellan.RoboMagellanGUI
         [Partner("maincontrol", Contract = control.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private control.MainControlOperations _controlPort = new control.MainControlOperations();
         private control.MainControlOperations _controlNotify = new control.MainControlOperations();
-        
+
+        [Partner("cone", Contract = cone.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        private cone.ConeDetectOperations _conePort = new cone.ConeDetectOperations();
+        private cone.ConeDetectOperations _coneNotify = new cone.ConeDetectOperations();
+
         private volatile MainForm _form;
         /// <summary>
         /// _state
@@ -72,7 +78,7 @@ namespace RoboMagellan.RoboMagellanGUI
         {
 			base.Start();
 			// Add service specific initialization here.
-            _form = new MainForm(_controlPort);
+            _form = new MainForm(_controlPort, _conePort);
             //_form.Show();
             WinFormsServicePort.Post(new RunForm(
                 delegate()
@@ -80,9 +86,9 @@ namespace RoboMagellan.RoboMagellanGUI
                     return _form;
                 }
             ));
-
             SubscribeToGPS();
             SubscribeToControl();
+            SubscribeToCone();
         }
 
         public void SubscribeToGPS()
@@ -115,6 +121,21 @@ namespace RoboMagellan.RoboMagellanGUI
             //_form.writeToLog("Subscribed to MainControl\n");
         }
 
+        public void SubscribeToCone()
+        {
+            //_form.writeToLog("Subscribing to Cone...\n");
+
+            //Subscribe to GPS Service
+            _conePort.Subscribe(_coneNotify);
+
+            //Install a notification handler
+            Activate<ITask>(
+                Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler)
+                );
+
+            //_form.writeToLog("Subscribed to GPS\n");
+        }
+
         public void NotifyUTMHandler(gps.UTMNotification n)
         {
             //_form.writeToLog("Received GPS Update\n");
@@ -138,6 +159,20 @@ namespace RoboMagellan.RoboMagellanGUI
                 );
 
         }
+
+        public void NotifyConeHandler(cone.ConeNotification n)
+        {
+            //Console.WriteLine("Got here");
+            cone.CamData data = n.Body;
+            if (data.Detected)
+            {
+                _form.updateCam((Bitmap)data.Image, (Bitmap)data.OrgImage, data.X, data.Y, data.Box);
+
+            }
+            else
+                _form.updateCam((Bitmap)data.Image, (Bitmap)data.OrgImage);
+        }
+
 
         protected override void Shutdown()
         {

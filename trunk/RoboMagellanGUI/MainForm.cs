@@ -7,9 +7,11 @@ using System.Text;
 using System.Windows.Forms;
 using RoboMagellan.GenericGPS.Proxy;
 using control = RoboMagellan.Proxy;
+using cone = RoboMagellan.ConeDetect.Proxy;
 using System.Runtime.InteropServices;
 using RoboMagellan.Proxy;
 using System.IO;
+using System.Drawing;
 
 namespace RoboMagellan.RoboMagellanGUI
 {
@@ -21,10 +23,18 @@ namespace RoboMagellan.RoboMagellanGUI
         private Boolean fileOpened;
         private TextReader tr;
         private control.MainControlOperations _controlPort;
+        private cone.ConeDetectOperations _conePort;
+        private Bitmap b;
+        private Pen p;
+        private Pen green;
+        private static int CIRCLE_SIZE = 10;
 
-        public MainForm(control.MainControlOperations port)
+        public MainForm(control.MainControlOperations port, cone.ConeDetectOperations port2)
         {
             InitializeComponent();
+            ((System.ComponentModel.ISupportInitialize)(this.camPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.orgCam)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.filterColor)).BeginInit();
             quitToolStripMenuItem.Click += quitToolStripMenuItem_Click;
             //ConsolePipe cp = new ConsolePipe(log);
             //Console.SetOut(cp);
@@ -37,6 +47,11 @@ namespace RoboMagellan.RoboMagellanGUI
             timer1.Start();
             fileOpened = false;
             _controlPort = port;
+            _conePort = port2;
+            b = new Bitmap(100,100);
+            p = new Pen(Color.OrangeRed);
+            green = new Pen(Color.LimeGreen);
+            p.Width += 1.5f;
         }
 
         public void updateGPS(string sat, string time, string east, string north)
@@ -56,6 +71,49 @@ namespace RoboMagellan.RoboMagellanGUI
             {
                 WaypointQueue.Items.Add(q[i].East + "\t" + q[i].North);
             }
+        }
+        public void updateCam(Bitmap bm, Bitmap org)
+        {
+            //Console.WriteLine("Got Here Too");
+            //b = bm;
+            Image old = camPic.Image;
+            Image oldCam = orgCam.Image;
+            camPic.Image = bm;
+            orgCam.Image = org;
+            if (oldCam != null) oldCam.Dispose();
+            if (old != null) old.Dispose();
+            //CamPanel.Refresh();
+        }
+        public void updateCam(Bitmap bm, Bitmap org, int X, int Y)
+        {
+            Image old = camPic.Image;
+            Image oldCam = orgCam.Image;
+            Graphics g = Graphics.FromImage(bm);
+            g.DrawEllipse(p,X,Y,CIRCLE_SIZE,CIRCLE_SIZE);
+            g.Dispose();
+            camPic.Image = bm;
+            orgCam.Image = org;
+            if (oldCam != null) oldCam.Dispose();
+            if (old != null) old.Dispose();
+        }
+        public void updateCam(Bitmap bm, Bitmap org, int X, int Y, Rectangle r)
+        {
+            Image old = camPic.Image;
+            Image oldCam = orgCam.Image;
+            Graphics g = Graphics.FromImage(bm);
+            try
+            {
+                g.DrawEllipse(p, X - CIRCLE_SIZE / 2, Y - CIRCLE_SIZE / 2, CIRCLE_SIZE, CIRCLE_SIZE);
+                g.DrawRectangle(green, r);
+
+            }
+            catch (Exception) { }
+            //Console.WriteLine(r.ToString());
+            g.Dispose();
+            camPic.Image = bm;
+            orgCam.Image = org;
+            if (oldCam != null) oldCam.Dispose();
+            if (old != null) old.Dispose();
         }
         public void writeToLog(string s)
         {
@@ -118,7 +176,42 @@ namespace RoboMagellan.RoboMagellanGUI
             catch (Exception) { }
             tr.Close();
         }
-        
+
+        private void calibrateCameraToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Bitmap b = (Bitmap)orgCam.Image;
+            int Y = b.Height / 2 - 10;
+            int X = b.Width / 2 - 10;
+            Color c;
+            int cnt = 0;
+            int R = 0;
+            int G = 0;
+            int B = 0;
+            
+            for (int i = X; i < 20+X; i++)
+            {
+                for (int j = Y; j < 20+X; j++)
+                {
+                    c = b.GetPixel(i, j);
+                    cnt++;
+                    R += c.R;
+                    G += c.G;
+                    B += c.B;
+                }
+            }
+            R /= cnt;
+            G /= cnt;
+            B /= cnt;
+            cone.CamCalibrate cc = new cone.CamCalibrate();
+            cc.Color = Color.FromArgb(R,G,B);
+            _conePort.Post(new cone.Calibrate(cc));
+            b = new Bitmap(filterColor.Width, filterColor.Height);
+            for (int i = 0; i < b.Width; i++)
+                for (int j = 0; j < b.Height; j++)
+                    b.SetPixel(i, j, cc.Color);
+            filterColor.Image = b;
+        }
+
 
     }
 }
