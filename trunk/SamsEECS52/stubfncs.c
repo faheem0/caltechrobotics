@@ -58,20 +58,20 @@
 
 /* update function */
 
-unsigned char  update(unsigned short int far *p, int n)
+/*unsigned char  update(unsigned short int far *p, int n)
 {
     return  FALSE;
 }
-
+*/
 
 
 /* timing function */
 
-int  elapsed_time()
+/*int  elapsed_time()
 {
     return  0;
 }
-
+*/
 
 
 /* keypad functions */
@@ -123,7 +123,7 @@ void  display_artist(const char far *a)
 
 /* audio functions */
 
-void  audio_play(unsigned short int far *p, int n)
+/*void  audio_play(unsigned short int far *p, int n)
 {
     return;
 }
@@ -132,4 +132,4 @@ void  audio_halt()
 {
     return;
 }
-
+*/

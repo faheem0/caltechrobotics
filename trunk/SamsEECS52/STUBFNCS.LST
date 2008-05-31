@@ -1,4 +1,4 @@
-iC-86  COMPILER   STUBFNCS                                                                   05/13/:8 14:06:06  PAGE   1
+iC-86  COMPILER   STUBFNCS                                                                   05/31/:8 03:50:04  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE STUBFNCS
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
    49             
    50             /* library include files */
    51               /* none */
-iC-86  COMPILER   STUBFNCS                                                                   05/13/:8 14:06:06  PAGE   2
+iC-86  COMPILER   STUBFNCS                                                                   05/31/:8 03:50:04  PAGE   2
 
 
    52             
@@ -70,20 +70,20 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
    58             
    59             /* update function */
    60             
-   61             unsigned char  update(unsigned short int far *p, int n)
+   61             /*unsigned char  update(unsigned short int far *p, int n)
    62             {
-   63     1           return  FALSE;
-   64     1       }
-   65             
+   63                 return  FALSE;
+   64             }
+   65             */
    66             
    67             
    68             /* timing function */
    69             
-   70             int  elapsed_time()
+   70             /*int  elapsed_time()
    71             {
-   72     1           return  0;
-   73     1       }
-   74             
+   72                 return  0;
+   73             }
+   74             */
    75             
    76             
    77             /* keypad functions */
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
   106             }
   107             
   108             void  display_artist(const char far *a)
-iC-86  COMPILER   STUBFNCS                                                                   05/13/:8 14:06:06  PAGE   3
+iC-86  COMPILER   STUBFNCS                                                                   05/31/:8 03:50:04  PAGE   3
 
 
   109             {
@@ -138,24 +138,24 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
   123             
   124             /* audio functions */
   125             
-  126             void  audio_play(unsigned short int far *p, int n)
+  126             /*void  audio_play(unsigned short int far *p, int n)
   127             {
-  128     1           return;
-  129     1       }
+  128                 return;
+  129             }
   130             
   131             void  audio_halt()
   132             {
-  133     1           return;
-  134     1       }
-  135             
+  133                 return;
+  134             }
+  135             */
 
 
 
 MODULE INFORMATION:
 
-     CODE AREA SIZE               = 002BH     43D
+     CODE AREA SIZE               = 0000H      0D
      CONSTANT AREA SIZE           = 0000H      0D
      DATA AREA SIZE               = 0000H      0D
-     MAXIMUM STACK SIZE           = 0008H      8D
+     MAXIMUM STACK SIZE           = 0000H      0D
 
 iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS

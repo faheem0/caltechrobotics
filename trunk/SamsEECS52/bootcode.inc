@@ -1,6 +1,16 @@
-; EECS 52 INCLUDE file for bootcode.asm
-;Samuel Yang
-;April 26, 2008
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                            ;
+;                                  bootcode.INC                              ;
+;                              Boot Code Register Values                     ;
+;                                 Include File                               ;
+;                                                                            ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; This file contains the definitions for bootcode.asm
+;
+; Revision History:
+
+;     4/26/2008 Samuel Yang     File started
 
 UCSCtrl equ 0FFA0h 		;address of UCMS
 UCSCtrlVal     EQU     3000H          ;value to write to UCS Ctrl Register
