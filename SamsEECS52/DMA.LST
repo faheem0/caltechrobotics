@@ -1,0 +1,506 @@
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    1
+
+
+DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE DMA
+OBJECT MODULE PLACED IN DMA.OBJ
+ASSEMBLER INVOKED BY:  C:\ASMSTU~1\ASM86.EXE DMA.ASM M1 DB EP
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                             1            NAME  dma
+                             2     
+                             3     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                             4     ;                                                                            ;
+                             5     ;                                    DMA                                 ;
+                             6     ;                           DMA Functions                            ;
+                             7     ;                                                                            ;
+                             8     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                             9     
+                            10     ; Description:      This program contains the functions to
+                            11     ;                       DMA
+                            12     ;
+                            13     ; Input:            data from IDE harddrive
+                            14     ; Output:           data to DRAM
+                            15     ; User Interface:   call functions:
+                            16     ;                               get_blocks(startAddr, numBlocks, destAddr)
+                            17     ;                               
+                            18     ; Error Handling:   None.
+                            19     ;
+                            20     ; Algorithms:       None.
+                            21     ; Data Structures:  None.
+                            22     ;
+                            23     ; Revision History:
+                            24     ;     5/30/08  Samuel Yang     file started
+                            25     CGROUP GROUP CODE
+                            26     DGROUP GROUP DATA
+                            27     
+                            28     ; local include files
+                            29 +1  $INCLUDE(dma.INC)
+                      =1    30     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    31     ;                                                                            ;
+                      =1    32     ;                                  dma.INC                                       ;
+                      =1    33     ;                              DMA constants                                 ;
+                      =1    34     ;                                 Include File                               ;
+                      =1    35     ;                                                                            ;
+                      =1    36     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    37     
+                      =1    38     ; This file contains the definitions for the DMA functions(dma.ASM).
+                      =1    39     ; 
+                      =1    40     ;
+                      =1    41     ; Revision History:
+                      =1    42     
+                      =1    43     ;     5/30/2008 Samuel Yang     
+                      =1    44     
+                      =1    45     
+  0100                =1    46     IDE_BLOCK_SIZE EQU 256               ;words, must NOT change
+                      =1    47     
+                      =1    48     ;Register addresses, masks, and values
+  FFC6                =1    49     D0DSTHaddr        EQU     0ffc6H                 ;address of dest address pointer (hi
+                                   gh)
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    2
+
+
+LOC  OBJ                  LINE     SOURCE
+
+  FFC4                =1    50     D0DSTLaddr        EQU     0ffc4H                 ;address of dest address pointer (lo
+                                   w)
+                      =1    51     
+  FFC2                =1    52     D0SRCHaddr        EQU     0ffc2H                 ;address of src address pointer (hig
+                                   h)
+  FFC0                =1    53     D0SRCLaddr        EQU     0ffc0H                 ;address of src address pointer (low
+                                   )
+                      =1    54     
+  0008                =1    55     D0SRCHvalue       EQU     0008H                  ;fixed address of IDE data
+  0000                =1    56     D0SRCLvalue       EQU     0000H                  ;fixed address of IDE data
+                      =1    57     
+  FFCA                =1    58     D0CONaddr         EQU     0ffcaH                 ;address of DMA0 control register
+                      =1    59     
+  FFC8                =1    60     D0TCaddr          EQU     0ffc8H                 ;address of DMA0 terminal count regi
+                                   ster
+                      =1    61     
+  000F                =1    62     D0SRCHmask    EQU     000fH          ;DMA0 Source Address Pointer (high)
+                      =1    63                                                                                     ;mask
+                                    off reserved bits
+                      =1    64                                             ;000000000000----  reserved
+                      =1    65                                             ;------------1111  address bits 19:16
+  FFFF                =1    66     D0SRCLmask    EQU     0ffffH         ;DMA0 Source Address Pointer (high)
+                      =1    67                                                                                     ;mask
+                                    off reserved bits
+                      =1    68                                             ;1111111111111111  address bits 15:0         
+                                                                
+  000F                =1    69     D0DSTHmask    EQU     000fH          ;DMA0 Destination Address Pointer (high)
+                      =1    70                                                                                     ;mask
+                                    off reserved bits
+                      =1    71                                             ;000000000000----  reserved
+                      =1    72                                             ;------------1111  address bits 19:16
+  FFFF                =1    73     D0DSTLmask    EQU     0ffffH         ;DMA0 Destination Address Pointer (high)
+                      =1    74                                                                                     ;mask
+                                    off reserved bits
+                      =1    75                                             ;1111111111111111  address bits 15:0         
+                                                                
+                      =1    76     
+  B206                =1    77     D0CONvalue    EQU     0b206H         ;DMA0 Control Register-p270
+                      =1    78                                                                                     ;1---
+                                   ------------  dest. memory space   
+                      =1    79                                                                                     ;-01-
+                                   ------------  dest increment
+                      =1    80                                                                                     ;---1
+                                   ------------  source memory space
+                      =1    81                                                                                     ;----
+                                   00----------  src. counter constant
+                      =1    82                                                                                     ;----
+                                   --1---------  terminate on TC
+                      =1    83                                                                                     ;----
+                                   ---0--------  clear interrupt
+                      =1    84                                                                                     ;----
+                                   ----00------  unsynchronized
+                      =1    85                                                                                     ;----
+                                   ------0-----  set low priority
+                      =1    86                                                                                     ;----
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    3
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                                   -------0----  internal DMA disable
+                      =1    87                                                                                     ;----
+                                   --------0---  reserved
+                      =1    88                                                                                     ;----
+                                   ---------1--  enable modifying STRT
+                      =1    89                                                                                     ;----
+                                   ----------1-  start DMA channel
+                      =1    90                                                                                     ;----
+                                   -----------0  byte transfer
+                      =1    91                                                                                     
+  0200                =1    92     D0TCvalue     EQU       IDE_BLOCK_SIZE*2  ;convert # words to # bytes           
+                                                                                              
+                      =1    93                                                                                     
+                      =1    94     ;IDE addresses-p28                                                              
+                                              
+  2000                =1    95     IDEaddrFeatures          EQU     2000H         ;address of features register
+  4000                =1    96     IDEaddrSectorcount   EQU     4000H         ;address of Sector Count register
+  6000                =1    97     IDEaddrSectornumber  EQU     6000H         ;address of Sector Number register
+  8000                =1    98     IDEaddrCylinderlow   EQU     8000H         ;address of Cylinder Low register
+  A000                =1    99     IDEaddrCylinderhigh  EQU    0A000H         ;address of Cylinder High register
+  C000                =1   100     IDEaddrDevicehead    EQU    0C000H         ;address of Device/Head register
+  F000                =1   101     IDEaddrCommand           EQU    0F000H         ;address of Command register
+  F000                =1   102     IDEaddrStatus            EQU    0F000H         ;address of Status register      
+                                                                                                      
+                      =1   103                                                                                     
+                      =1   104                                                                                     
+  00E0                =1   105     DeviceheadValue     EQU       0e0H    ;set IDEaddrDevicehead to LBA mode
+                      =1   106                                                                                     ;1-1-
+                                   ----  reserved
+                      =1   107                                                                                     ;-1--
+                                   ----  LBS addressing mode
+                      =1   108                                                                                     ;---0
+                                   ----  device 0?
+                      =1   109                                                                                     ;----
+                                   0000  LBA bits 27:24
+  0000                =1   110     CylinderHighValue   EQU        00H    ;set LBA bits
+                      =1   111                                                                                     ;0000
+                                   0000  LBA bits 23:16
+  0000                =1   112     CylinderLowValue    EQU        00H    ;set LBA bits
+                      =1   113                                                                                     ;0000
+                                   0000  LBA bits 15:8
+  0000                =1   114     SectorNumberValue   EQU        00H    ;set LBA bits
+                      =1   115                                                                                     ;0000
+                                   0000  LBA bits 7:0 
+                      =1   116     
+  0020                =1   117     IDECommandReadSectors  EQU     20H    ;read sectors with retries
+                      =1   118     
+  0080                =1   119     IDEBusyFlagMask         EQU       080H     ;from status register                
+                                                                                              
+                      =1   120                                                                                     
+  0040                =1   121     IDEDrdyFlagMask         EQU       040H     ;from status register                
+                                                                                              
+                           122 +1  $INCLUDE(boolean.INC)
+                      =1   123     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1   124     ;                                                                            ;
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    4
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                      =1   125     ;                                  boolean.INC                               ;
+                      =1   126     ;                             Boolean Definitions                            ;
+                      =1   127     ;                                 Include File                               ;
+                      =1   128     ;                                                                            ;
+                      =1   129     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1   130     
+                      =1   131     ; This file contains the boolean definitions for the 80188 MP3 Player.
+                      =1   132     ;
+                      =1   133     ; Revision History:
+                      =1   134     
+                      =1   135     ;     5/2/2008 Samuel Yang     
+                      =1   136     
+                      =1   137     
+  0001                =1   138     TRUE EQU 1h
+  0000                =1   139     FALSE EQU 0h
+                           140     
+                           141     
+----                       142     CODE SEGMENT PUBLIC 'CODE'
+                           143     
+                           144             ASSUME  CS:CGROUP, DS:DGROUP
+                           145     
+                           146     
+                           147     
+                           148     
+                           149     
+                           150     ; InitDMA
+                           151     ;
+                           152     ; Description:       This procedure initializes everything for DMA between IDE and DR
+                                   AM
+                           153     ;
+                           154     ; Operation:        
+                           155     ;
+                           156     ; Arguments:         None.
+                           157     ; Return Value:      None.
+                           158     ;
+                           159     ; Local Variables:   None.
+                           160     ; Shared Variables:  None.
+                           161     
+                           162     ; Input:            None.
+                           163     ; Output:            Initializes DMA.
+                           164     ;
+                           165     ; Error Handling:    None.
+                           166     ;
+                           167     ; Algorithms:        None.
+                           168     ; Data Structures:   None.
+                           169     ;
+                           170     ; Registers Changed: None
+                           171     ; Stack Depth:       2 words
+                           172     ;
+                           173     ; Last Modified:     5-30-2008
+0000                       174     InitDMA   PROC    NEAR
+                           175                             PUBLIC InitDMA
+0000 50                    176                             PUSH AX
+0001 52                    177                             PUSH DX
+                           178                             
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    5
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           179                             
+                           180                             
+0002 5A                    181                             POP DX
+0003 58                    182                             POP AX
+0004 C3                    183                             RET
+                           184     InitDMA   ENDP
+                           185     
+                           186     
+                           187     ; get_blocks
+                           188     ;
+                           189     ; Description:       This procedure gets data from the IDE into the DRAM
+                           190     ;
+                           191     ; Operation:        Uses the 80188's built in DMA transfer.  Sets up IDE registers an
+                                   d
+                           192     ;                               DMA transfer, and blocks until transfer is complete.
+                           193     ; Arguments:         start address of blocks (2 words) number of blocks (1 word), des
+                                   tination address (2 words)
+                           194     ; Return Value:      None.
+                           195     ;
+                           196     ; Local Variables:   numBlocks, startOfBlocksHigh, startOfBlocksLow
+                           197     ; Shared Variables:  None.
+                           198     
+                           199     ; Input:            Data from IDE
+                           200     ; Output:            Data to DRAM
+                           201     ;
+                           202     ; Error Handling:    None.
+                           203     ;
+                           204     ; Algorithms:        None.
+                           205     ; Data Structures:   None.
+                           206     ;
+                           207     ; Registers Changed: None
+                           208     ; Stack Depth:       10 words
+                           209     ;
+                           210     ; Last Modified:     5-30-2008
+0005                       211     get_blocks   PROC    NEAR
+                           212                             PUBLIC get_blocks
+                           213                     
+0005 55                    214                     PUSH BP
+0006 8BEC                  215                     MOV BP, SP
+0008 56                    216                     PUSH SI
+0009 57                    217                     PUSH DI
+000A 50                    218                     PUSH AX
+000B 53                    219                     PUSH BX
+000C 51                    220                     PUSH CX
+000D 52                    221                     PUSH DX
+                           222                     
+                           223                     ;get arguments off the stack
+000E 8B4604                224                     MOV AX, [BP+4]          ;offset of destination adddress
+0011 8B5E06                225                     MOV BX, [BP+6]          ;segment of destination adddress
+0014 8B4E08                226                     MOV CX, [BP+8]          ;number of blocks to be received
+0017 890E0000       R      227                     MOV numBlocks, CX
+001B 8B4E0A                228                     MOV CX, [BP+10]         ;low word of start of blocks
+001E 890E0400       R      229                     MOV startOfBlocksLow, CX
+0022 8B4E0C                230                     MOV CX, [BP+12]         ;high nibble of start of blocks
+0025 890E0200       R      231                     MOV startOfBlocksHigh, CX
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    6
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           232                     
+                           233                     ;convert segment, offset into 20 bit address
+0029 8BCB                  234                     MOV CX, BX  ;save highest nibble of segment   
+002B C1E90C                235                     SHR CX, 12  
+002E C1E304                236                     SHL BX, 4       ;prepare to add offset to lower part of segment
+0031 03D8                  237                     ADD BX, AX      ;lower 16 bits of 20-bit address now in BX
+0033 83D100                238                     ADC CX, 0       ;higher 4 bits of 20-bit address now in CX
+                           239                     
+                           240                     ;set DMA dest 20-bit address
+0036 BAC6FF                241                     MOV DX, D0DSTHaddr
+0039 8BC1                  242                     MOV AX, CX
+003B EF                    243                     OUT DX, AX
+003C BAC4FF                244                     MOV DX, D0DSTLaddr
+003F 8BC3                  245                     MOV AX, BX
+0041 EF                    246                     OUT DX, AX
+                           247                     
+                           248                     ;set DMA source 20-bit address (fixed IDE address)
+0042 BAC2FF                249                     MOV DX, D0SRCHaddr
+0045 B80800                250                     MOV AX, D0SRCHvalue
+0048 EF                    251                     OUT DX, AX
+0049 BAC0FF                252                     MOV DX, D0SRCLaddr
+004C B80000                253                     MOV AX, D0SRCLvalue
+004F EF                    254                     OUT DX, AX
+                           255                     
+                           256                     ;set DMA terminal counter
+0050 BAC8FF                257                     MOV DX, D0TCaddr
+0053 B80002                258                     MOV AX, D0TCvalue
+0056 EF                    259                     OUT DX, AX
+                           260                     
+                           261                     
+                           262                     ;INIT IDE HERE
+                           263                     ;write LBA to IDE registers
+0057 A10400         R      264                     MOV AX, startOfBlocksLow        
+005A BA0060                265                     MOV DX, IDEaddrSectornumber
+005D E84700                266                     CALL checkIDEBusy
+0060 EE                    267                     OUT DX, AL      ;LBA 7:0
+                           268                     
+0061 8AC4                  269                     MOV AL, AH
+0063 BA0080                270                     MOV DX, IDEaddrCylinderlow
+0066 E83E00                271                     CALL checkIDEBusy
+0069 EE                    272                     OUT DX, AL      ;LBA 15:8
+                           273                     
+006A A10200         R      274                     MOV AX, startOfBlocksHigh       
+006D BA00A0                275                     MOV DX, IDEaddrCylinderhigh
+0070 E83400                276                     CALL checkIDEBusy
+0073 EE                    277                     OUT DX, AL      ;LBA 23:16
+                           278                     
+0074 B0E0                  279                     MOV AL, DeviceheadValue ;get control values
+0076 80E40F                280                     AND AH, 0FH                     ;mask off upper nibble
+0079 02C4                  281                     ADD AL, AH                              ;set LBA 27:24 bits
+007B BA00C0                282                     MOV DX, IDEaddrDevicehead
+007E E82600                283                     CALL checkIDEBusy
+0081 EE                    284                     OUT DX, AL      ;LBA 27:24
+                           285                     
+                           286                     ;set IDE sector count
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    7
+
+
+LOC  OBJ                  LINE     SOURCE
+
+0082 A10000         R      287                     MOV AX, numBlocks
+0085 BA0040                288                     MOV DX, IDEaddrSectorcount      ;write word or byte ???????????????
+0088 E81C00                289                     CALL checkIDEBusy
+008B EE                    290                     OUT DX, AL
+                           291                     
+                           292                     ;command IDE to read sectors
+008C B020                  293                     MOV AL, IDECommandReadSectors
+008E BA00F0                294                     MOV DX, IDEaddrCommand
+0091 E81300                295                     CALL checkIDEBusy
+0094 EE                    296                     OUT DX, AL
+                           297                     
+                           298                     ;wait for data ready
+0095 E82000                299                     CALL checkDataReady
+                           300                     
+                           301                     ;start DMA tranfer
+0098 BACAFF                302                     MOV DX, D0CONaddr
+009B B806B2                303                     MOV AX, D0CONvalue
+009E EF                    304                     OUT DX, AX
+                           305                     
+009F 5A                    306                     POP DX
+00A0 59                    307                     POP CX
+00A1 5B                    308                     POP BX
+00A2 58                    309                     POP AX
+00A3 5F                    310                     POP DI
+00A4 5E                    311                     POP SI
+00A5 5D                    312                     POP BP
+                           313                     
+                           314                     
+00A6 C3                    315                     RET
+                           316     get_blocks   ENDP
+                           317     
+                           318     ; checkIDEBusy
+                           319     ;
+                           320     ; Description:       This procedure checks if IDE busy flag is set
+                           321     ;
+                           322     ; Operation:        Blocks until busy flag is clear
+                           323     ;
+                           324     ; Arguments:         None.
+                           325     ; Return Value:      None.
+                           326     ;
+                           327     ; Local Variables:   None.
+                           328     ; Shared Variables:  None.
+                           329     
+                           330     ; Input:            IDE busy flag
+                           331     ; Output:            None.
+                           332     ;
+                           333     ; Error Handling:    Blocking function
+                           334     ;
+                           335     ; Algorithms:        None.
+                           336     ; Data Structures:   None.
+                           337     ;
+                           338     ; Registers Changed: None
+                           339     ; Stack Depth:       2 words
+                           340     ;
+                           341     ; Last Modified:     5-30-2008
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    8
+
+
+LOC  OBJ                  LINE     SOURCE
+
+00A7                       342     checkIDEBusy   PROC    NEAR
+                           343                             PUBLIC checkIDEBusy
+00A7 50                    344                             PUSH AX
+00A8 52                    345                             PUSH DX
+                           346     
+00A9                       347     checkBusy:                      
+00A9 BA00F0                348                             MOV DX, IDEaddrStatus   ;read busy flag
+00AC EC                    349                             IN AL, DX
+00AD 2480                  350                             AND AL, IDEBusyFlagMask
+                           351                             
+00AF 3C80                  352                             CMP AL, IDEBusyFlagMask ;if busy, then keep checking
+00B1 74F6                  353                             JE checkBusy
+                           354                             
+00B3 5A                    355                             POP DX
+00B4 58                    356                             POP AX
+00B5 C3                    357                             RET
+                           358     checkIDEBusy   ENDP
+                           359     
+                           360     ; checkIDEDrdy
+                           361     ;
+                           362     ; Description:       This procedure checks if IDE data ready flag is set
+                           363     ;
+                           364     ; Operation:        Blocks until data is ready
+                           365     ;
+                           366     ; Arguments:         None.
+                           367     ; Return Value:      None.
+                           368     ;
+                           369     ; Local Variables:   None.
+                           370     ; Shared Variables:  None.
+                           371     
+                           372     ; Input:            IDE data ready flag
+                           373     ; Output:            None.
+                           374     ;
+                           375     ; Error Handling:    Blocking function
+                           376     ;
+                           377     ; Algorithms:        None.
+                           378     ; Data Structures:   None.
+                           379     ;
+                           380     ; Registers Changed: None
+                           381     ; Stack Depth:       2 words
+                           382     ;
+                           383     ; Last Modified:     5-30-2008
+00B6                       384     checkIDEDrdy PROC    NEAR
+                           385                             PUBLIC checkIDEDrdy
+00B6 50                    386                             PUSH AX
+00B7 52                    387                             PUSH DX
+                           388     
+00B8                       389     checkDataReady:                 
+00B8 BA00F0                390                             MOV DX, IDEaddrStatus   ;read busy flag
+00BB EC                    391                             IN AL,DX
+00BC 2440                  392                             AND AL, IDEDrdyFlagMask
+                           393                             
+00BE 3C40                  394                             CMP AL, IDEDrdyFlagMask ;if data not ready, then keep checkin
+                                   g
+00C0 75F6                  395                             JNE checkDataReady
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      03:50:04  05/31/:8  PAGE    9
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           396                             
+00C2 5A                    397                             POP DX
+00C3 58                    398                             POP AX
+00C4 C3                    399                             RET
+                           400     checkIDEDrdy   ENDP
+                           401     
+----                       402     CODE ENDS
+                           403     
+                           404     
+----                       405     DATA    SEGMENT PUBLIC  'DATA'
+0000 ????                  406     numBlocks DW ?
+0002 ????                  407     startOfBlocksHigh DW ?
+0004 ????                  408     startOfBlocksLow DW ?
+----                       409     DATA    ENDS
+                           410     
+                           411     
+                           412     
+                           413     
+                           414             END     
+
+ASSEMBLY COMPLETE, NO ERRORS FOUND

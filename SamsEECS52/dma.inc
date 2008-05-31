@@ -33,19 +33,19 @@ D0TCaddr	  EQU 	  0ffc8H		 ;address of DMA0 terminal count register
 D0SRCHmask    EQU     000fH          ;DMA0 Source Address Pointer (high)
 										;mask off reserved bits
                                         ;000000000000----  reserved
-                                        ;------------1111  address bits 19-16
+                                        ;------------1111  address bits 19:16
 D0SRCLmask    EQU     0ffffH         ;DMA0 Source Address Pointer (high)
 										;mask off reserved bits
-                                        ;1111111111111111  address bits 15-0                                      
+                                        ;1111111111111111  address bits 15:0                                      
 D0DSTHmask    EQU     000fH          ;DMA0 Destination Address Pointer (high)
 										;mask off reserved bits
                                         ;000000000000----  reserved
-                                        ;------------1111  address bits 19-16
+                                        ;------------1111  address bits 19:16
 D0DSTLmask    EQU     0ffffH         ;DMA0 Destination Address Pointer (high)
 										;mask off reserved bits
-                                        ;1111111111111111  address bits 15-0                                      
+                                        ;1111111111111111  address bits 15:0                                      
 
-D0CONvalue    EQU     0ffffH         ;DMA0 Control Register-p270
+D0CONvalue    EQU     0b206H         ;DMA0 Control Register-p270
 										;1---------------  dest. memory space   
 										;-01-------------  dest increment
 										;---1------------  source memory space
@@ -53,8 +53,8 @@ D0CONvalue    EQU     0ffffH         ;DMA0 Control Register-p270
 										;------1---------  terminate on TC
 										;-------0--------  clear interrupt
 										;--------00------  unsynchronized
-										;----------1-----  set high priority
-										;-----------1----  internal DMA select
+										;----------0-----  set low priority
+										;-----------0----  internal DMA disable
 										;------------0---  reserved
 										;-------------1--  enable modifying STRT
 										;--------------1-  start DMA channel
@@ -70,10 +70,23 @@ IDEaddrCylinderlow   EQU     8000H         ;address of Cylinder Low register
 IDEaddrCylinderhigh  EQU    0A000H         ;address of Cylinder High register
 IDEaddrDevicehead    EQU    0C000H         ;address of Device/Head register
 IDEaddrCommand   	 EQU    0F000H         ;address of Command register
+IDEaddrStatus   	 EQU    0F000H         ;address of Status register										
 										
 										
+DeviceheadValue	    EQU       0e0H    ;set IDEaddrDevicehead to LBA mode
+										;1-1-----  reserved
+										;-1------  LBS addressing mode
+										;---0----  device 0?
+										;----0000  LBA bits 27:24
+CylinderHighValue   EQU        00H    ;set LBA bits
+										;00000000  LBA bits 23:16
+CylinderLowValue    EQU        00H    ;set LBA bits
+										;00000000  LBA bits 15:8
+SectorNumberValue   EQU        00H    ;set LBA bits
+										;00000000  LBA bits 7:0	
+
+IDECommandReadSectors  EQU     20H    ;read sectors with retries
+
+IDEBusyFlagMask		EQU 	  080H	   ;from status register										
 										
-										
-										
-										
-										
+IDEDrdyFlagMask		EQU 	  040H	   ;from status register										

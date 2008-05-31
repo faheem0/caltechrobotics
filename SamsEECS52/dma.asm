@@ -13,7 +13,7 @@
 ; Input:            data from IDE harddrive
 ; Output:           data to DRAM
 ; User Interface:   call functions:
-;				get_blocks(start, num, dest)
+;				get_blocks(startAddr, numBlocks, destAddr)
 ;				
 ; Error Handling:   None.
 ;
@@ -40,9 +40,9 @@ CODE SEGMENT PUBLIC 'CODE'
 
 ; InitDMA
 ;
-; Description:       This procedure initializes everything for DMA
+; Description:       This procedure initializes everything for DMA between IDE and DRAM
 ;
-; Operation:        Sends initialization bytes to DMA
+; Operation:        
 ;
 ; Arguments:         None.
 ; Return Value:      None.
@@ -67,19 +67,7 @@ InitDMA   PROC    NEAR
 			PUSH AX
 			PUSH DX
 			
-			MOV DX, DMAAddressCMD
-			MOV AL, functionSet
-			OUT DX, AL
-			CALL readBusyFlag
-			MOV AL, clearScreen
-			OUT DX, AL
-			CALL readBusyFlag
-			MOV AL, entryModeSet
-			OUT DX, AL
-			CALL readBusyFlag
-			MOV AL, DMAOnOffCtrl
-			OUT DX, AL
-			CALL readBusyFlag
+			
 			
 			POP DX
 			POP AX
@@ -89,17 +77,18 @@ InitDMA   ENDP
 
 ; get_blocks
 ;
-; Description:       This procedure DMAs title in the dedicated spot on the DMA
+; Description:       This procedure gets data from the IDE into the DRAM
 ;
-; Operation:        Uses DMAStr
-; Arguments:         segment and offset of string on stack, stored in ES, SI
+; Operation:        Uses the 80188's built in DMA transfer.  Sets up IDE registers and
+;				DMA transfer, and blocks until transfer is complete.
+; Arguments:         start address of blocks (2 words) number of blocks (1 word), destination address (2 words)
 ; Return Value:      None.
 ;
-; Local Variables:   None.
+; Local Variables:   numBlocks, startOfBlocksHigh, startOfBlocksLow
 ; Shared Variables:  None.
 
-; Input:            None.
-; Output:            DMAs title on DMA.
+; Input:            Data from IDE
+; Output:            Data to DRAM
 ;
 ; Error Handling:    None.
 ;
@@ -107,7 +96,7 @@ InitDMA   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       7 words
+; Stack Depth:       10 words
 ;
 ; Last Modified:     5-30-2008
 get_blocks   PROC    NEAR
@@ -119,6 +108,8 @@ get_blocks   PROC    NEAR
 		PUSH DI
 		PUSH AX
 		PUSH BX
+		PUSH CX
+		PUSH DX
 		
 		;get arguments off the stack
 		MOV AX, [BP+4]		;offset of destination adddress
@@ -160,12 +151,51 @@ get_blocks   PROC    NEAR
 		
 		
 		;INIT IDE HERE
+		;write LBA to IDE registers
+		MOV AX, startOfBlocksLow	
+		MOV DX, IDEaddrSectornumber
+		CALL checkIDEBusy
+		OUT DX, AL	;LBA 7:0
+		
+		MOV AL, AH
+		MOV DX, IDEaddrCylinderlow
+		CALL checkIDEBusy
+		OUT DX, AL	;LBA 15:8
+		
+		MOV AX, startOfBlocksHigh	
+		MOV DX, IDEaddrCylinderhigh
+		CALL checkIDEBusy
+		OUT DX, AL	;LBA 23:16
+		
+		MOV AL, DeviceheadValue	;get control values
+		AND AH, 0FH			;mask off upper nibble
+		ADD AL, AH				;set LBA 27:24 bits
+		MOV DX, IDEaddrDevicehead
+		CALL checkIDEBusy
+		OUT DX, AL	;LBA 27:24
+		
+		;set IDE sector count
+		MOV AX, numBlocks
+		MOV DX, IDEaddrSectorcount	;write word or byte ???????????????
+		CALL checkIDEBusy
+		OUT DX, AL
+		
+		;command IDE to read sectors
+		MOV AL, IDECommandReadSectors
+		MOV DX, IDEaddrCommand
+		CALL checkIDEBusy
+		OUT DX, AL
+		
+		;wait for data ready
+		CALL checkDataReady
 		
 		;start DMA tranfer
 		MOV DX, D0CONaddr
 		MOV AX, D0CONvalue
 		OUT DX, AX
 		
+		POP DX
+		POP CX
 		POP BX
 		POP AX
 		POP DI
@@ -175,6 +205,90 @@ get_blocks   PROC    NEAR
 		
 		RET
 get_blocks   ENDP
+
+; checkIDEBusy
+;
+; Description:       This procedure checks if IDE busy flag is set
+;
+; Operation:        Blocks until busy flag is clear
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
+
+; Input:            IDE busy flag
+; Output:            None.
+;
+; Error Handling:    Blocking function
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       2 words
+;
+; Last Modified:     5-30-2008
+checkIDEBusy   PROC    NEAR
+			PUBLIC checkIDEBusy
+			PUSH AX
+			PUSH DX
+
+checkBusy:			
+			MOV DX, IDEaddrStatus	;read busy flag
+			IN AL, DX
+			AND AL, IDEBusyFlagMask
+			
+			CMP AL, IDEBusyFlagMask	;if busy, then keep checking
+			JE checkBusy
+			
+			POP DX
+			POP AX
+			RET
+checkIDEBusy   ENDP
+
+; checkIDEDrdy
+;
+; Description:       This procedure checks if IDE data ready flag is set
+;
+; Operation:        Blocks until data is ready
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
+
+; Input:            IDE data ready flag
+; Output:            None.
+;
+; Error Handling:    Blocking function
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       2 words
+;
+; Last Modified:     5-30-2008
+checkIDEDrdy PROC    NEAR
+			PUBLIC checkIDEDrdy
+			PUSH AX
+			PUSH DX
+
+checkDataReady:			
+			MOV DX, IDEaddrStatus	;read busy flag
+			IN AL,DX
+			AND AL, IDEDrdyFlagMask
+			
+			CMP AL, IDEDrdyFlagMask	;if data not ready, then keep checking
+			JNE checkDataReady
+			
+			POP DX
+			POP AX
+			RET
+checkIDEDrdy   ENDP
 
 CODE ENDS
 

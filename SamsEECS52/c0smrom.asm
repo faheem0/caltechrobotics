@@ -35,6 +35,7 @@
 ;   12/31/03  Glen George       Made Start public so can be accessed from
 ;                                  power on segment.
 ;   04/26/08 Samuel Yang	    modified for his board
+;   05/30/08 Samuel Yang	    DRAM, IDE, elapsed_time added, unested
 
 $INCLUDE(boolean.INC)
 $INCLUDE(regAddrs.INC)
@@ -51,6 +52,8 @@ EXTRN InstallHandlerInt1:Near
 EXTRN InitKeypad:Near
 EXTRN InitMP3Port:Near
 EXTRN InitDisplay:Near
+EXTRN InitElapsedTimer:Near
+EXTRN InitDMA:Near
 ;EXTRN   main:NEAR               ;declare the main function
 ; segment register assumptions
         ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
@@ -113,6 +116,8 @@ main0:                                  ;start the program
 		CALL InitKeypad
 		CALL InitDisplay	
 		CALL InitMP3Port		
+		CALL InitElapsedTimer
+		CALL InitDMA
 		CALL InstallHandlerInt1		
 		CALL InstallHandlerInt0
 infLoop: JMP infLoop		
