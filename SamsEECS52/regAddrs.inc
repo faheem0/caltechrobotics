@@ -66,15 +66,19 @@ NonSpecEOI      EQU     08000H          ;Non-specific EOI command
 ; Addresses
 PACSreg         EQU     0FFA4H          ;address of PACS register
 MPCSreg         EQU     0FFA8H          ;address of MPCS register
-
+MMCSaddr		EQU 	0ffa6H			;address of MCS control register
 
 ; Control Register Values
-PACSval         EQU     00000H          ;PCS base at 0, 3 wait states
+MMCSvalue	    EQU	    8001H			;set to the following:
+                                        ;1000000---------  start at 80000H
+                                        ;-------000000---  reserved
+                                        ;---------------1  1 wait state min
+PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
                                         ;0000000000------  starts at address 0
                                         ;----------000---  reserved
                                         ;-------------0--  wait for RDY inputs
                                         ;--------------11  3 wait states
-MPCSval         EQU     04003H          ;PCS in I/O space, use PCS5/6, 3 wait states
+MPCSval         EQU     04000H          ;PCS in I/O space, use PCS5/6, 3 wait states
                                         ;0---------000---  reserved
                                         ;-1000000--------  MCS is 512KB
                                         ;--------0-------  output PCS5/PCS6

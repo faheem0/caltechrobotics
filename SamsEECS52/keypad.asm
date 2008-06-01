@@ -213,7 +213,8 @@ getkey   ENDP
 InitCS  PROC    NEAR
 		PUBLIC InitCS
 
-
+		
+		
         MOV     DX, PACSreg     ;setup to write to PACS register
         MOV     AX, PACSval
         OUT     DX, AL          ;write PACSval to PACS (base at 0, 3 wait states)
@@ -222,7 +223,10 @@ InitCS  PROC    NEAR
         MOV     AX, MPCSval
         OUT     DX, AL          ;write MPCSval to MPCS (I/O space, 3 wait states)
 
-
+		MOV DX, MMCSaddr	;init MMCS
+		MOV AX, MMCSvalue
+		OUT DX, AX
+		
         RET                     ;done so return
 
 

@@ -1,0 +1,5 @@
+port 0ffa4h 3h
+o 0ffa8h 4000h
+o 0ffa6h 8001h
+write 0A000:0000h 0abh
+dump 0A000:0000h 5

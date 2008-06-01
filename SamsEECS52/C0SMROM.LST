@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  07:19:15  06/01/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     
                       =1    49     ; This file contains the boolean definitions for the 80188 MP3 Player.
                       =1    50     ;
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  07:19:15  06/01/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   101                                             ;------------0---  enable interrupt
                       =1   102                                             ;-------------010  int priority         
                                                                       
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  07:19:15  06/01/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -152,170 +152,175 @@ LOC  OBJ                  LINE     SOURCE
                       =1   124     ; Addresses
   FFA4                =1   125     PACSreg         EQU     0FFA4H          ;address of PACS register
   FFA8                =1   126     MPCSreg         EQU     0FFA8H          ;address of MPCS register
-                      =1   127     
+  FFA6                =1   127     MMCSaddr                EQU     0ffa6H                  ;address of MCS control regis
+                                   ter
                       =1   128     
                       =1   129     ; Control Register Values
-  0000                =1   130     PACSval         EQU     00000H          ;PCS base at 0, 3 wait states
-                      =1   131                                             ;0000000000------  starts at address 0
-                      =1   132                                             ;----------000---  reserved
-                      =1   133                                             ;-------------0--  wait for RDY inputs
-                      =1   134                                             ;--------------11  3 wait states
-  4003                =1   135     MPCSval         EQU     04003H          ;PCS in I/O space, use PCS5/6, 3 wait states
-                      =1   136                                             ;0---------000---  reserved
-                      =1   137                                             ;-1000000--------  MCS is 512KB
-                      =1   138                                             ;--------0-------  output PCS5/PCS6
-                      =1   139                                             ;---------0------  PCS in I/O space
-                      =1   140                                             ;-------------0--  wait for RDY inputs
-                      =1   141                                             ;--------------11  3 wait states
-                      =1   142     
-                      =1   143     ; Timing Definitions
-                      =1   144     
-                      =1   145     
+  8001                =1   130     MMCSvalue           EQU     8001H                       ;set to the following:
+                      =1   131                                             ;1000000---------  start at 80000H
+                      =1   132                                             ;-------000000---  reserved
+                      =1   133                                             ;---------------1  1 wait state min
+  0003                =1   134     PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
+                      =1   135                                             ;0000000000------  starts at address 0
+                      =1   136                                             ;----------000---  reserved
+                      =1   137                                             ;-------------0--  wait for RDY inputs
+                      =1   138                                             ;--------------11  3 wait states
+  4000                =1   139     MPCSval         EQU     04000H          ;PCS in I/O space, use PCS5/6, 3 wait states
+                      =1   140                                             ;0---------000---  reserved
+                      =1   141                                             ;-1000000--------  MCS is 512KB
+                      =1   142                                             ;--------0-------  output PCS5/PCS6
+                      =1   143                                             ;---------0------  PCS in I/O space
+                      =1   144                                             ;-------------0--  wait for RDY inputs
+                      =1   145                                             ;--------------11  3 wait states
                       =1   146     
-                      =1   147     ; General Definitions
+                      =1   147     ; Timing Definitions
                       =1   148     
-  0001                =1   149     FIRST_RESERVED_VEC      EQU     1       ;reserve vectors 1-3
-  0003                =1   150     LAST_RESERVED_VEC       EQU     3
-  0100                =1   151     NUM_IRQ_VECTORS         EQU     256     ;number of interrupt vectors
+                      =1   149     
+                      =1   150     
+                      =1   151     ; General Definitions
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  07:19:15  06/01/:8  PAGE    4
+
+
+LOC  OBJ                  LINE     SOURCE
+
                       =1   152     
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    4
-
-
-LOC  OBJ                  LINE     SOURCE
-
-                           153 +1  $INCLUDE(bootcode.INC)
-                      =1   154     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      =1   155     ;                                                                            ;
-                      =1   156     ;                                  bootcode.INC                              ;
-                      =1   157     ;                              Boot Code Register Values                     ;
-                      =1   158     ;                                 Include File                               ;
+  0001                =1   153     FIRST_RESERVED_VEC      EQU     1       ;reserve vectors 1-3
+  0003                =1   154     LAST_RESERVED_VEC       EQU     3
+  0100                =1   155     NUM_IRQ_VECTORS         EQU     256     ;number of interrupt vectors
+                      =1   156     
+                           157 +1  $INCLUDE(bootcode.INC)
+                      =1   158     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       =1   159     ;                                                                            ;
-                      =1   160     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      =1   161     
-                      =1   162     ; This file contains the definitions for bootcode.asm
-                      =1   163     ;
-                      =1   164     ; Revision History:
+                      =1   160     ;                                  bootcode.INC                              ;
+                      =1   161     ;                              Boot Code Register Values                     ;
+                      =1   162     ;                                 Include File                               ;
+                      =1   163     ;                                                                            ;
+                      =1   164     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       =1   165     
-                      =1   166     ;     4/26/2008 Samuel Yang     File started
-                      =1   167     
-  FFA0                =1   168     UCSCtrl equ 0FFA0h              ;address of UCMS
-  3000                =1   169     UCSCtrlVal     EQU     3000H          ;value to write to UCS Ctrl Register
-                      =1   170                                             ;--11000000------  starting address 0F0000h (
+                      =1   166     ; This file contains the definitions for bootcode.asm
+                      =1   167     ;
+                      =1   168     ; Revision History:
+                      =1   169     
+                      =1   170     ;     4/26/2008 Samuel Yang     File started
+                      =1   171     
+  FFA0                =1   172     UCSCtrl equ 0FFA0h              ;address of UCMS
+  3000                =1   173     UCSCtrlVal     EQU     3000H          ;value to write to UCS Ctrl Register
+                      =1   174                                             ;--11000000------  starting address 0F0000h (
                                    64k)
-                      =1   171                                             ;-------------0--  enable bus ready
-                      =1   172                                             ;--------------00  0 wait states             
+                      =1   175                                             ;-------------0--  enable bus ready
+                      =1   176                                             ;--------------00  0 wait states             
                                                               ;----000000------  reserved
-  FFA2                =1   173     LCSCtrl equ 0FFA2h              ;address of LCMS                                     
+  FFA2                =1   177     LCSCtrl equ 0FFA2h              ;address of LCMS                                     
                                       
-  07C0                =1   174     LCSCtrlVal     EQU     07C0H          ;value to write to LCS Ctrl Register
-                      =1   175                                             ;--00011111------  ending address 07FFFFh (32
+  07C0                =1   178     LCSCtrlVal     EQU     07C0H          ;value to write to LCS Ctrl Register
+                      =1   179                                             ;--00011111------  ending address 07FFFFh (32
                                    k)
-                      =1   176                                             ;-------------0--  enable bus ready
-                      =1   177                                             ;--------------00  0 wait states 
-                           178     
-                           179     ; setup code and data groups
-                           180     CGROUP  GROUP   CODE
-                           181     DGROUP  GROUP   DATA, STACK
+                      =1   180                                             ;-------------0--  enable bus ready
+                      =1   181                                             ;--------------00  0 wait states 
                            182     
-                           183     EXTRN InitCS:Near
-                           184     EXTRN ClrIRQVectors:Near
-                           185     EXTRN InstallHandlerInt0:Near
-                           186     EXTRN InstallHandlerInt1:Near
-                           187     EXTRN InitKeypad:Near
-                           188     EXTRN InitMP3Port:Near
-                           189     EXTRN InitDisplay:Near
-                           190     EXTRN InitElapsedTimer:Near
-                           191     EXTRN InitDMA:Near
-                           192     EXTRN   main:NEAR               ;declare the main function
-                           193     ; segment register assumptions
-                           194             ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
-                           195     
-                           196     
-                           197     
-                           198     ; the data segment - used for static and global variables
+                           183     ; setup code and data groups
+                           184     CGROUP  GROUP   CODE
+                           185     DGROUP  GROUP   DATA, STACK
+                           186     
+                           187     EXTRN InitCS:Near
+                           188     EXTRN ClrIRQVectors:Near
+                           189     EXTRN InstallHandlerInt0:Near
+                           190     EXTRN InstallHandlerInt1:Near
+                           191     EXTRN InitKeypad:Near
+                           192     EXTRN InitMP3Port:Near
+                           193     EXTRN InitDisplay:Near
+                           194     EXTRN InitElapsedTimer:Near
+                           195     EXTRN InitDMA:Near
+                           196     EXTRN   main:NEAR               ;declare the main function
+                           197     ; segment register assumptions
+                           198             ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
                            199     
-----                       200     DATA    SEGMENT  WORD  PUBLIC  'DATA'
+                           200     
                            201     
-                           202     
-----                       203     DATA    ENDS
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    5
+                           202     ; the data segment - used for static and global variables
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  07:19:15  06/01/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           204     
+                           203     
+----                       204     DATA    SEGMENT  WORD  PUBLIC  'DATA'
                            205     
                            206     
-                           207     
-                           208     ; the stack segment - used for subroutine linkage, argument passing, and
-                           209     ; local variables
+----                       207     DATA    ENDS
+                           208     
+                           209     
                            210     
-----                       211     STACK   SEGMENT  WORD  STACK  'STACK'
-                           212     
-                           213     
-0000 (80                   214             DB      80 DUP ('Stack   ')             ;320 words
+                           211     
+                           212     ; the stack segment - used for subroutine linkage, argument passing, and
+                           213     ; local variables
+                           214     
+----                       215     STACK   SEGMENT  WORD  STACK  'STACK'
+                           216     
+                           217     
+0000 (80                   218             DB      80 DUP ('Stack   ')             ;320 words
      537461636B2020
      20
      )
-                           215     
-0280                       216     TopOfStack      LABEL   WORD
-                           217     
-                           218     
-----                       219     STACK   ENDS
-                           220     
+                           219     
+0280                       220     TopOfStack      LABEL   WORD
                            221     
                            222     
-                           223     
-                           224     ; the actual startup code - should be executed (jumped to) after reset
+----                       223     STACK   ENDS
+                           224     
                            225     
-----                       226     CODE    SEGMENT   PUBLIC  'CODE'
+                           226     
                            227     
-                           228     
-                           229            
-0000                       230     START:
+                           228     ; the actual startup code - should be executed (jumped to) after reset
+                           229     
+----                       230     CODE    SEGMENT   PUBLIC  'CODE'
                            231     
-0000                       232     main0:                                  ;start the program
-                           233             ;PUBLIC  Start                  ;public so can jump to from power on code
-                           234     
-0000 BAA2FF                235                     MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
-0003 B8C007                236                     MOV AX, LCSCtrlVal
-0006 EE                    237                     OUT DX,AL               
-                           238                     
-0007 B8----         R      239             MOV     AX, DGROUP              ;initialize the stack pointer
-000A 8ED0                  240             MOV     SS, AX
-000C BC8002         R      241             MOV     SP, OFFSET(DGROUP:TopOfStack)
-                           242     
-000F B8----         R      243             MOV     AX, DGROUP              ;initialize the data segment
-0012 8ED8                  244             MOV     DS, AX
-                           245     
-                           246             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                           247             ; user initialization code goes here ;
-                           248             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-0014 E80000         E      249                     CALL InitCS
-0017 E80000         E      250                     CALL ClrIRQVectors
-001A E80000         E      251                     CALL InitKeypad
-001D E80000         E      252                     CALL InitDisplay        
-0020 E80000         E      253                     CALL InitMP3Port                
-0023 E80000         E      254                     CALL InitElapsedTimer
-0026 E80000         E      255                     CALL InitDMA
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    6
+                           232     
+                           233            
+0000                       234     START:
+                           235     
+0000                       236     main0:                                  ;start the program
+                           237             ;PUBLIC  Start                  ;public so can jump to from power on code
+                           238     
+0000 BAA2FF                239                     MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
+0003 B8C007                240                     MOV AX, LCSCtrlVal
+0006 EE                    241                     OUT DX,AL               
+                           242                     
+0007 B8----         R      243             MOV     AX, DGROUP              ;initialize the stack pointer
+000A 8ED0                  244             MOV     SS, AX
+000C BC8002         R      245             MOV     SP, OFFSET(DGROUP:TopOfStack)
+                           246     
+000F B8----         R      247             MOV     AX, DGROUP              ;initialize the data segment
+0012 8ED8                  248             MOV     DS, AX
+                           249     
+                           250             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                           251             ; user initialization code goes here ;
+                           252             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0014 E80000         E      253                     CALL InitCS
+0017 E80000         E      254                     CALL ClrIRQVectors
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  07:19:15  06/01/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
 
-0029 E80000         E      256                     CALL InstallHandlerInt1         
-002C E80000         E      257                     CALL InstallHandlerInt0
-                           258     ;infLoop: JMP infLoop           
-                           259             ;CALL    main2                    ;run the main function (no arguments)
-002F E80000         E      260                     CALL main
-0032 EBCC                  261             JMP     main0                   ;if return - reinitialize and try again
-                           262     
-                           263     
-                           264     
-----                       265     CODE    ENDS
+001A E80000         E      255                     CALL InitKeypad
+001D E80000         E      256                     CALL InitDisplay        
+0020 E80000         E      257                     CALL InitMP3Port                
+0023 E80000         E      258                     CALL InitElapsedTimer
+0026 E80000         E      259                     CALL InitDMA
+0029 E80000         E      260                     CALL InstallHandlerInt1         
+002C E80000         E      261                     CALL InstallHandlerInt0
+                           262     ;infLoop: JMP infLoop           
+                           263             ;CALL    main2                    ;run the main function (no arguments)
+002F E80000         E      264                     CALL main
+0032 EBCC                  265             JMP     main0                   ;if return - reinitialize and try again
                            266     
                            267     
                            268     
-                           269             END START
+----                       269     CODE    ENDS
+                           270     
+                           271     
+                           272     
+                           273             END START
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND

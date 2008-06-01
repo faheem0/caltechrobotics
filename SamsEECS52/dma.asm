@@ -67,7 +67,7 @@ InitDMA   PROC    NEAR
 			PUSH AX
 			PUSH DX
 			
-			
+		
 			
 			POP DX
 			POP AX
@@ -113,25 +113,22 @@ get_blocks   PROC    NEAR
 		PUSH ES
 		
 		;get arguments off the stack
-		MOV AX, [BP+4]		;offset of destination adddress
-		MOV BX, [BP+6]		;segment of destination adddress
+		MOV AX, [BP+10]		;offset of destination address
+		MOV BX, [BP+12]		;segment of destination address
 		MOV CX, [BP+8]		;number of blocks to be received
 		MOV numBlocks, CX
-		MOV CX, [BP+10]		;low word of start of blocks
+		MOV CX, [BP+4]		;low word of start of blocks
 		MOV startOfBlocksLow, CX
-		MOV CX, [BP+12]		;high nibble of start of blocks
+		MOV CX, [BP+6]		;high nibble of start of blocks
 		MOV startOfBlocksHigh, CX
-		
+flag:		
+				
 		;convert segment, offset into 20 bit address
 		MOV CX, BX  ;save highest nibble of segment   
 		SHR CX, 12  
 		SHL BX, 4	;prepare to add offset to lower part of segment
 		ADD BX, AX	;lower 16 bits of 20-bit address now in BX
 		ADC CX, 0	;higher 4 bits of 20-bit address now in CX
-		
-		;add IDE address offset
-		ADD BX, IDEoffset
-		ADC CX, 0
 		
 		;set DMA dest 20-bit address
 		MOV DX, D0DSTHaddr
@@ -154,6 +151,14 @@ get_blocks   PROC    NEAR
 		PUSH IDEsegment	;use ES to reference IDE segment
 		POP ES
 		
+		;add IDE address offset
+		MOV BX, startOfBlocksLow
+		MOV CX, startOfBlocksHigh
+		ADD BX, IDEoffset		
+		ADC CX, 0
+		MOV startOfBlocksLow, BX
+		MOV startOfBlocksHigh, CX
+		
 		MOV SI, IDEaddrSectornumber
 		MOV AX, startOfBlocksLow	
 		CALL checkIDEBusy
@@ -172,7 +177,7 @@ get_blocks   PROC    NEAR
 		MOV SI, IDEaddrDevicehead
 		MOV AL, DeviceheadValue	;get control values
 		AND AH, 0FH			;mask off upper nibble
-		ADD AL, AH				;set LBA 27:24 bits
+		OR AL, AH				;set LBA 27:24 bits
 		CALL checkIDEBusy
 		MOV ES:[SI], AX 	;LBA 27:24
 		
@@ -181,7 +186,8 @@ get_blocks   PROC    NEAR
 		MOV AX, numBlocks
 		CALL checkIDEBusy
 		MOV ES:[SI], AX 	;writes byte only although value is a word
-		
+
+readSectors:		
 		;command IDE to read sectors
 		MOV SI, IDEaddrCommand
 		MOV AL, IDECommandReadSectors
@@ -202,12 +208,20 @@ transferDMA:
 		OUT DX, AX
 		
 		;wait for data ready
-		CALL checkDataReady
-		
+		CALL checkIDEDrdy
+
+startDMAtransfer:		
 		;start DMA tranfer
 		MOV DX, D0CONaddr
 		MOV AX, D0CONvalue
 		OUT DX, AX
+		
+		;do polling
+checkFinishedDMA:
+		MOV DX, D0TCaddr		;check if terminal count has reached 0
+		IN AX, DX
+		CMP AX, 0
+		JNE checkFinishedDMA
 		
 		MOV AX, numBlocks
 		DEC AL
@@ -260,7 +274,7 @@ checkIDEBusy   PROC    NEAR
 			PUSH DX
 
 checkBusy:			
-			MOV DX, IDEaddrStatus	;read busy flag
+			MOV DX, IDEaddrStatus	;read busy, device ready flag
 			IN AL, DX
 			AND AL, IDEBusyFlagMask
 			
@@ -302,11 +316,11 @@ checkIDEDrdy PROC    NEAR
 			PUSH DX
 
 checkDataReady:			
-			MOV DX, IDEaddrStatus	;read busy flag
+			MOV DX, IDEaddrStatus	;read device ready flag
 			IN AL,DX
 			AND AL, IDEDrdyFlagMask
 			
-			CMP AL, IDEDrdyState	;if data not ready, then keep checking
+			CMP AL, IDEDrdyState	;if device not ready, then keep checking
 			JNE checkDataReady
 			
 			POP DX

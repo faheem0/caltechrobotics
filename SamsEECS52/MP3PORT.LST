@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE MP3PORT
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
   0000                =1    48     mp3buff0 EQU 0
   0001                =1    49     mp3buff1 EQU 1
   00FE                =1    50     mp3buffRequiredMask EQU 0FEh
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   103     
                       =1   104     ; Register Values
   0001                =1   105     INTCtrlrCVal    EQU     00001H          ;set priority for timers to 1 and enable
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -165,542 +165,547 @@ LOC  OBJ                  LINE     SOURCE
                       =1   137     ; Addresses
   FFA4                =1   138     PACSreg         EQU     0FFA4H          ;address of PACS register
   FFA8                =1   139     MPCSreg         EQU     0FFA8H          ;address of MPCS register
-                      =1   140     
+  FFA6                =1   140     MMCSaddr                EQU     0ffa6H                  ;address of MCS control regis
+                                   ter
                       =1   141     
                       =1   142     ; Control Register Values
-  0000                =1   143     PACSval         EQU     00000H          ;PCS base at 0, 3 wait states
-                      =1   144                                             ;0000000000------  starts at address 0
-                      =1   145                                             ;----------000---  reserved
-                      =1   146                                             ;-------------0--  wait for RDY inputs
-                      =1   147                                             ;--------------11  3 wait states
-  4003                =1   148     MPCSval         EQU     04003H          ;PCS in I/O space, use PCS5/6, 3 wait states
-                      =1   149                                             ;0---------000---  reserved
-                      =1   150                                             ;-1000000--------  MCS is 512KB
-                      =1   151                                             ;--------0-------  output PCS5/PCS6
-                      =1   152                                             ;---------0------  PCS in I/O space
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    4
+  8001                =1   143     MMCSvalue           EQU     8001H                       ;set to the following:
+                      =1   144                                             ;1000000---------  start at 80000H
+                      =1   145                                             ;-------000000---  reserved
+                      =1   146                                             ;---------------1  1 wait state min
+  0003                =1   147     PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
+                      =1   148                                             ;0000000000------  starts at address 0
+                      =1   149                                             ;----------000---  reserved
+                      =1   150                                             ;-------------0--  wait for RDY inputs
+                      =1   151                                             ;--------------11  3 wait states
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                      =1   153                                             ;-------------0--  wait for RDY inputs
-                      =1   154                                             ;--------------11  3 wait states
-                      =1   155     
-                      =1   156     ; Timing Definitions
-                      =1   157     
-                      =1   158     
+  4000                =1   152     MPCSval         EQU     04000H          ;PCS in I/O space, use PCS5/6, 3 wait states
+                      =1   153                                             ;0---------000---  reserved
+                      =1   154                                             ;-1000000--------  MCS is 512KB
+                      =1   155                                             ;--------0-------  output PCS5/PCS6
+                      =1   156                                             ;---------0------  PCS in I/O space
+                      =1   157                                             ;-------------0--  wait for RDY inputs
+                      =1   158                                             ;--------------11  3 wait states
                       =1   159     
-                      =1   160     ; General Definitions
+                      =1   160     ; Timing Definitions
                       =1   161     
-  0001                =1   162     FIRST_RESERVED_VEC      EQU     1       ;reserve vectors 1-3
-  0003                =1   163     LAST_RESERVED_VEC       EQU     3
-  0100                =1   164     NUM_IRQ_VECTORS         EQU     256     ;number of interrupt vectors
+                      =1   162     
+                      =1   163     
+                      =1   164     ; General Definitions
                       =1   165     
-                           166     
-                           167     CGROUP GROUP CODE
-                           168     DGROUP GROUP DATA
-                           169     
+  0001                =1   166     FIRST_RESERVED_VEC      EQU     1       ;reserve vectors 1-3
+  0003                =1   167     LAST_RESERVED_VEC       EQU     3
+  0100                =1   168     NUM_IRQ_VECTORS         EQU     256     ;number of interrupt vectors
+                      =1   169     
                            170     
-----                       171     CODE SEGMENT PUBLIC 'CODE'
-                           172     
-                           173             ASSUME  CS:CGROUP, DS:DGROUP
+                           171     CGROUP GROUP CODE
+                           172     DGROUP GROUP DATA
+                           173     
                            174     
-                           175     
-                           176     ; audio_halt
-                           177     ;
-                           178     ; Description:       Immediately halts audio play
-                           179     ;
-                           180     ; Operation:         Disables mp3 board interrupt
+----                       175     CODE SEGMENT PUBLIC 'CODE'
+                           176     
+                           177             ASSUME  CS:CGROUP, DS:DGROUP
+                           178     
+                           179     
+                           180     ; audio_halt
                            181     ;
-                           182     ; Arguments:         None.
-                           183     ; Return Value:      None.
-                           184     ;
-                           185     ; Local Variables:   None.
-                           186     ; Shared Variables:  None.
-                           187     ; Input:            None.
-                           188     ; Output:            None.
-                           189     ;
-                           190     ; Error Handling:    None.
-                           191     ;
-                           192     ; Algorithms:        None.
-                           193     ; Data Structures:   None.
-                           194     ;
-                           195     ; Registers Changed: None
-                           196     ; Stack Depth:       2 words
-                           197     ;
-                           198     ; Last Modified:     5-9-2008
-                           199     
-0000                       200     audio_halt       PROC    NEAR
-                           201                                             PUBLIC audio_halt
-0000 50                    202                     PUSH AX
-0001 52                    203                     PUSH DX
-                           204                     
-0002 BA3AFF                205                     MOV DX, INT1Ctrlr                       ;disable mp3 board interrupt
-0005 B81A00                206                     MOV AX, INT1CtrlrValDisable
-0008 EE                    207                     OUT DX, AL
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    5
+                           182     ; Description:       Immediately halts audio play
+                           183     ;
+                           184     ; Operation:         Disables mp3 board interrupt
+                           185     ;
+                           186     ; Arguments:         None.
+                           187     ; Return Value:      None.
+                           188     ;
+                           189     ; Local Variables:   None.
+                           190     ; Shared Variables:  None.
+                           191     ; Input:            None.
+                           192     ; Output:            None.
+                           193     ;
+                           194     ; Error Handling:    None.
+                           195     ;
+                           196     ; Algorithms:        None.
+                           197     ; Data Structures:   None.
+                           198     ;
+                           199     ; Registers Changed: None
+                           200     ; Stack Depth:       2 words
+                           201     ;
+                           202     ; Last Modified:     5-9-2008
+                           203     
+0000                       204     audio_halt       PROC    NEAR
+                           205                                             PUBLIC audio_halt
+0000 50                    206                     PUSH AX
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
 
+0001 52                    207                     PUSH DX
                            208                     
-0009 5A                    209                     POP DX
-000A 58                    210                     POP AX
-000B C3                    211                     RET
-                           212     
-                           213     audio_halt       ENDP
-                           214     
-                           215     ; audio_play
-                           216     ;
-                           217     ; Description:       Begins playing audio from passed buffer
-                           218     ;
-                           219     ; Operation:         Copies buffer information, enables interrupts
+0002 BA3AFF                209                     MOV DX, INT1Ctrlr                       ;disable mp3 board interrupt
+0005 B81A00                210                     MOV AX, INT1CtrlrValDisable
+0008 EE                    211                     OUT DX, AL
+                           212                     
+0009 5A                    213                     POP DX
+000A 58                    214                     POP AX
+000B C3                    215                     RET
+                           216     
+                           217     audio_halt       ENDP
+                           218     
+                           219     ; audio_play
                            220     ;
-                           221     ; Arguments:         None.
-                           222     ; Return Value:      None.
-                           223     ;
-                           224     ; Local Variables:   None.
-                           225     ; Shared Variables:  None.
-                           226     ; Input:            None.
-                           227     ; Output:            None.
-                           228     ;
-                           229     ; Error Handling:    None.
-                           230     ;
-                           231     ; Algorithms:        None.
-                           232     ; Data Structures:   None.
-                           233     ;
-                           234     ; Registers Changed: None
-                           235     ; Stack Depth:       2 words
-                           236     ;
-                           237     ; Last Modified:     5-9-2008
-                           238     
-000C                       239     audio_play       PROC    NEAR
-                           240                                             PUBLIC audio_play
-000C 55                    241                     PUSH BP
-000D 8BEC                  242                     MOV BP, SP
-000F 56                    243                     PUSH SI
-0010 57                    244                     PUSH DI
-0011 50                    245                     PUSH AX
-0012 53                    246                     PUSH BX
-0013 8B5E04                247                     MOV BX, [BP+4]
-0016 8B7606                248                     MOV SI, [BP+6]
-0019 8E4608                249                     MOV ES, [BP+8]
-                           250     
-                           251             
-001C 8C060200       R      252                     MOV mp3buffsegment[mp3buff0], ES        ;store buffer information
-0020 89360600       R      253                     MOV mp3buffindex[mp3buff0], SI
-0024 891E0A00       R      254                     MOV mp3bufflength[mp3buff0], BX
-                           255     
-                           256     
-0028 C6060E000190   R      257                     MOV bufferRequired, TRUE                        ;flag buffer1 require
+                           221     ; Description:       Begins playing audio from passed buffer
+                           222     ;
+                           223     ; Operation:         Copies buffer information, enables interrupts
+                           224     ;
+                           225     ; Arguments:         None.
+                           226     ; Return Value:      None.
+                           227     ;
+                           228     ; Local Variables:   None.
+                           229     ; Shared Variables:  None.
+                           230     ; Input:            None.
+                           231     ; Output:            None.
+                           232     ;
+                           233     ; Error Handling:    None.
+                           234     ;
+                           235     ; Algorithms:        None.
+                           236     ; Data Structures:   None.
+                           237     ;
+                           238     ; Registers Changed: None
+                           239     ; Stack Depth:       2 words
+                           240     ;
+                           241     ; Last Modified:     5-9-2008
+                           242     
+000C                       243     audio_play       PROC    NEAR
+                           244                                             PUBLIC audio_play
+000C 55                    245                     PUSH BP
+000D 8BEC                  246                     MOV BP, SP
+000F 56                    247                     PUSH SI
+0010 57                    248                     PUSH DI
+0011 50                    249                     PUSH AX
+0012 53                    250                     PUSH BX
+0013 8B5E04                251                     MOV BX, [BP+4]
+0016 8B7606                252                     MOV SI, [BP+6]
+0019 8E4608                253                     MOV ES, [BP+8]
+                           254     
+                           255             
+001C 8C060200       R      256                     MOV mp3buffsegment[mp3buff0], ES        ;store buffer information
+0020 89360600       R      257                     MOV mp3buffindex[mp3buff0], SI
+0024 891E0A00       R      258                     MOV mp3bufflength[mp3buff0], BX
+                           259     
+                           260     
+0028 C6060E000190   R      261                     MOV bufferRequired, TRUE                        ;flag buffer1 require
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    6
+
+
+LOC  OBJ                  LINE     SOURCE
+
                                    d
-002E C7060F000000   R      258                     MOV bufferInUse, mp3buff0
-                           259             
-0034 BA3AFF                260                     MOV DX, INT1Ctrlr                                       ;enable mp3 b
+002E C7060F000000   R      262                     MOV bufferInUse, mp3buff0
+                           263             
+0034 BA3AFF                264                     MOV DX, INT1Ctrlr                                       ;enable mp3 b
                                    oard interrupt
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    6
-
-
-LOC  OBJ                  LINE     SOURCE
-
-0037 B81200                261                     MOV AX, INT1CtrlrVal
-003A EE                    262                     OUT DX, AL
-                           263                     
-003B 5B                    264                     POP BX
-003C 58                    265                     POP AX
-003D 5F                    266                     POP DI
-003E 5E                    267                     POP SI
-003F 5D                    268                     POP BP
-                           269     
-0040 C3                    270                     RET
-                           271                     
-                           272                     
-                           273                     
-                           274             
-                           275     
-                           276     audio_play       ENDP
-                           277     
-                           278     ; update
-                           279     ;
-                           280     ; Description:       This procedure updates the mp3 bvffers if necessary.
-                           281     ;
-                           282     ; Operation:         Reads data in, updates status of pressed key.
+0037 B81200                265                     MOV AX, INT1CtrlrVal
+003A EE                    266                     OUT DX, AL
+                           267                     
+003B 5B                    268                     POP BX
+003C 58                    269                     POP AX
+003D 5F                    270                     POP DI
+003E 5E                    271                     POP SI
+003F 5D                    272                     POP BP
+                           273     
+0040 C3                    274                     RET
+                           275                     
+                           276                     
+                           277                     
+                           278             
+                           279     
+                           280     audio_play       ENDP
+                           281     
+                           282     ; update
                            283     ;
-                           284     ; Arguments:         address of new buffer in ES:SI, length in BX
-                           285     ; Return Value:      True if the new buffer was used, False otherwise
-                           286     ;
-                           287     ; Local Variables:   None.
-                           288     ; Shared Variables:  mp3buff1segment
-                           289     ;                           mp3buff2segment
-                           290     ;                           mp3buff1index
-                           291     ;                           mp3buff2index
-                           292     ;                           mp3buff1length
-                           293     ;                           mp3buff2length
-                           294     ; Input:            None.
-                           295     ; Output:            None.
-                           296     ;
-                           297     ; Error Handling:    None.
-                           298     ;
-                           299     ; Algorithms:        None.
-                           300     ; Data Structures:   None.
-                           301     ;
-                           302     ; Registers Changed: None
-                           303     ; Stack Depth:       5 words
-                           304     ;
-                           305     ; Last Modified:     5-9-2008
-                           306     
-0041                       307     update       PROC    NEAR
-                           308                                             PUBLIC update
-0041 55                    309                     PUSH BP
-0042 8BEC                  310                     MOV BP, SP
-0044 56                    311                     PUSH SI
-0045 57                    312                     PUSH DI
-0046 50                    313                     PUSH AX
-0047 53                    314                     PUSH BX
-0048 8B5E04                315                     MOV BX, [BP+4]
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    7
+                           284     ; Description:       This procedure updates the mp3 bvffers if necessary.
+                           285     ;
+                           286     ; Operation:         Reads data in, updates status of pressed key.
+                           287     ;
+                           288     ; Arguments:         address of new buffer in ES:SI, length in BX
+                           289     ; Return Value:      True if the new buffer was used, False otherwise
+                           290     ;
+                           291     ; Local Variables:   None.
+                           292     ; Shared Variables:  mp3buff1segment
+                           293     ;                           mp3buff2segment
+                           294     ;                           mp3buff1index
+                           295     ;                           mp3buff2index
+                           296     ;                           mp3buff1length
+                           297     ;                           mp3buff2length
+                           298     ; Input:            None.
+                           299     ; Output:            None.
+                           300     ;
+                           301     ; Error Handling:    None.
+                           302     ;
+                           303     ; Algorithms:        None.
+                           304     ; Data Structures:   None.
+                           305     ;
+                           306     ; Registers Changed: None
+                           307     ; Stack Depth:       5 words
+                           308     ;
+                           309     ; Last Modified:     5-9-2008
+                           310     
+0041                       311     update       PROC    NEAR
+                           312                                             PUBLIC update
+0041 55                    313                     PUSH BP
+0042 8BEC                  314                     MOV BP, SP
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
 
-004B 8B7606                316                     MOV SI, [BP+6]
-004E 8E4608                317                     MOV ES, [BP+8]
-                           318     
-                           319                     
-0051 803E0E0001     R      320                     CMP bufferRequired, TRUE
-0056 752E                  321                     JNE endUpdateFalse
-                           322                     
-0058 C6060E000090   R      323                     MOV bufferRequired, FALSE       ;reset bufferRequired flag
-                           324                     
-005E 833E0F0000     R      325                     CMP bufferInUse, mp3buff0       ;save location and length of new buff
+0044 56                    315                     PUSH SI
+0045 57                    316                     PUSH DI
+0046 50                    317                     PUSH AX
+0047 53                    318                     PUSH BX
+0048 8B5E04                319                     MOV BX, [BP+4]
+004B 8B7606                320                     MOV SI, [BP+6]
+004E 8E4608                321                     MOV ES, [BP+8]
+                           322     
+                           323                     
+0051 803E0E0001     R      324                     CMP bufferRequired, TRUE
+0056 752E                  325                     JNE endUpdateFalse
+                           326                     
+0058 C6060E000090   R      327                     MOV bufferRequired, FALSE       ;reset bufferRequired flag
+                           328                     
+005E 833E0F0000     R      329                     CMP bufferInUse, mp3buff0       ;save location and length of new buff
                                    er
-0063 750F                  326                     JNE replaceBuff1
-0065                       327     replaceBuff0:   
-0065 8C060200       R      328                     MOV mp3buffsegment[mp3buff0], ES
-0069 89360600       R      329                     MOV mp3buffindex[mp3buff0], SI
-006D 891E0A00       R      330                     MOV mp3bufflength[mp3buff0], BX
-0071 EB0D90                331                     JMP endUpdateTrue
-0074                       332     replaceBuff1:
-0074 8C060300       R      333                     MOV mp3buffsegment[mp3buff1], ES
-0078 89360700       R      334                     MOV mp3buffindex[mp3buff1], SI
-007C 891E0B00       R      335                     MOV mp3bufflength[mp3buff1], BX
-                           336                     ;JMP endUpdateTrue
-0080                       337     endUpdateTrue:  
-0080 B80100                338                     MOV AX, TRUE
-0083 EB0490                339                     JMP endUpdate
-0086                       340     endUpdateFalse:
-0086 B80000                341                     MOV AX, FALSE
-0089                       342     endUpdate:      
-0089 5B                    343                     POP BX
-008A 58                    344                     POP AX
-008B 5F                    345                     POP DI
-008C 5E                    346                     POP SI
-008D 5D                    347                     POP BP
-                           348     
-008E C3                    349                     RET
-                           350     
-                           351     update       ENDP
+0063 750F                  330                     JNE replaceBuff1
+0065                       331     replaceBuff0:   
+0065 8C060200       R      332                     MOV mp3buffsegment[mp3buff0], ES
+0069 89360600       R      333                     MOV mp3buffindex[mp3buff0], SI
+006D 891E0A00       R      334                     MOV mp3bufflength[mp3buff0], BX
+0071 EB0D90                335                     JMP endUpdateTrue
+0074                       336     replaceBuff1:
+0074 8C060300       R      337                     MOV mp3buffsegment[mp3buff1], ES
+0078 89360700       R      338                     MOV mp3buffindex[mp3buff1], SI
+007C 891E0B00       R      339                     MOV mp3bufflength[mp3buff1], BX
+                           340                     ;JMP endUpdateTrue
+0080                       341     endUpdateTrue:  
+0080 B80100                342                     MOV AX, TRUE
+0083 EB0490                343                     JMP endUpdate
+0086                       344     endUpdateFalse:
+0086 B80000                345                     MOV AX, FALSE
+0089                       346     endUpdate:      
+0089 5B                    347                     POP BX
+008A 58                    348                     POP AX
+008B 5F                    349                     POP DI
+008C 5E                    350                     POP SI
+008D 5D                    351                     POP BP
                            352     
-                           353     
+008E C3                    353                     RET
                            354     
-                           355     ; Int1EventHandler
-                           356     ;
-                           357     ; Description:       This procedure is the event handler for when the
-                           358     ;                       keypad debouncing chip signals a pressed key.
-                           359     ;
-                           360     ; Operation:         Reads data in, updates status of pressed key.
-                           361     ;
-                           362     ; Arguments:         None.
-                           363     ; Return Value:      None.
-                           364     ;
-                           365     ; Local Variables:   None.
-                           366     ; Shared Variables:  keyCode, keyReady
-                           367     
-                           368     ; Input:            From keypad debouncing chip.
-                           369     ; Output:            None.
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    8
+                           355     update       ENDP
+                           356     
+                           357     
+                           358     
+                           359     ; Int1EventHandler
+                           360     ;
+                           361     ; Description:       This procedure is the event handler for when the
+                           362     ;                       keypad debouncing chip signals a pressed key.
+                           363     ;
+                           364     ; Operation:         Reads data in, updates status of pressed key.
+                           365     ;
+                           366     ; Arguments:         None.
+                           367     ; Return Value:      None.
+                           368     ;
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           370     ;
-                           371     ; Error Handling:    None.
-                           372     ;
-                           373     ; Algorithms:        None.
-                           374     ; Data Structures:   None.
-                           375     ;
-                           376     ; Registers Changed: None
-                           377     ; Stack Depth:       3 words
-                           378     ;
-                           379     ; Last Modified:     5-5-2008
-                           380     
-008F                       381     Int1EventHandler       PROC    NEAR
-                           382                                             PUBLIC Int1EventHandler
-008F 50                    383                     PUSH AX                         ;save register values
-0090 53                    384                     PUSH BX
-0091 51                    385                     PUSH CX
-0092 52                    386                     PUSH DX
-                           387                     
-0093 8B1E0000       R      388                     MOV BX, mp3index
-0097 43                    389                     INC BX
-0098 43                    390                     INC BX
-                           391                     ;do wrap here
-0099 81E3FF1F              392                     AND BX, mp3testbufflength-1
-009D 891E0000       R      393                     MOV mp3index, BX
-00A1 8B871100       R      394                     MOV AX, mp3buff[BX]
-                           395             
-00A5                       396     dataReady:
-00A5 BA0000                397                     MOV DX, mp3portAddress
-00A8 D0C0                  398                     ROL AL, 1
-00AA D0C4                  399                     ROL AH, 1
-                           400                     
-00AC                       401     outputBits:             
-00AC EE                    402                     OUT DX, AL
-00AD D0C0                  403                     ROL AL, 1
-00AF EE                    404                     OUT DX, AL
-00B0 D0C0                  405                     ROL AL, 1
-00B2 EE                    406                     OUT DX, AL
-00B3 D0C0                  407                     ROL AL, 1
-00B5 EE                    408                     OUT DX, AL
-00B6 D0C0                  409                     ROL AL, 1
-00B8 EE                    410                     OUT DX, AL
-00B9 D0C0                  411                     ROL AL, 1
-00BB EE                    412                     OUT DX, AL
-00BC D0C0                  413                     ROL AL, 1
-00BE EE                    414                     OUT DX, AL
-00BF D0C0                  415                     ROL AL, 1
-00C1 EE                    416                     OUT DX, AL
-00C2 D0C0                  417                     ROL AL, 1
-00C4 86E0                  418                     XCHG AH, AL
-00C6 EE                    419                     OUT DX, AL
-00C7 D0C0                  420                     ROL AL, 1
-00C9 EE                    421                     OUT DX, AL
-00CA D0C0                  422                     ROL AL, 1
-00CC EE                    423                     OUT DX, AL
-00CD D0C0                  424                     ROL AL, 1
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE    9
+                           369     ; Local Variables:   None.
+                           370     ; Shared Variables:  keyCode, keyReady
+                           371     
+                           372     ; Input:            From keypad debouncing chip.
+                           373     ; Output:            None.
+                           374     ;
+                           375     ; Error Handling:    None.
+                           376     ;
+                           377     ; Algorithms:        None.
+                           378     ; Data Structures:   None.
+                           379     ;
+                           380     ; Registers Changed: None
+                           381     ; Stack Depth:       3 words
+                           382     ;
+                           383     ; Last Modified:     5-5-2008
+                           384     
+008F                       385     Int1EventHandler       PROC    NEAR
+                           386                                             PUBLIC Int1EventHandler
+008F 50                    387                     PUSH AX                         ;save register values
+0090 53                    388                     PUSH BX
+0091 51                    389                     PUSH CX
+0092 52                    390                     PUSH DX
+                           391                     
+0093 8B1E0000       R      392                     MOV BX, mp3index
+0097 43                    393                     INC BX
+0098 43                    394                     INC BX
+                           395                     ;do wrap here
+0099 81E3FF1F              396                     AND BX, mp3testbufflength-1
+009D 891E0000       R      397                     MOV mp3index, BX
+00A1 8B871100       R      398                     MOV AX, mp3buff[BX]
+                           399             
+00A5                       400     dataReady:
+00A5 BA0000                401                     MOV DX, mp3portAddress
+00A8 D0C0                  402                     ROL AL, 1
+00AA D0C4                  403                     ROL AH, 1
+                           404                     
+00AC                       405     outputBits:             
+00AC EE                    406                     OUT DX, AL
+00AD D0C0                  407                     ROL AL, 1
+00AF EE                    408                     OUT DX, AL
+00B0 D0C0                  409                     ROL AL, 1
+00B2 EE                    410                     OUT DX, AL
+00B3 D0C0                  411                     ROL AL, 1
+00B5 EE                    412                     OUT DX, AL
+00B6 D0C0                  413                     ROL AL, 1
+00B8 EE                    414                     OUT DX, AL
+00B9 D0C0                  415                     ROL AL, 1
+00BB EE                    416                     OUT DX, AL
+00BC D0C0                  417                     ROL AL, 1
+00BE EE                    418                     OUT DX, AL
+00BF D0C0                  419                     ROL AL, 1
+00C1 EE                    420                     OUT DX, AL
+00C2 D0C0                  421                     ROL AL, 1
+00C4 86E0                  422                     XCHG AH, AL
+00C6 EE                    423                     OUT DX, AL
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
 
-00CF EE                    425                     OUT DX, AL
-00D0 D0C0                  426                     ROL AL, 1
-00D2 EE                    427                     OUT DX, AL
-00D3 D0C0                  428                     ROL AL, 1
-00D5 EE                    429                     OUT DX, AL
-00D6 D0C0                  430                     ROL AL, 1
-00D8 EE                    431                     OUT DX, AL
-00D9 D0C0                  432                     ROL AL, 1
-00DB EE                    433                     OUT DX, AL
-00DC D0C0                  434                     ROL AL, 1
-                           435                     
-00DE BA22FF                436                     MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt contro
-                                   ller
-00E1 B80D00                437             MOV     AX, Int1Vec
-00E4 EE                    438             OUT     DX, AL
+00C7 D0C0                  424                     ROL AL, 1
+00C9 EE                    425                     OUT DX, AL
+00CA D0C0                  426                     ROL AL, 1
+00CC EE                    427                     OUT DX, AL
+00CD D0C0                  428                     ROL AL, 1
+00CF EE                    429                     OUT DX, AL
+00D0 D0C0                  430                     ROL AL, 1
+00D2 EE                    431                     OUT DX, AL
+00D3 D0C0                  432                     ROL AL, 1
+00D5 EE                    433                     OUT DX, AL
+00D6 D0C0                  434                     ROL AL, 1
+00D8 EE                    435                     OUT DX, AL
+00D9 D0C0                  436                     ROL AL, 1
+00DB EE                    437                     OUT DX, AL
+00DC D0C0                  438                     ROL AL, 1
                            439                     
-00E5 5A                    440                     POP DX                                                  ;restore regi
-                                   ster values
-00E6 59                    441                     POP CX
-00E7 5B                    442                     POP BX
-00E8 58                    443                     POP AX
-00E9 CF                    444             IRET                            ;and return (Event Handlers end with IRET not
-                                    RET)
-                           445     
-                           446     
-                           447     Int1EventHandler       ENDP
-                           448     
-00EA                       449     Int1EventHandlerREAL       PROC    NEAR
-                           450                                             PUBLIC Int1EventHandlerREAL
-00EA 50                    451                     PUSH AX                         ;save register values
-00EB 53                    452                     PUSH BX
-00EC 51                    453                     PUSH CX
-00ED 52                    454                     PUSH DX
-                           455                     
-00EE 8B1E0F00       R      456                     MOV BX, bufferInUse                             ;get byte to output
-00F2 8E870200       R      457                     MOV ES, mp3buffsegment[BX]
-00F6 8BB70600       R      458                     MOV SI, mp3buffIndex[BX]                
-00FA 268A04                459                     MOV AL, ES:[SI]
-                           460                     
-00FD BA0000                461                     MOV DX, mp3portAddress
-0100 D0C0                  462                     ROL AL, 1
-0102 B90800                463                     MOV CX, 8
-0105                       464     outputBitsr:            
-0105 EE                    465                     OUT DX, AL
-0106 D0C0                  466                     ROL AL, 1
-0108 E2FB                  467                     LOOP outputBitsr
-                           468                     
-                           469                     ;increment buffer index
-010A FF8F0A00       R      470                     DEC mp3bufflength[BX]
-010E 833E0A0000     R      471                     CMP mp3bufflength, lengthZero
-0113 7510                  472                     JNE doneInc
-                           473                     ;JE switch buffers
-0115 C6060E000190   R      474                     MOV bufferRequired, TRUE                                ;new buffer r
-                                   equired
-011B FF060F00       R      475                     INC bufferInUse                                                 ;swit
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE   10
-
-
-LOC  OBJ                  LINE     SOURCE
-
-                                   ches buffers between 0 and 1
-011F 81260F00FE00   R      476                     AND bufferInUse, mp3buffRequiredMask
-                           477                     ;JMP doneInc
-0125                       478     doneInc:                
-0125 BA22FF                479                     MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt contro
+00DE BA22FF                440                     MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt contro
                                    ller
-0128 B80D00                480             MOV     AX, Int1Vec
-012B EE                    481             OUT     DX, AL
-                           482                     
-012C 5A                    483                     POP DX                                                  ;restore regi
+00E1 B80D00                441             MOV     AX, Int1Vec
+00E4 EE                    442             OUT     DX, AL
+                           443                     
+00E5 5A                    444                     POP DX                                                  ;restore regi
                                    ster values
-012D 59                    484                     POP CX
-012E 5B                    485                     POP BX
-012F 58                    486                     POP AX
-0130 CF                    487             IRET                            ;and return (Event Handlers end with IRET not
+00E6 59                    445                     POP CX
+00E7 5B                    446                     POP BX
+00E8 58                    447                     POP AX
+00E9 CF                    448             IRET                            ;and return (Event Handlers end with IRET not
                                     RET)
-                           488     
-                           489     
-                           490     Int1EventHandlerREAL       ENDP
-                           491     
-                           492     ; InitMP3Port
-                           493     ;
-                           494     ; Description:       This procedure initializes everything for keypad
-                           495     ;
-                           496     ; Operation:        Initializes shared variables
-                           497     ;
-                           498     ; Arguments:         None.
-                           499     ; Return Value:      None.
-                           500     ;
-                           501     ; Local Variables:   None.
-                           502     ; Shared Variables:  keyCode, keyReady
-                           503     
-                           504     ; Input:            None.
-                           505     ; Output:            None.
-                           506     ;
-                           507     ; Error Handling:    None.
-                           508     ;
-                           509     ; Algorithms:        None.
-                           510     ; Data Structures:   None.
-                           511     ;
-                           512     ; Registers Changed: None
-                           513     ; Stack Depth:       1 words
-                           514     ;
-                           515     ; Last Modified:     5-2-2008
-0131                       516     InitMP3Port   PROC    NEAR
-                           517                             PUBLIC InitMP3Port
-                           518                     ;do nothing yet
-0131 53                    519                     PUSH BX
-0132 51                    520                     PUSH CX
-0133 C70600000000   R      521                     MOV mp3index, 0
-                           522                     
-0139 59                    523                     POP CX
-013A 5B                    524                     POP BX
-013B C3                    525                     RET
-                           526     InitMP3Port   ENDP
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE   11
+                           449     
+                           450     
+                           451     Int1EventHandler       ENDP
+                           452     
+00EA                       453     Int1EventHandlerREAL       PROC    NEAR
+                           454                                             PUBLIC Int1EventHandlerREAL
+00EA 50                    455                     PUSH AX                         ;save register values
+00EB 53                    456                     PUSH BX
+00EC 51                    457                     PUSH CX
+00ED 52                    458                     PUSH DX
+                           459                     
+00EE 8B1E0F00       R      460                     MOV BX, bufferInUse                             ;get byte to output
+00F2 8E870200       R      461                     MOV ES, mp3buffsegment[BX]
+00F6 8BB70600       R      462                     MOV SI, mp3buffIndex[BX]                
+00FA 268A04                463                     MOV AL, ES:[SI]
+                           464                     
+00FD BA0000                465                     MOV DX, mp3portAddress
+0100 D0C0                  466                     ROL AL, 1
+0102 B90800                467                     MOV CX, 8
+0105                       468     outputBitsr:            
+0105 EE                    469                     OUT DX, AL
+0106 D0C0                  470                     ROL AL, 1
+0108 E2FB                  471                     LOOP outputBitsr
+                           472                     
+                           473                     ;increment buffer index
+010A FF8F0A00       R      474                     DEC mp3bufflength[BX]
+010E 833E0A0000     R      475                     CMP mp3bufflength, lengthZero
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE   10
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           527     
-                           528     
-                           529     
-                           530     
+0113 7510                  476                     JNE doneInc
+                           477                     ;JE switch buffers
+0115 C6060E000190   R      478                     MOV bufferRequired, TRUE                                ;new buffer r
+                                   equired
+011B FF060F00       R      479                     INC bufferInUse                                                 ;swit
+                                   ches buffers between 0 and 1
+011F 81260F00FE00   R      480                     AND bufferInUse, mp3buffRequiredMask
+                           481                     ;JMP doneInc
+0125                       482     doneInc:                
+0125 BA22FF                483                     MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt contro
+                                   ller
+0128 B80D00                484             MOV     AX, Int1Vec
+012B EE                    485             OUT     DX, AL
+                           486                     
+012C 5A                    487                     POP DX                                                  ;restore regi
+                                   ster values
+012D 59                    488                     POP CX
+012E 5B                    489                     POP BX
+012F 58                    490                     POP AX
+0130 CF                    491             IRET                            ;and return (Event Handlers end with IRET not
+                                    RET)
+                           492     
+                           493     
+                           494     Int1EventHandlerREAL       ENDP
+                           495     
+                           496     ; InitMP3Port
+                           497     ;
+                           498     ; Description:       This procedure initializes everything for keypad
+                           499     ;
+                           500     ; Operation:        Initializes shared variables
+                           501     ;
+                           502     ; Arguments:         None.
+                           503     ; Return Value:      None.
+                           504     ;
+                           505     ; Local Variables:   None.
+                           506     ; Shared Variables:  keyCode, keyReady
+                           507     
+                           508     ; Input:            None.
+                           509     ; Output:            None.
+                           510     ;
+                           511     ; Error Handling:    None.
+                           512     ;
+                           513     ; Algorithms:        None.
+                           514     ; Data Structures:   None.
+                           515     ;
+                           516     ; Registers Changed: None
+                           517     ; Stack Depth:       1 words
+                           518     ;
+                           519     ; Last Modified:     5-2-2008
+0131                       520     InitMP3Port   PROC    NEAR
+                           521                             PUBLIC InitMP3Port
+                           522                     ;do nothing yet
+0131 53                    523                     PUSH BX
+0132 51                    524                     PUSH CX
+0133 C70600000000   R      525                     MOV mp3index, 0
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE   11
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           526                     
+0139 59                    527                     POP CX
+013A 5B                    528                     POP BX
+013B C3                    529                     RET
+                           530     InitMP3Port   ENDP
                            531     
                            532     
                            533     
                            534     
-                           535     ; InstallHandlerInt1
-                           536     ;
-                           537     ; Description:       Install the event handler for the int1 interrupt.
-                           538     ;
-                           539     ; Operation:         Writes the address of the int 1 event handler to the
-                           540     ;                    appropriate interrupt vector.
-                           541     ;
-                           542     ; Arguments:         None.
-                           543     ; Return Value:      None.
-                           544     ;
-                           545     ; Local Variables:   None.
-                           546     ; Shared Variables:  None.
-                           547     ; Global Variables:  None.
+                           535     
+                           536     
+                           537     
+                           538     
+                           539     ; InstallHandlerInt1
+                           540     ;
+                           541     ; Description:       Install the event handler for the int1 interrupt.
+                           542     ;
+                           543     ; Operation:         Writes the address of the int 1 event handler to the
+                           544     ;                    appropriate interrupt vector.
+                           545     ;
+                           546     ; Arguments:         None.
+                           547     ; Return Value:      None.
                            548     ;
-                           549     ; Input:             None.
-                           550     ; Output:            None.
-                           551     ;
-                           552     ; Error Handling:    None.
-                           553     ;
-                           554     ; Algorithms:        None.
-                           555     ; Data Structures:   None.
-                           556     ;
-                           557     ; Registers Changed: flags, AX, ES, DX
-                           558     ; Stack Depth:       0 words
-                           559     ;
-                           560     ; Author:            Samuel Yang
-                           561     ; Last Modified:     5-5-2008
-                           562     
-013C                       563     InstallHandlerInt1  PROC    NEAR
-                           564                             PUBLIC InstallHandlerInt1
-                           565     
+                           549     ; Local Variables:   None.
+                           550     ; Shared Variables:  None.
+                           551     ; Global Variables:  None.
+                           552     ;
+                           553     ; Input:             None.
+                           554     ; Output:            None.
+                           555     ;
+                           556     ; Error Handling:    None.
+                           557     ;
+                           558     ; Algorithms:        None.
+                           559     ; Data Structures:   None.
+                           560     ;
+                           561     ; Registers Changed: flags, AX, ES, DX
+                           562     ; Stack Depth:       0 words
+                           563     ;
+                           564     ; Author:            Samuel Yang
+                           565     ; Last Modified:     5-5-2008
                            566     
-013C 33C0                  567             XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
-013E 8EC0                  568             MOV     ES, AX
-                           569                                     ;store the vector
-0140 26C70634008F00 R      570             MOV     ES: WORD PTR (4 * Int1Vec), OFFSET(Int1EventHandler)
-0147 26C7063600---- R      571             MOV     ES: WORD PTR (4 * Int1Vec + 2), SEG(Int1EventHandler)
-                           572     
-014E BA3AFF                573                     MOV DX, INT1Ctrlr
-0151 B012                  574                     MOV AL, INT1CtrlrVal
-0153 EE                    575                     OUT DX, AL
-                           576                     
-0154 BA22FF                577                     MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt contro
-                                   ller
-0157 B80D00                578             MOV     AX, Int1Vec
-015A EE                    579             OUT     DX, AL
-                           580                     ;STI ;enable interrupts
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  03:37:33  06/01/:8  PAGE   12
+013C                       567     InstallHandlerInt1  PROC    NEAR
+                           568                             PUBLIC InstallHandlerInt1
+                           569     
+                           570     
+013C 33C0                  571             XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
+013E 8EC0                  572             MOV     ES, AX
+                           573                                     ;store the vector
+0140 26C70634008F00 R      574             MOV     ES: WORD PTR (4 * Int1Vec), OFFSET(Int1EventHandler)
+0147 26C7063600---- R      575             MOV     ES: WORD PTR (4 * Int1Vec + 2), SEG(Int1EventHandler)
+                           576     
+014E BA3AFF                577                     MOV DX, INT1Ctrlr
+0151 B012                  578                     MOV AL, INT1CtrlrVal
+0153 EE                    579                     OUT DX, AL
+                           580                     
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  07:19:15  06/01/:8  PAGE   12
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           581                     
-015B C3                    582             RET                     ;all done, return
-                           583     
-                           584     
-                           585     InstallHandlerInt1  ENDP
-                           586     
+0154 BA22FF                581                     MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt contro
+                                   ller
+0157 B80D00                582             MOV     AX, Int1Vec
+015A EE                    583             OUT     DX, AL
+                           584                     ;STI ;enable interrupts
+                           585                     
+015B C3                    586             RET                     ;all done, return
                            587     
                            588     
-                           589     
+                           589     InstallHandlerInt1  ENDP
                            590     
-----                       591     CODE ENDS
+                           591     
                            592     
-                           593     ;the data segment
+                           593     
                            594     
-----                       595     DATA    SEGMENT PUBLIC  'DATA'
-0000 0000                  596     mp3index DW 0
-                           597     
+----                       595     CODE ENDS
+                           596     
+                           597     ;the data segment
                            598     
-0002 (2                    599     mp3buffsegment DW 2 DUP(?)
+----                       599     DATA    SEGMENT PUBLIC  'DATA'
+0000 0000                  600     mp3index DW 0
+                           601     
+                           602     
+0002 (2                    603     mp3buffsegment DW 2 DUP(?)
      ????
      )
-0006 (2                    600     mp3buffindex  DW 2 DUP(?) 
+0006 (2                    604     mp3buffindex  DW 2 DUP(?) 
      ????
      )
-000A (2                    601     mp3bufflength DW 2 DUP(?)
+000A (2                    605     mp3bufflength DW 2 DUP(?)
      ????
      )
-000E ??                    602     bufferRequired DB ?
-000F ????                  603     bufferInUse    DW ?
-                           604     
-0011 (4096                 605     mp3buff DW (mp3testbufflength/2)        DUP(?)
-     ????
-     )
-----                       606     DATA    ENDS
-                           607     
+000E ??                    606     bufferRequired DB ?
+000F ????                  607     bufferInUse    DW ?
                            608     
-                           609     
-                           610     
-                           611             END     
+0011 (4096                 609     mp3buff DW (mp3testbufflength/2)        DUP(?)
+     ????
+     )
+----                       610     DATA    ENDS
+                           611     
+                           612     
+                           613     
+                           614     
+                           615             END     
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND
