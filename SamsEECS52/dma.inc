@@ -12,6 +12,7 @@
 ; Revision History:
 
 ;     5/30/2008 Samuel Yang     
+IDEoffset	  EQU 	  003fH			 ;for samsung IDE
 
 
 IDE_BLOCK_SIZE EQU 256               ;words, must NOT change
@@ -45,11 +46,11 @@ D0DSTLmask    EQU     0ffffH         ;DMA0 Destination Address Pointer (high)
 										;mask off reserved bits
                                         ;1111111111111111  address bits 15:0                                      
 
-D0CONvalue    EQU     0b206H         ;DMA0 Control Register-p270
+D0CONvalue    EQU     0b606H         ;DMA0 Control Register-p270
 										;1---------------  dest. memory space   
 										;-01-------------  dest increment
 										;---1------------  source memory space
-										;----00----------  src. counter constant
+										;----01----------  src increment
 										;------1---------  terminate on TC
 										;-------0--------  clear interrupt
 										;--------00------  unsynchronized
@@ -62,15 +63,17 @@ D0CONvalue    EQU     0b206H         ;DMA0 Control Register-p270
 										
 D0TCvalue     EQU	IDE_BLOCK_SIZE*2  ;convert # words to # bytes										
 										
-;IDE addresses-p28										
+;IDE addresses-p28		
+IDEsegment			 EQU 	 8000H		   ;IDE on MCS0
+								
 IDEaddrFeatures  	 EQU     2000H         ;address of features register
 IDEaddrSectorcount   EQU     4000H         ;address of Sector Count register
 IDEaddrSectornumber  EQU     6000H         ;address of Sector Number register
 IDEaddrCylinderlow   EQU     8000H         ;address of Cylinder Low register
 IDEaddrCylinderhigh  EQU    0A000H         ;address of Cylinder High register
 IDEaddrDevicehead    EQU    0C000H         ;address of Device/Head register
-IDEaddrCommand   	 EQU    0F000H         ;address of Command register
-IDEaddrStatus   	 EQU    0F000H         ;address of Status register										
+IDEaddrCommand   	 EQU    0E000H         ;address of Command register
+IDEaddrStatus   	 EQU    0E000H         ;address of Status register										
 										
 										
 DeviceheadValue	    EQU       0e0H    ;set IDEaddrDevicehead to LBA mode
@@ -85,8 +88,15 @@ CylinderLowValue    EQU        00H    ;set LBA bits
 SectorNumberValue   EQU        00H    ;set LBA bits
 										;00000000  LBA bits 7:0	
 
-IDECommandReadSectors  EQU     20H    ;read sectors with retries
+IDECommandReadSectors  EQU     21H    ;read sectors without retries
 
-IDEBusyFlagMask		EQU 	  080H	   ;from status register										
-										
-IDEDrdyFlagMask		EQU 	  040H	   ;from status register										
+IDEBusyFlagMask		EQU 	  080H	   ;from status register		
+										;1-------  BSY-busy	
+IDEBusyState		EQU 	  080H	   ;from status register		
+										;1-------  BSY-busy										
+IDEDrdyFlagMask		EQU 	  0C0H	   ;from status register		
+										;1-------  BSY-busy	
+										;-1------  DRDY-device ready										
+IDEDrdyState		EQU		  040H	   ;from status register		
+										;0-------  BSY-busy cleared	
+										;-1------  DRDY-device ready							

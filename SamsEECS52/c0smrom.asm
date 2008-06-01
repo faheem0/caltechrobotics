@@ -54,7 +54,7 @@ EXTRN InitMP3Port:Near
 EXTRN InitDisplay:Near
 EXTRN InitElapsedTimer:Near
 EXTRN InitDMA:Near
-;EXTRN   main:NEAR               ;declare the main function
+EXTRN   main:NEAR               ;declare the main function
 ; segment register assumptions
         ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
 
@@ -120,9 +120,9 @@ main0:                                  ;start the program
 		CALL InitDMA
 		CALL InstallHandlerInt1		
 		CALL InstallHandlerInt0
-infLoop: JMP infLoop		
+;infLoop: JMP infLoop		
         ;CALL    main2                    ;run the main function (no arguments)
-		;CALL main
+		CALL main
         JMP     main0                   ;if return - reinitialize and try again
 
 

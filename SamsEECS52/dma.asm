@@ -98,7 +98,7 @@ InitDMA   ENDP
 ; Registers Changed: None
 ; Stack Depth:       10 words
 ;
-; Last Modified:     5-30-2008
+; Last Modified:     5-31-2008
 get_blocks   PROC    NEAR
 			PUBLIC get_blocks
 		
@@ -110,6 +110,7 @@ get_blocks   PROC    NEAR
 		PUSH BX
 		PUSH CX
 		PUSH DX
+		PUSH ES
 		
 		;get arguments off the stack
 		MOV AX, [BP+4]		;offset of destination adddress
@@ -128,6 +129,10 @@ get_blocks   PROC    NEAR
 		ADD BX, AX	;lower 16 bits of 20-bit address now in BX
 		ADC CX, 0	;higher 4 bits of 20-bit address now in CX
 		
+		;add IDE address offset
+		ADD BX, IDEoffset
+		ADC CX, 0
+		
 		;set DMA dest 20-bit address
 		MOV DX, D0DSTHaddr
 		MOV AX, CX
@@ -143,48 +148,58 @@ get_blocks   PROC    NEAR
 		MOV DX, D0SRCLaddr
 		MOV AX, D0SRCLvalue
 		OUT DX, AX
+				
+		;INIT IDE HERE
+		;write LBA to IDE registers
+		PUSH IDEsegment	;use ES to reference IDE segment
+		POP ES
+		
+		MOV SI, IDEaddrSectornumber
+		MOV AX, startOfBlocksLow	
+		CALL checkIDEBusy
+		MOV ES:[SI], AX ;LBA 7:0, don't care about contents in AH, but word write is required
+		
+		MOV SI, IDEaddrCylinderlow
+		MOV AL, AH
+		CALL checkIDEBusy
+		MOV ES:[SI], AX ;LBA 15:8
+		
+		MOV SI, IDEaddrCylinderhigh
+		MOV AX, startOfBlocksHigh
+		CALL checkIDEBusy
+		MOV ES:[SI], AX	;LBA 23:16
+		
+		MOV SI, IDEaddrDevicehead
+		MOV AL, DeviceheadValue	;get control values
+		AND AH, 0FH			;mask off upper nibble
+		ADD AL, AH				;set LBA 27:24 bits
+		CALL checkIDEBusy
+		MOV ES:[SI], AX 	;LBA 27:24
+		
+		;set IDE sector count
+		MOV SI, IDEaddrSectorcount	
+		MOV AX, numBlocks
+		CALL checkIDEBusy
+		MOV ES:[SI], AX 	;writes byte only although value is a word
+		
+		;command IDE to read sectors
+		MOV SI, IDEaddrCommand
+		MOV AL, IDECommandReadSectors
+		CALL checkIDEBusy
+		MOV ES:[SI], AX 
+transferDMA:
+		;reset DMA source 20-bit address (fixed IDE address)
+		MOV DX, D0SRCHaddr
+		MOV AX, D0SRCHvalue
+		OUT DX, AX
+		MOV DX, D0SRCLaddr
+		MOV AX, D0SRCLvalue
+		OUT DX, AX
 		
 		;set DMA terminal counter
 		MOV DX, D0TCaddr
 		MOV AX, D0TCvalue
 		OUT DX, AX
-		
-		
-		;INIT IDE HERE
-		;write LBA to IDE registers
-		MOV AX, startOfBlocksLow	
-		MOV DX, IDEaddrSectornumber
-		CALL checkIDEBusy
-		OUT DX, AL	;LBA 7:0
-		
-		MOV AL, AH
-		MOV DX, IDEaddrCylinderlow
-		CALL checkIDEBusy
-		OUT DX, AL	;LBA 15:8
-		
-		MOV AX, startOfBlocksHigh	
-		MOV DX, IDEaddrCylinderhigh
-		CALL checkIDEBusy
-		OUT DX, AL	;LBA 23:16
-		
-		MOV AL, DeviceheadValue	;get control values
-		AND AH, 0FH			;mask off upper nibble
-		ADD AL, AH				;set LBA 27:24 bits
-		MOV DX, IDEaddrDevicehead
-		CALL checkIDEBusy
-		OUT DX, AL	;LBA 27:24
-		
-		;set IDE sector count
-		MOV AX, numBlocks
-		MOV DX, IDEaddrSectorcount	;write word or byte ???????????????
-		CALL checkIDEBusy
-		OUT DX, AL
-		
-		;command IDE to read sectors
-		MOV AL, IDECommandReadSectors
-		MOV DX, IDEaddrCommand
-		CALL checkIDEBusy
-		OUT DX, AL
 		
 		;wait for data ready
 		CALL checkDataReady
@@ -194,6 +209,15 @@ get_blocks   PROC    NEAR
 		MOV AX, D0CONvalue
 		OUT DX, AX
 		
+		MOV AX, numBlocks
+		DEC AL
+		XOR AH, AH				;ignore upper byte of numBlocks
+		MOV numBlocks, AX
+		
+		CMP AX, 0
+		JNE transferDMA
+		
+		POP ES
 		POP DX
 		POP CX
 		POP BX
@@ -240,7 +264,7 @@ checkBusy:
 			IN AL, DX
 			AND AL, IDEBusyFlagMask
 			
-			CMP AL, IDEBusyFlagMask	;if busy, then keep checking
+			CMP AL, IDEBusyState	;if busy, then keep checking
 			JE checkBusy
 			
 			POP DX
@@ -282,7 +306,7 @@ checkDataReady:
 			IN AL,DX
 			AND AL, IDEDrdyFlagMask
 			
-			CMP AL, IDEDrdyFlagMask	;if data not ready, then keep checking
+			CMP AL, IDEDrdyState	;if data not ready, then keep checking
 			JNE checkDataReady
 			
 			POP DX
