@@ -17,7 +17,10 @@ IDEoffset	  EQU 	  003fH			 ;for samsung IDE
 
 IDE_BLOCK_SIZE EQU 256               ;words, must NOT change
 
-;Register addresses, masks, and values
+
+
+
+										;Register addresses, masks, and values
 D0DSTHaddr	  EQU 	  0ffc6H		 ;address of dest address pointer (high)
 D0DSTLaddr	  EQU 	  0ffc4H		 ;address of dest address pointer (low)
 
