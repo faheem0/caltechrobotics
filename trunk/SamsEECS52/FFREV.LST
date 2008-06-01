@@ -1,4 +1,4 @@
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   1
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE FFREV
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
    49                                              stop_FFRev() to implement the new method for
    50                                              doing fast forward and reverse operations.
    51                   6/2/02   Glen George       Updated comments.
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   2
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   2
 
 
    52                   6/5/03   Glen George       Updated start_FastFwd and start_Reverse to
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   106             
   107             */
   108             
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   3
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   3
 
 
   109             enum status  start_FastFwd(enum status cur_status)
@@ -178,7 +178,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   163                Author:           Glen George
   164                Last Modified:    June 5, 2003
   165             
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   4
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   4
 
 
   166             */
@@ -238,7 +238,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   220                Author:           Glen George
   221                Last Modified:    Mar. 11, 1995
   222             
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   5
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   5
 
 
   223             */
@@ -298,7 +298,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   277     1       
   278     1       
   279     1           /* first turn off the audio output */
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   6
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   6
 
 
   280     1           audio_halt();
@@ -358,7 +358,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   334     1       }
   335             
   336             
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   7
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   7
 
 
   337             
@@ -418,7 +418,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   391                                  that the time is left unaffected.
   392             
   393                Arguments:        cur_status (enum status) - the current system status (not
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   8
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   8
 
 
   394                                                             used).
@@ -478,7 +478,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   448                Shared Variables: time_FFRev - updated.
   449             
   450                Author:           Glen George
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE   9
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE   9
 
 
   451                Last Modified:    June 1, 2002
@@ -538,7 +538,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   504     2               /* done with this track - switch to the idle state */
   505     2               cur_status = STAT_IDLE;
   506     2           }
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE  10
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE  10
 
 
   507     1       
@@ -598,7 +598,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FFREV.C DEBUG EXTEND MOD186 SMALL OPTI
   561     2               /* it needs to be scaled and have any leftover time added in */
   562     2               etime = FFREV_RATE * elapsed_time() + time_FFRev;
   563     2       
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE  11
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE  11
 
 
   564     2               /* has enough time elapsed for reversing */
@@ -658,7 +658,7 @@ MODULE INFORMATION:
      CONSTANT AREA SIZE           = 0000H      0D
      DATA AREA SIZE               = 0002H      2D
      MAXIMUM STACK SIZE           = 0018H     24D
-iC-86  COMPILER   FFREV                                                                      05/31/:8 03:50:04  PAGE  12
+iC-86  COMPILER   FFREV                                                                      06/01/:8 03:37:33  PAGE  12
 
 
 iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS

@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:50:04  05/31/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     
                       =1    49     ; This file contains the boolean definitions for the 80188 MP3 Player.
                       =1    50     ;
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:50:04  05/31/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   101                                             ;------------0---  enable interrupt
                       =1   102                                             ;-------------010  int priority         
                                                                       
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:50:04  05/31/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
   0003                =1   150     LAST_RESERVED_VEC       EQU     3
   0100                =1   151     NUM_IRQ_VECTORS         EQU     256     ;number of interrupt vectors
                       =1   152     
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:50:04  05/31/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -226,7 +226,7 @@ LOC  OBJ                  LINE     SOURCE
                            189     EXTRN InitDisplay:Near
                            190     EXTRN InitElapsedTimer:Near
                            191     EXTRN InitDMA:Near
-                           192     ;EXTRN   main:NEAR               ;declare the main function
+                           192     EXTRN   main:NEAR               ;declare the main function
                            193     ; segment register assumptions
                            194             ASSUME  CS:CGROUP, DS:DGROUP, ES:NOTHING, SS:DGROUP
                            195     
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            201     
                            202     
 ----                       203     DATA    ENDS
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:50:04  05/31/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,17 +298,17 @@ LOC  OBJ                  LINE     SOURCE
 0020 E80000         E      253                     CALL InitMP3Port                
 0023 E80000         E      254                     CALL InitElapsedTimer
 0026 E80000         E      255                     CALL InitDMA
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:50:04  05/31/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  03:37:33  06/01/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
 
 0029 E80000         E      256                     CALL InstallHandlerInt1         
 002C E80000         E      257                     CALL InstallHandlerInt0
-002F EBFE                  258     infLoop: JMP infLoop            
+                           258     ;infLoop: JMP infLoop           
                            259             ;CALL    main2                    ;run the main function (no arguments)
-                           260                     ;CALL main
-0031 EBCD                  261             JMP     main0                   ;if return - reinitialize and try again
+002F E80000         E      260                     CALL main
+0032 EBCC                  261             JMP     main0                   ;if return - reinitialize and try again
                            262     
                            263     
                            264     

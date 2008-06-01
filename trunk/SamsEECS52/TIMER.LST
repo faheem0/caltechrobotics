@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    47     ;                                  timer.INC                                ;
                       =1    48     ;                              Timer Event Handler                         ;
                       =1    49     ;                                 Include File                               ;
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   102     
                       =1   103     ; Timing Definitions
                       =1   104     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                            155     ;
                            156     ; Description:       This procedure inits everything for keeping track of elapsed tim
                                    e
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            209     ; Algorithms:        None.
                            210     ; Data Structures:   None.
                            211     ;
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
                            262     ; Local Variables:   None.
                            263     ; Shared Variables:  None.
                            264     ; Global Variables:  None.
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -358,7 +358,7 @@ LOC  OBJ                  LINE     SOURCE
                            317     ;
                            318     ; Operation:         Writes the address of the timer event handler to the
                            319     ;                    appropriate interrupt vector.
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    7
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -418,7 +418,7 @@ LOC  OBJ                  LINE     SOURCE
                            372     
                            373     
                            374     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:50:04  05/31/:8  PAGE    8
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    03:37:33  06/01/:8  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
