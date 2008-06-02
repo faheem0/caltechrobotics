@@ -35,7 +35,12 @@ namespace RoboMagellan.GenericCompass
     [Contract(Contract.Identifier)]
     public class GenericCompassService : DsspServiceBase
     {
-
+        static int DEFAULT_BAUD_RATE = 115200;
+        static int DEFAULT_DATA_BITS = 8;
+        static int DEFAULT_TIMEOUT = 500;
+        static Parity DEFAULT_PARITY = Parity.None;
+        static StopBits DEFAULT_STOP_BITS = StopBits.Two;
+        static Handshake DEFAULT_HANDSHAKE = Handshake.None;
         private volatile SerialPort myCompass;
 
         /// <summary>
@@ -55,7 +60,7 @@ namespace RoboMagellan.GenericCompass
         [Partner("SubMgr", Contract = submgr.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.CreateAlways)]
         submgr.SubscriptionManagerPort _subMgrPort = new submgr.SubscriptionManagerPort();
 
-        private static string COMPASS_PORT = "COM10";
+        private static string COMPASS_PORT = "COM4";
 
         /// <summary>
         /// Default Service Constructor
@@ -63,7 +68,39 @@ namespace RoboMagellan.GenericCompass
         public GenericCompassService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
+
             myCompass = new SerialPort(COMPASS_PORT);
+            myCompass.BaudRate = DEFAULT_BAUD_RATE;
+            myCompass.Parity = DEFAULT_PARITY;
+            myCompass.DataBits = DEFAULT_DATA_BITS;
+            myCompass.StopBits = DEFAULT_STOP_BITS;
+            myCompass.Handshake = DEFAULT_HANDSHAKE;
+
+            myCompass.ReadTimeout = DEFAULT_TIMEOUT;
+            myCompass.WriteTimeout = DEFAULT_TIMEOUT;
+        }
+
+        public bool initializePort()
+        {
+
+            myCompass.Open();
+
+
+            if (myCompass.IsOpen)
+            {
+                Console.WriteLine("Sucessfully Connected!");
+                Console.WriteLine(myCompass.ToString());
+
+                myCompass.RtsEnable = true;
+
+                return true;
+            }
+
+            else
+            {
+                Console.WriteLine("Connection Failed!");    //Oh Shit!
+                return false;
+            }
         }
         
         /// <summary>
@@ -72,6 +109,8 @@ namespace RoboMagellan.GenericCompass
         protected override void Start()
         {
 			base.Start();
+            initializePort();
+            myCompass.DataReceived += new SerialDataReceivedEventHandler(serialPort_dataReceived);
 			// Add service specific initialization here.
         }
         
@@ -118,11 +157,15 @@ namespace RoboMagellan.GenericCompass
 
 
         private void serialPort_dataReceived(object sender, SerialDataReceivedEventArgs e) {
+            //Console.WriteLine("Compass received data!");
             if (myCompass.BytesToRead >= 4)
             {                  
                 byte[] buf = new byte[4];
                 myCompass.Read(buf, 0, 4);
-                if (buf[0] != (byte)motor.MotorCommands.COMMAND_START || buf[3] != (byte)motor.MotorCommands.COMMAND_STOP)
+//          make this more good later
+//                if (buf[0] != (byte)motor.MotorCommands.COMMAND_START || buf[3] != (byte)motor.MotorCommands.COMMAND_STOP)
+                if (buf[0] != (byte)254 || buf[3] != (byte)233)
+                
                 {
                     // something went wrong
                     Console.WriteLine("Error in compass serial port handler, received: " + buf.ToString());

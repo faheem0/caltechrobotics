@@ -21,7 +21,7 @@ namespace RoboMagellan.GenericGPS
     public class GenericGPSService : DsspServiceBase
     {
 
-        private static string PORT = "COM3";
+        private static string PORT = "COM8";
 
         private GenericGPSState _state = new GenericGPSState();
         private AC12GPS _gps = null;

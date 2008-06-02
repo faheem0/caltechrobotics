@@ -40,7 +40,7 @@ namespace RoboMagellan
     {
         private static double DISTANCE_THRESHOLD = 1;
 
-        private static double ANGLE_THRESHOLD = 2;
+        private static double ANGLE_THRESHOLD = 10;
 
         private ControlDataPort CPort = new ControlDataPort();
 
@@ -152,12 +152,14 @@ namespace RoboMagellan
 
             double absoluteBearing = GetAbsoluteBearing(_state._location, _state._destination);
             double actualBearing = c.Body.angle;
-
+            Console.WriteLine("Actual Bearing: " + actualBearing);
+            Console.WriteLine("Absolute Bearing: " + absoluteBearing);
             if (Math.Abs(absoluteBearing - actualBearing) > ANGLE_THRESHOLD)
             {
                 Console.WriteLine("Stopping because actual bearing (" + actualBearing + ") outside angle threshold (intended bearing is " + actualBearing + ")");
                 _state._state = MainControlStates.STATE_STOPPING;
                 PostUpdate();
+                motor.Stop stop = new motor.Stop();
                 Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
                     delegate(DefaultSubmitResponseType a)
                     {
