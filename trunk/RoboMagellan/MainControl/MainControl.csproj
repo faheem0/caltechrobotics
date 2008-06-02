@@ -74,10 +74,7 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GenericCompass.Y2008.M05.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=00557257f0c3f8b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\GenericCompass\Proxy\obj\Debug\GenericCompass.Y2008.M05.Proxy.dll</HintPath>
-    </Reference>
+    <Reference Include="GenericCompass.Y2008.M05.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1ab751c944756d21, processorArchitecture=MSIL" />
     <Reference Include="GenericGPS.Y2008.M03.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=00557257f0c3f8b7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\GenericGPS\Proxy\obj\Debug\GenericGPS.Y2008.M03.Proxy.dll</HintPath>

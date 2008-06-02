@@ -233,6 +233,8 @@ namespace RoboMagellan.MotorControl
                                 receive_ack = "STOP Acknowledged";
                                 Stop stop = new Stop();
                                 motorAckRecieve.Post(stop);
+                                StopComplete c = new StopComplete();
+                                motorAckRecieve.Post(c);
                                 state = 2;
                                 break;
                             case (int)MotorCommands.TURN:
