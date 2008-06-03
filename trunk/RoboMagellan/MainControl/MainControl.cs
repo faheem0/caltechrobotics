@@ -156,7 +156,7 @@ namespace RoboMagellan
             Console.WriteLine("Absolute Bearing: " + absoluteBearing);
             if (Math.Abs(absoluteBearing - actualBearing) > ANGLE_THRESHOLD)
             {
-                Console.WriteLine("Stopping because actual bearing (" + actualBearing + ") outside angle threshold (intended bearing is " + actualBearing + ")");
+                Console.WriteLine("Stopping because actual bearing (" + actualBearing + ") outside angle threshold (intended bearing is " + absoluteBearing + ")");
                 _state._state = MainControlStates.STATE_STOPPING;
                 PostUpdate();
                 motor.Stop stop = new motor.Stop();
@@ -306,7 +306,16 @@ namespace RoboMagellan
             double dx = dest.East - loc.East;
             double dy = dest.North - loc.North;
 
-            return 180 * (Math.Atan(dy / dx) / Math.PI);
+            return MakePositiveAngle(180 * (Math.Atan(dy / dx) / Math.PI));
+        }
+
+        public double MakePositiveAngle(double angle)
+        {
+            while (angle < 0)
+            {
+                angle += 360;
+            }
+            return angle;
         }
 
         /// <summary>
