@@ -28,6 +28,7 @@ using webcam = Microsoft.Robotics.Services.WebCam.Proxy;
 using multiwebcam = Microsoft.Robotics.Services.MultiDeviceWebCam.Proxy;
 using physics = Microsoft.Robotics.PhysicalModel.Proxy;
 using submgr = Microsoft.Dss.Services.SubscriptionManager;
+using roborealm = RoboRealm.Proxy;
 
 namespace RoboMagellan.ConeDetect
 {
@@ -42,8 +43,8 @@ namespace RoboMagellan.ConeDetect
     public class ConeDetectService : DsspServiceBase
     {
 
-        private static float DIMENSION_X = 174;
-        private static float DIMENSION_Y = 144;
+        private static float DIMENSION_X = 640;
+        private static float DIMENSION_Y = 480;
 
         private static physics.Vector2 SIZE;
         private static float TOLERANCE_H = 20.0f;
@@ -55,6 +56,8 @@ namespace RoboMagellan.ConeDetect
         private static Color MaskColor = Color.Black;
         private static float SMALL_DENSITY_THRESHOLD = 0.5f;
         private static int SMALL_DENSITY_BOX = 15;
+        private static int CONFIDENCE_THRESHOLD = 75;
+        private static int MAX_ANGLE = 35;
         
         /// <summary>
         /// _state
@@ -74,9 +77,13 @@ namespace RoboMagellan.ConeDetect
         /*[Partner("MultiWebcam", Contract = multiwebcam.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         multiwebcam.WebCamServiceOperations _multiWebcam = new multiwebcam.WebCamServiceOperations();*/
 
-        [Partner("Webcam", Contract = webcam.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        [Partner("RoboRealm", Contract = roborealm.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        roborealm.InterfaceOperations _rrPort = new roborealm.InterfaceOperations();
+        roborealm.InterfaceOperations _rrNotify = new roborealm.InterfaceOperations();
+
+        /*[Partner("Webcam", Contract = webcam.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         webcam.WebCamOperations _camData = new webcam.WebCamOperations();
-        webcam.WebCamOperations _camNotify = new webcam.WebCamOperations();
+        webcam.WebCamOperations _camNotify = new webcam.WebCamOperations();*/
 
         /// <summary>
         /// Default Service Constructor
@@ -117,166 +124,108 @@ namespace RoboMagellan.ConeDetect
             SIZE.X = DIMENSION_X;
             SIZE.Y = DIMENSION_Y;
 
-            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(2000), GetFrame));
+            //Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(2000), GetFrame));
 
-            _camData.Subscribe(_camNotify);
+            _rrPort.Subscribe(_rrNotify);
+
+            roborealm.LoadProgramRequest cone_detect = new RoboRealm.Proxy.LoadProgramRequest();
+            cone_detect.Filename = "C:\\Documents and Settings\\tonyfwu\\Desktop\\cone.robo";
+            _rrPort.LoadProgram(cone_detect);
+
+            //roborealm.ExecuteProgramRequest ep = new roborealm.ExecuteProgramRequest();
+
+            Activate(
+                    Arbiter.Receive<roborealm.UpdateFrame>(true, _rrNotify,
+                    delegate(roborealm.UpdateFrame hasframe)
+                    {
+                        SpawnIterator(GetFrame);
+                    })
+            );
+
+            //_camData.Subscribe(_camNotify);
             Console.WriteLine("Webcam started");
 	        // Add service specific initialization here.
         }
-        public IEnumerator<ITask> GetFrame(DateTime timeout)
+        public IEnumerator<ITask> GetFrame()
         {
-            
-            Fault fault = null;
-            webcam.QueryFrameRequest request = new webcam.QueryFrameRequest();
-            webcam.QueryFrameResponse response = new webcam.QueryFrameResponse();
-            
-            request.Format = ImageFormat.Bmp.Guid;
-            request.Size = SIZE;
-
-            
-            yield return Arbiter.Choice(
-                _camData.QueryFrame(request),
-                delegate(webcam.QueryFrameResponse success)
+            roborealm.QueryVariablesRequest varReq = new roborealm.QueryVariablesRequest();
+            roborealm.QueryFrameRequest frameReq = new roborealm.QueryFrameRequest();
+            varReq._names = new List<String>();
+            varReq._names.Add("IMAGE_WIDTH");
+            varReq._names.Add("IMAGE_HEIGHT");
+            //varReq._names.Add("COG_X");
+            //varReq._names.Add("COG_Y");
+            varReq._names.Add("SHAPE_X_COORD");
+            varReq._names.Add("SHAPE_Y_COORD");
+            varReq._names.Add("SHAPE_CONFIDENCE");
+            frameReq.Format = ImageFormat.Bmp.Guid;
+            int x = 0;
+            int y = 0;
+            int width = 0;
+            int height = 0;
+            int confidence = 0;
+     
+            if (varReq != null)
+            {
+                // send of the request and process the results
+                yield return Arbiter.Choice(
+                    _rrPort.QueryVariables(varReq),
+                    delegate(roborealm.QueryVariablesResponse res)
                     {
-                        response = success;
+                        // for now just print the results in the command console. You could
+                        // use these values to futher partner with a robotic drive system
+                        // and move the robot based on COG values.
+                        //Console.WriteLine("COG: " + res._values[0] + "," + res._values[1]);
+                        try
+                        {
+                            width = int.Parse(res._values[0]);
+                            height = int.Parse(res._values[1]);
+                            
+                            if (res._values.Count == 5)
+                            {
+                                x = int.Parse(res._values[2]);
+                                y = int.Parse(res._values[3]);
+                                confidence = int.Parse(res._values[4]);
+                            }
+                        }
+                        catch (Exception) { };
                     },
-                delegate(Fault f)
+                    delegate(Fault f)
                     {
-                        fault = f;
-                    }
-            );
+                        LogError(LogGroups.Console, "Could not query variables", f);
+                    });
+                frameReq.Size = new Size(width, height);
+                yield return Arbiter.Choice(
+                       _rrPort.QueryFrame(frameReq),
+                       delegate(roborealm.QueryFrameResponse fres)
+                       {
+                           CamData d = new CamData();
+                           System.IO.MemoryStream ms = new System.IO.MemoryStream(fres.Frame);
+                           d.Image = new Bitmap(ms);
+                           d.X = x;
+                           d.Y = height - y;
+                           if (confidence > CONFIDENCE_THRESHOLD)
+                           {
+                               d.Detected = true;
+                               d.Angle = calculateAngle(x, width);
+                           }
+                           //Console.WriteLine(confidence);
+                           SendNotification<ConeNotification>(_subMgrPort, d);
+                       },
+                       delegate(Fault f)
+                       {
+                           LogError(LogGroups.Console, "Could not query frame", f);
+                       });
 
-            if (fault != null)
-            {
-                yield break;
             }
-            if (response != null && response.Frame != null)
-            {
-                try
-                {
-                    Bitmap frame = null;
-                    MemoryStream stream = new MemoryStream(response.Frame, false);
-                    frame = new Bitmap(stream);
 
-                    CamData data = processImage(frame);
-
-                    SendNotification<ConeNotification>(_subMgrPort, data);
-                }
-                catch (Exception e)
-                {
-
-                }
-            }
-
-            Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(1000/FPS), GetFrame));
         }
-
-        private CamData processImage(Bitmap frame)
+        private int calculateAngle(int x, int width)
         {
-            CamData data = new CamData();
-            data.OrgImage = frame;
-            data.Image = new Bitmap(frame.Width,frame.Height);
-            float mass = 0.0f;
-            float center_x = 0.0f;
-            float center_y = 0.0f;
-            int count = 0;
-
-            Color c;
-            for (int i = 0; i < frame.Width; i++)
-            {
-                for (int j = 0; j < frame.Height; j++)
-                {
-                    c = frame.GetPixel(i, j);
-                    //tw.Write(String.Format("{0:0.00}", bm.GetPixel(i, j).GetHue()) + " ");
-                    if (isBetween(c.GetHue(), ConeColor.GetHue() - TOLERANCE_H, ConeColor.GetHue() + TOLERANCE_H))
-                    {
-                        if (isBetween(c.GetSaturation(), ConeColor.GetSaturation() - TOLERANCE_S, ConeColor.GetSaturation() + TOLERANCE_S))
-                        {
-                            if (isBetween(c.GetBrightness(), ConeColor.GetBrightness() - TOLERANCE_B, ConeColor.GetBrightness() + TOLERANCE_B))
-                            {
-                                data.Image.SetPixel(i, j, Color.White);
-                                mass += 1;
-                                center_x += i;
-                                center_y += j;
-                                count++;
-                            }
-                            else
-                            {
-                                data.Image.SetPixel(i, j, Color.Black);
-                            }
-                        }
-                        else
-                        {
-                            data.Image.SetPixel(i, j, Color.Black);
-                        }
-                    }
-                    else
-                    {
-                        data.Image.SetPixel(i, j, Color.Black);
-                    }
-                }
-            }
-            data.X = (int)(center_x / mass);
-            data.Y = (int)(center_y / mass);
-            if (count > DETECT_THRESHOLD)
-            {
-                Density_Check d = checkDensity(data, SMALL_DENSITY_BOX, SMALL_DENSITY_THRESHOLD);
-                if (d.pass)
-                {
-                    data.Detected = true;
-                    data.Box = d.r;
-                }
-                else data.Detected = false;
-            }
-            else data.Detected = false;
-            //Console.WriteLine(data.Box.ToString());
-            return data;
-        }
-        private Density_Check checkDensity(CamData data, int size, float threshold)
-        {
-            int X_min = data.X - size;
-            int X_max = data.X + size;
-            int Y_min = data.Y - size;
-            int Y_max = data.Y + size;
-
-            if (X_min < 0) X_min = 0;
-            if (X_max > DIMENSION_X) X_max = (int)DIMENSION_X;
-            if (Y_min < 0) Y_min = 0;
-            if (Y_max > DIMENSION_Y) Y_max = (int)DIMENSION_Y;
-            Density_Check d = new Density_Check();
-            d.r = new Rectangle(X_min, Y_min, X_max - X_min, Y_max - Y_min);
-
-            float count = 0.0f;
-            float area = 4 * size * size;
-            Color c;
-            for (int i = X_min; i <= X_max; i++)
-            {
-                for (int j = Y_min; j <= Y_max; j++)
-                {
-                    c = data.Image.GetPixel(i,j);
-                    if (c.R == Color.White.R && c.G == Color.White.G && c.B == Color.White.B)
-                    {
-                        //Console.WriteLine("(" + i + "," + j + ")");
-                        count++;
-                    }
-                }
-            }
-            //Console.WriteLine(count / area);
-
-            if (count / area >= threshold)
-            {
-                d.pass = true;
-                return d;
-            }
-            else
-            {
-                d.pass = false;
-                return d;
-            }
-        }
-        private bool isBetween(float v, float l, float u)
-        {
-            return v > l && v < u;
+            x -= (int)(width/2);
+            x /= (int)((width / 2) / MAX_ANGLE);
+            //if (x < 0) x += 360;
+            return x;
         }
         
         [ServiceHandler(ServiceHandlerBehavior.Concurrent)]

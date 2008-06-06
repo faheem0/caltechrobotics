@@ -101,6 +101,7 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
+    <Reference Include="RoboRealm.Interface.Y2007.M05.Proxy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=ded25c5f37b5f5a1, processorArchitecture=MSIL" />
     <Reference Include="RoboticsCommon, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="RoboticsCommon.proxy, Version=1.5.507.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System">
@@ -116,7 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="HSLColor.cs" />
     <Compile Include="ConeDetect.cs" />
     <Compile Include="ConeDetectTypes.cs" />
     <AppDesigner Include="Properties" />

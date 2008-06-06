@@ -56,9 +56,9 @@ namespace RoboMagellan.ConeDetect
         private bool _detected;
         private int _x;
         private int _y;
+        private int _angle;
         private Rectangle _box;
         private Bitmap _image;
-        private Bitmap _orgImage;
 
         [DataMember]
         public long Timestamp
@@ -95,19 +95,18 @@ namespace RoboMagellan.ConeDetect
             set { _box = value; }
 
         }
+        [DataMember]
+        public int Angle
+        {
+            get { return _angle; }
+            set { _angle = value; }
+        }
 
         [DataMember]
         public Bitmap Image
         {
             get { return _image; }
             set { _image = value; }
-        }
-
-        [DataMember]
-        public Bitmap OrgImage
-        {
-            get { return _orgImage; }
-            set { _orgImage = value; }
         }
     }
 
