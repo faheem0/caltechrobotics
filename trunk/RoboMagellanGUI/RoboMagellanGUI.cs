@@ -42,14 +42,14 @@ namespace RoboMagellan.RoboMagellanGUI
         [Partner("gps", Contract = gps.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private gps.GenericGPSOperations _gpsPort = new gps.GenericGPSOperations();
         private gps.GenericGPSOperations _gpsNotify = new gps.GenericGPSOperations();
-        
-        [Partner("maincontrol", Contract = control.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
-        private control.MainControlOperations _controlPort = new control.MainControlOperations();
-        private control.MainControlOperations _controlNotify = new control.MainControlOperations();
 
         [Partner("cone", Contract = cone.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private cone.ConeDetectOperations _conePort = new cone.ConeDetectOperations();
         private cone.ConeDetectOperations _coneNotify = new cone.ConeDetectOperations();
+
+        [Partner("maincontrol", Contract = control.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        private control.MainControlOperations _controlPort = new control.MainControlOperations();
+        private control.MainControlOperations _controlNotify = new control.MainControlOperations();
 
         private volatile MainForm _form;
         /// <summary>
@@ -78,7 +78,7 @@ namespace RoboMagellan.RoboMagellanGUI
         {
 			base.Start();
 			// Add service specific initialization here.
-            _form = new MainForm(_controlPort, _conePort);
+            _form = new MainForm(_controlPort);//, _conePort);
             //_form.Show();
             WinFormsServicePort.Post(new RunForm(
                 delegate()
@@ -135,7 +135,7 @@ namespace RoboMagellan.RoboMagellanGUI
 
             //_form.writeToLog("Subscribed to GPS\n");
         }
-
+        
         public void NotifyUTMHandler(gps.UTMNotification n)
         {
             //_form.writeToLog("Received GPS Update\n");
@@ -157,6 +157,7 @@ namespace RoboMagellan.RoboMagellanGUI
                 dataReceived._destinations,
                 dataReceived._state
                 );
+            _form.updateCompass(dataReceived._angle, dataReceived._waypointAngle);
 
         }
 
@@ -166,11 +167,17 @@ namespace RoboMagellan.RoboMagellanGUI
             cone.CamData data = n.Body;
             if (data.Detected)
             {
-                _form.updateCam((Bitmap)data.Image, (Bitmap)data.OrgImage, data.X, data.Y, data.Box);
+                _form.updateCam((Bitmap)data.Image, data.X, data.Y);//, data.Box);
+                _form.setDetection(true);
+                _form.setConeAngle(data.Angle);
 
             }
             else
-                _form.updateCam((Bitmap)data.Image, (Bitmap)data.OrgImage);
+            {
+                _form.updateCam((Bitmap)data.Image);
+                _form.setDetection(false);
+                _form.setConeAngle();
+            }
         }
 
 
