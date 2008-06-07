@@ -57,7 +57,7 @@ namespace RoboMagellan.ConeDetect
         private static float SMALL_DENSITY_THRESHOLD = 0.5f;
         private static int SMALL_DENSITY_BOX = 15;
         private static int CONFIDENCE_THRESHOLD = 75;
-        private static int MAX_ANGLE = 35;
+        private static int MAX_ANGLE = ConeDetectState.MAX_ANGLE;
         
         /// <summary>
         /// _state
@@ -98,19 +98,6 @@ namespace RoboMagellan.ConeDetect
         /// </summary>
         protected override void Start()
         {
-            if (_state == null)
-            {
-                _state = new ConeDetectState();
-
-                _state.WebCamPollingIntervalInMs = 100;
-
-                _state.TrackingObjectColor = new ColorVector(0.51, 0.23, 0.26, 0.99);
-                _state.ColorAreaThreshold = 200;
-                _state.SkinAreaThreshold = 250;
-                _state.HeadAreaThreshold = 250;
-
-                base.SaveState(_state);
-            }
 
 	        base.Start();
             DirectoryInsert();
