@@ -32,7 +32,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.calibrateCameraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -62,20 +61,25 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.UpTimeText = new System.Windows.Forms.Label();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.camPic = new System.Windows.Forms.PictureBox();
-            this.orgCam = new System.Windows.Forms.PictureBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.filterColor = new System.Windows.Forms.PictureBox();
+            this.cone_angle = new System.Windows.Forms.TextBox();
+            this.detected_box = new System.Windows.Forms.TextBox();
+            this.camPic = new System.Windows.Forms.PictureBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.compass = new System.Windows.Forms.GroupBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.abs_angle = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.gpsBox.SuspendLayout();
             this.statusBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.camPic)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.orgCam)).BeginInit();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.filterColor)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.camPic)).BeginInit();
+            this.compass.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -85,7 +89,7 @@
             this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(810, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1005, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -93,7 +97,6 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importToolStripMenuItem,
-            this.calibrateCameraToolStripMenuItem,
             this.quitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
@@ -106,13 +109,6 @@
             this.importToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.importToolStripMenuItem.Text = "Import...";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
-            // 
-            // calibrateCameraToolStripMenuItem
-            // 
-            this.calibrateCameraToolStripMenuItem.Name = "calibrateCameraToolStripMenuItem";
-            this.calibrateCameraToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
-            this.calibrateCameraToolStripMenuItem.Text = "Calibrate Camera";
-            this.calibrateCameraToolStripMenuItem.Click += new System.EventHandler(this.calibrateCameraToolStripMenuItem_Click);
             // 
             // quitToolStripMenuItem
             // 
@@ -133,9 +129,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripProgressBar1,
             this.ConStatus});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 363);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 536);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(810, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1005, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -155,7 +151,6 @@
             this.WaypointQueue.ColumnWidth = 100;
             this.WaypointQueue.FormattingEnabled = true;
             this.WaypointQueue.Location = new System.Drawing.Point(6, 19);
-            this.WaypointQueue.MultiColumn = true;
             this.WaypointQueue.Name = "WaypointQueue";
             this.WaypointQueue.Size = new System.Drawing.Size(184, 160);
             this.WaypointQueue.TabIndex = 4;
@@ -247,17 +242,17 @@
             // 
             // log
             // 
-            this.log.Location = new System.Drawing.Point(12, 260);
+            this.log.Location = new System.Drawing.Point(12, 437);
             this.log.Name = "log";
             this.log.ReadOnly = true;
-            this.log.Size = new System.Drawing.Size(542, 96);
+            this.log.Size = new System.Drawing.Size(337, 96);
             this.log.TabIndex = 7;
             this.log.Text = "Console is broken for now.";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 241);
+            this.label5.Location = new System.Drawing.Point(12, 418);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(48, 13);
             this.label5.TabIndex = 8;
@@ -293,7 +288,7 @@
             // 
             // TargetEast
             // 
-            this.TargetEast.Location = new System.Drawing.Point(43, 25);
+            this.TargetEast.Location = new System.Drawing.Point(43, 24);
             this.TargetEast.Name = "TargetEast";
             this.TargetEast.ReadOnly = true;
             this.TargetEast.Size = new System.Drawing.Size(100, 20);
@@ -302,7 +297,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 28);
+            this.label7.Location = new System.Drawing.Point(6, 27);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(31, 13);
             this.label7.TabIndex = 2;
@@ -320,7 +315,7 @@
             this.groupBox1.Controls.Add(this.TargetEast);
             this.groupBox1.Location = new System.Drawing.Point(186, 126);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(163, 95);
+            this.groupBox1.Size = new System.Drawing.Size(163, 83);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Target";
@@ -328,7 +323,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 55);
+            this.label8.Location = new System.Drawing.Point(6, 54);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(36, 13);
             this.label8.TabIndex = 4;
@@ -336,7 +331,7 @@
             // 
             // TargetNorth
             // 
-            this.TargetNorth.Location = new System.Drawing.Point(43, 51);
+            this.TargetNorth.Location = new System.Drawing.Point(43, 50);
             this.TargetNorth.Name = "TargetNorth";
             this.TargetNorth.ReadOnly = true;
             this.TargetNorth.Size = new System.Drawing.Size(100, 20);
@@ -345,7 +340,7 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.WaypointQueue);
-            this.groupBox2.Location = new System.Drawing.Point(355, 27);
+            this.groupBox2.Location = new System.Drawing.Point(12, 215);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(199, 194);
             this.groupBox2.TabIndex = 12;
@@ -355,7 +350,7 @@
             // UpTimeText
             // 
             this.UpTimeText.AutoSize = true;
-            this.UpTimeText.Location = new System.Drawing.Point(571, 369);
+            this.UpTimeText.Location = new System.Drawing.Point(946, 9);
             this.UpTimeText.Name = "UpTimeText";
             this.UpTimeText.Size = new System.Drawing.Size(49, 13);
             this.UpTimeText.TabIndex = 13;
@@ -368,47 +363,105 @@
             this.openFileDialog1.Filter = "Text Files (*.txt)|*.txt";
             this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.cone_angle);
+            this.groupBox3.Controls.Add(this.detected_box);
+            this.groupBox3.Location = new System.Drawing.Point(217, 215);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(123, 73);
+            this.groupBox3.TabIndex = 16;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Cone Detection";
+            // 
+            // cone_angle
+            // 
+            this.cone_angle.Location = new System.Drawing.Point(46, 45);
+            this.cone_angle.Name = "cone_angle";
+            this.cone_angle.ReadOnly = true;
+            this.cone_angle.Size = new System.Drawing.Size(64, 20);
+            this.cone_angle.TabIndex = 2;
+            // 
+            // detected_box
+            // 
+            this.detected_box.Location = new System.Drawing.Point(6, 19);
+            this.detected_box.Name = "detected_box";
+            this.detected_box.ReadOnly = true;
+            this.detected_box.Size = new System.Drawing.Size(106, 20);
+            this.detected_box.TabIndex = 1;
+            // 
             // camPic
             // 
-            this.camPic.Location = new System.Drawing.Point(569, 36);
+            this.camPic.Location = new System.Drawing.Point(355, 27);
             this.camPic.Name = "camPic";
-            this.camPic.Size = new System.Drawing.Size(174, 144);
+            this.camPic.Size = new System.Drawing.Size(640, 480);
             this.camPic.TabIndex = 14;
             this.camPic.TabStop = false;
             // 
-            // orgCam
+            // label9
             // 
-            this.orgCam.Location = new System.Drawing.Point(569, 198);
-            this.orgCam.Name = "orgCam";
-            this.orgCam.Size = new System.Drawing.Size(174, 144);
-            this.orgCam.TabIndex = 15;
-            this.orgCam.TabStop = false;
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 48);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(37, 13);
+            this.label9.TabIndex = 3;
+            this.label9.Text = "Angle:";
             // 
-            // groupBox3
+            // compass
             // 
-            this.groupBox3.Controls.Add(this.filterColor);
-            this.groupBox3.Location = new System.Drawing.Point(749, 27);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(50, 64);
-            this.groupBox3.TabIndex = 16;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Filter";
+            this.compass.Controls.Add(this.label11);
+            this.compass.Controls.Add(this.abs_angle);
+            this.compass.Controls.Add(this.label10);
+            this.compass.Controls.Add(this.textBox1);
+            this.compass.Location = new System.Drawing.Point(217, 294);
+            this.compass.Name = "compass";
+            this.compass.Size = new System.Drawing.Size(123, 73);
+            this.compass.TabIndex = 17;
+            this.compass.TabStop = false;
+            this.compass.Text = "Compass Angle";
             // 
-            // filterColor
+            // label10
             // 
-            this.filterColor.Location = new System.Drawing.Point(7, 20);
-            this.filterColor.Name = "filterColor";
-            this.filterColor.Size = new System.Drawing.Size(36, 35);
-            this.filterColor.TabIndex = 0;
-            this.filterColor.TabStop = false;
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 22);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(37, 13);
+            this.label10.TabIndex = 3;
+            this.label10.Text = "Angle:";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(46, 19);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.Size = new System.Drawing.Size(64, 20);
+            this.textBox1.TabIndex = 2;
+            // 
+            // abs_angle
+            // 
+            this.abs_angle.Location = new System.Drawing.Point(70, 45);
+            this.abs_angle.Name = "abs_angle";
+            this.abs_angle.ReadOnly = true;
+            this.abs_angle.Size = new System.Drawing.Size(40, 20);
+            this.abs_angle.TabIndex = 18;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 48);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(58, 13);
+            this.label11.TabIndex = 19;
+            this.label11.Text = "Abs Angle:";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(810, 385);
+            this.ClientSize = new System.Drawing.Size(1005, 558);
+            this.Controls.Add(this.compass);
             this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.orgCam);
             this.Controls.Add(this.camPic);
             this.Controls.Add(this.UpTimeText);
             this.Controls.Add(this.groupBox2);
@@ -433,10 +486,11 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.camPic)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.orgCam)).EndInit();
             this.groupBox3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.filterColor)).EndInit();
+            this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.camPic)).EndInit();
+            this.compass.ResumeLayout(false);
+            this.compass.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -476,11 +530,16 @@
         private System.Windows.Forms.Label UpTimeText;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.PictureBox camPic;
-        private System.Windows.Forms.PictureBox orgCam;
-        private System.Windows.Forms.ToolStripMenuItem calibrateCameraToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.PictureBox filterColor;
+        private System.Windows.Forms.TextBox detected_box;
+        private System.Windows.Forms.PictureBox camPic;
+        private System.Windows.Forms.TextBox cone_angle;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.GroupBox compass;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox abs_angle;
     }
 }
 
