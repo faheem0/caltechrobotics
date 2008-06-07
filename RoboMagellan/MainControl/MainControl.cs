@@ -24,6 +24,7 @@ using gps = RoboMagellan.GenericGPS.Proxy;
 using motor = RoboMagellan.MotorControl.Proxy;
 using submgr = Microsoft.Dss.Services.SubscriptionManager;
 using compass = RoboMagellan.GenericCompass.Proxy;
+using cone = RoboMagellan.ConeDetect.Proxy;
 
 namespace RoboMagellan
 {
@@ -38,9 +39,11 @@ namespace RoboMagellan
     [Contract(Contract.Identifier)]
     public class MainControlService : DsspServiceBase
     {
-        private static double DISTANCE_THRESHOLD = 1;
+        private static double DISTANCE_THRESHOLD = 10;
 
-        private static double ANGLE_THRESHOLD = 10;
+        private static double ANGLE_THRESHOLD = 3;
+
+        private static double CONE_ANGLE_THRESHOLD = 10;
 
         private ControlDataPort CPort = new ControlDataPort();
 
@@ -56,14 +59,19 @@ namespace RoboMagellan
         [Partner("Motor", Contract = motor.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private motor.GenericMotorOperations _motorPort = new motor.GenericMotorOperations();
 
+        [Partner("Cone", Contract = cone.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        private cone.ConeDetectOperations _conePort = new cone.ConeDetectOperations();
+        private cone.ConeDetectOperations _coneNotify = new cone.ConeDetectOperations();
+
         [Partner("SubMgr", Contract = submgr.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.CreateAlways)]
         submgr.SubscriptionManagerPort _subMgrPort = new submgr.SubscriptionManagerPort();
+
+
 
         /// <summary>
         /// _state
         /// </summary>
         private MainControlState _state = new MainControlState();
-
         private MainControlUpdateState _update = new MainControlUpdateState();
         
         /// <summary>
@@ -80,32 +88,6 @@ namespace RoboMagellan
         {
             _state._state = MainControlStates.STATE_STOPPED;
         }
-
-        private void EnqueueWaypoints()
-        {
-            /*
-            _state._destination = new gps.UTMData();
-            _state._destination.East = 396499.33;
-            _state._destination.North = 3777944.93;
-
-            _state._destinations.Enqueue(_state._destination);
-            /*
-            _state._destination = new gps.UTMData();
-            _state._destination.East = 396499.33;
-            _state._destination.North = 3777944.93;
-
-            _state._destinations.Enqueue(_state._destination);
-            _state._destination = new gps.UTMData();
-            _state._destination.East = 396497.06;
-            _state._destination.North = 3777944.35;
-
-            _state._destinations.Enqueue(_state._destination);
-
-            _state._destination = new gps.UTMData();
-            _state._destination.East = 396496.79;
-            _state._destination.North = 3777942.28;
-            */
-        }
         
         /// <summary>
         /// Service Start
@@ -117,33 +99,101 @@ namespace RoboMagellan
 			// Add service specific initialization here.
             Console.WriteLine("MainControl initializing");
             DirectoryInsert();
-            this.EnqueueWaypoints();
 
+            //Activate Handlers for GPS, Compass, and Cone Detection
             Activate<ITask>(
                 Arbiter.Interleave(
                     new TeardownReceiverGroup(),
                     new ExclusiveReceiverGroup(
                        Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler),
-                       Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler)),
+                       Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler),
+                       Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler)),
                    new ConcurrentReceiverGroup()));
-
-            //_state._destination = _state._destinations.Dequeue();
-//            Activate<ITask>(
-//                Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler)
-//                );
-
-            /*Interleave mainInterleave = ActivateDsspOperationHandlers();
-            mainInterleave.CombineWith(new Interleave(new ExclusiveReceiverGroup(
-                Arbiter.Receive<MainControlUpdateState>(true, CPort, DataReceivedHandler)),
-                new ConcurrentReceiverGroup()));
-            */
             PostUpdate();
+
+            //Subscribe to Compass, GPS, and Cone Detection
             _compassPort.Subscribe(_compassNotify);
-            Console.WriteLine("Subscribed to compass");
+            Console.WriteLine("Main Control subscribed to compass");
             _gpsPort.Subscribe(_gpsNotify);
-            Console.WriteLine("Subscribed to GPS, standing by");
+            Console.WriteLine("Main Control subscribed to GPS, standing by");
+            _conePort.Subscribe(_coneNotify);
+            Console.WriteLine("Main Control subscribed to Cone Detection, standing by");
         }
 
+        public void NotifyConeHandler(cone.ConeNotification c)
+        {
+            cone.CamData data = c.Body;
+            int angle_requested;
+            switch(_state._state){
+                case MainControlStates.STATE_SCANNING:
+                    //Check to see if there is a cone in sight. If not, turn and check again.
+                    if (c.Body.Detected)
+                    {
+                        //Check if the cone is dead ahead, if not, turn to it, if so, drive towards it.
+                        if (Math.Abs(c.Body.Angle) > CONE_ANGLE_THRESHOLD)
+                        {
+                            angle_requested = c.Body.Angle + _state._angle;
+                            angle_requested %= 360;
+                            motor.TurnData td = new motor.TurnData();
+                            td.heading = angle_requested;
+                            motor.Turn t = new motor.Turn(td);
+
+                            _state._state = MainControlStates.STATE_CONE_TURN;
+                            PostUpdate();
+
+                            Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
+                                delegate(DefaultSubmitResponseType s)
+                                {
+                                    Console.WriteLine("Received turn complete!");
+                                    _state._state = MainControlStates.STATE_SCANNING;
+                                    PostUpdate();
+                                }));
+                        }
+                        //Drive towards the cone.
+                        else
+                        {
+                            _state._state = MainControlStates.STATE_CONE_DRIVE;
+                            PostUpdate();
+                            motor.MotorSpeed ms = new motor.MotorSpeed();
+                            ms.Left = 20;
+                            ms.Right = 20;
+                            motor.SetSpeed setspeed = new motor.SetSpeed(ms);
+                            _motorPort.Post(setspeed);
+
+                        }
+
+                    }
+                    //There is no cone in sight so turn a bit and check again.
+                    else
+                    {
+                        angle_requested = c.Body.Angle + cone.ConeDetectState.MAX_ANGLE;
+                        angle_requested %= 360;
+                        motor.TurnData td = new motor.TurnData();
+                        td.heading = angle_requested;
+                        motor.Turn t = new motor.Turn(td);
+
+                        _state._state = MainControlStates.STATE_CONE_TURN;
+                        PostUpdate();
+
+                        Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
+                            delegate(DefaultSubmitResponseType s)
+                            {
+                                Console.WriteLine("Received turn complete!");
+                                _state._state = MainControlStates.STATE_SCANNING;
+                                PostUpdate();
+                            }));
+                    }
+                    break;
+                case MainControlStates.STATE_CONE_TURN:
+                    return;
+                    break;
+                case MainControlStates.STATE_CONE_DRIVE:
+                    //Right now need to manually stop the robot.
+                    return;
+                    break;
+            }
+
+        }
         public void NotifyCompassHandler(compass.CompassNotification c)
         {
             if (_state._state != MainControlStates.STATE_DRIVING) return;
@@ -154,6 +204,11 @@ namespace RoboMagellan
             double actualBearing = c.Body.angle;
             Console.WriteLine("Actual Bearing: " + actualBearing);
             Console.WriteLine("Absolute Bearing: " + absoluteBearing);
+
+            _state._angle = (int)c.Body.angle;
+            _state._waypointAngle = (int)absoluteBearing;
+            PostUpdate();
+
             if (Math.Abs(absoluteBearing - actualBearing) > ANGLE_THRESHOLD)
             {
                 Console.WriteLine("Stopping because actual bearing (" + actualBearing + ") outside angle threshold (intended bearing is " + absoluteBearing + ")");
@@ -198,15 +253,25 @@ namespace RoboMagellan
                     return;
                     break;
                 case MainControlStates.STATE_STOPPED:
-                    if (_state._destination.East == 0.0) break;
+                    if (_state._destination.East == 0.0)
+                    {
+                        _state._state = MainControlStates.STATE_SCANNING;
+                        break;
+                    }
                     if (GetDistanceSquared(_state._destination, n.Body) < DISTANCE_THRESHOLD)
                     {
+                        if (_state._destinations.Count > 0)
+                        {
+                            _state._destination = _state._destinations.Dequeue();
+                            PostUpdate();
+                        }
                         return;
                     }
                     else
                     {
                         double absoluteBearing = GetAbsoluteBearing(n.Body, _state._destination);
-                        Console.WriteLine("Beginning turn");
+                        Console.WriteLine("Beginning turn to " + absoluteBearing + " from " + _state._angle);
+                        Console.WriteLine("Current position is: " + n.Body.East + " e , " + n.Body.North + " n., destination is " + _state._destination.East + " e, " + _state._destination.North + " n!");
                         motor.TurnData td = new motor.TurnData();
                         td.heading = (int)absoluteBearing;
                         motor.Turn t = new motor.Turn(td);
@@ -256,10 +321,14 @@ namespace RoboMagellan
                                 }
                                 else
                                 {
+                                    /*
                                     gps.UTMData empty = new gps.UTMData();
                                     empty.East = 0.0;
                                     empty.North = 0.0;
                                     _state._destination = empty;
+                                     */
+                                    //Destination reached, start looking for the cone.
+                                    _state._state = MainControlStates.STATE_SCANNING;
                                     PostUpdate();
                                 }
                             }));
@@ -286,6 +355,8 @@ namespace RoboMagellan
             _update._destination = _state._destination;
             // double check that this is safe...
             _update._destinations = _state._destinations.ToArray();
+            _update._angle = _state._angle;
+            _update._waypointAngle = _state._waypointAngle;
             CPort.Post(_update);
             SendNotification(_subMgrPort, new StateNotification(_update)); 
         }
@@ -306,7 +377,7 @@ namespace RoboMagellan
             double dx = dest.East - loc.East;
             double dy = dest.North - loc.North;
 
-            return MakePositiveAngle(180 * (Math.Atan(dy / dx) / Math.PI));
+            return MakePositiveAngle(180 * ((Math.Atan(dy / dx) * ((dx < 0) ? -1 : 1) / Math.PI)) +90);
         }
 
         public double MakePositiveAngle(double angle)

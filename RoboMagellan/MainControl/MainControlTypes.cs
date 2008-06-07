@@ -45,7 +45,9 @@ namespace RoboMagellan
         STATE_DRIVING,
         STATE_ERROR,
         STATE_STANDBY,
-        STATE_SCANNING
+        STATE_SCANNING,
+        STATE_CONE_TURN,
+        STATE_CONE_DRIVE
     }
 
     /// <summary>
@@ -59,6 +61,10 @@ namespace RoboMagellan
         public gps.UTMData _location;
 
         public gps.UTMData _destination;
+
+        public int _angle;
+
+        public int _waypointAngle;
 
         public Queue<gps.UTMData> _destinations = new Queue<gps.UTMData>();
     }
@@ -80,6 +86,12 @@ namespace RoboMagellan
 
         [DataMember]
         public gps.UTMData[] _destinations;
+
+        [DataMember]
+        public int _angle;
+
+        [DataMember]
+        public int _waypointAngle;
     }
 
     public class Subscribe : Subscribe<SubscribeRequestType, PortSet<SubscribeResponseType, Fault>, MainControlOperations> { }

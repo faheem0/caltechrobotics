@@ -125,71 +125,11 @@ namespace RoboMagellan.ConeDetect
     {
 
         /// <summary>
-        /// Image Width
+        /// Webcam LOS
         /// </summary>
         [DataMember]
-        [Description("Specifies the image width.")]
-        public const int ImageWidth = 160;
-        /// <summary>
-        /// Image Height
-        /// </summary>
-        [DataMember]
-        [Description("Specifies the image height.")]
-        public const int ImageHeight = 120;
-        /// <summary>
-        /// Face Width
-        /// </summary>
-        [DataMember]
-        [Description("Specifies the face width.")]
-        public const int FaceWidth = 60;
-        /// <summary>
-        /// Face Height
-        /// </summary>
-        [DataMember]
-        [Description("Specifies the face height.")]
-        public const int FaceHeight = 60;
-        /// <summary>
-        /// Max Regions for segmentation  
-        /// </summary>
-        [DataMember]
-        [Description("Specifies maximum number of regions for segmentation.")]
-        public const int MaxRegions = 5;
-
-        /// <summary>
-        /// WebCam PollingInterval In Ms
-        /// </summary>
-        [DataMember]
-        [Description("Indicates the polling interval for the webcam service (in ms).")]
-        public int WebCamPollingIntervalInMs;
-
-        /// <summary>
-        /// ColorVector of Tracking Object Color
-        /// </summary>
-        [DataMember]
-        [Description("Specifies the color to be tracked (RGB and similarity threshold).")]
-        public ColorVector TrackingObjectColor;
-
-        /// <summary>
-        /// AreaThreshold of Color Object detection
-        /// </summary>
-        [DataMember]
-        [Description("Specifies the color object detection area threshold (minimum number of pixels).\n(Default value = 200, typical range = 50-5000)")]
-        public int ColorAreaThreshold;
-
-        /// <summary>
-        /// AreaThreshold of Skin region detection
-        /// </summary>
-
-        [DataMember]
-        [Description("Indicates the skin region detection area threshold (minimum number of pixels).\n(Default value = 250, typical range = 50-5000)")]
-        public int SkinAreaThreshold;
-
-        /// <summary>
-        /// AreaThreshold of Head region detection
-        /// </summary>
-        [DataMember]
-        [Description("Indicates the head region detection area threshold (minimum number of pixels).\n(Default value = 250, typical range = 50-5000)")]
-        public int HeadAreaThreshold;
+        [Description("Specifies the half angle LOS of Webcam.")]
+        public const int MAX_ANGLE = 160;
 
     }
     
