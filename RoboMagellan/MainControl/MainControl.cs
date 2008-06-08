@@ -39,9 +39,9 @@ namespace RoboMagellan
     [Contract(Contract.Identifier)]
     public class MainControlService : DsspServiceBase
     {
-        private static double DISTANCE_THRESHOLD = 10;
+        private static double DISTANCE_THRESHOLD = 3;
 
-        private static double ANGLE_THRESHOLD = 3;
+        private static double ANGLE_THRESHOLD = 10;
 
         private static double CONE_ANGLE_THRESHOLD = 10;
 
@@ -376,10 +376,19 @@ namespace RoboMagellan
         {
             double dx = dest.East - loc.East;
             double dy = dest.North - loc.North;
-
-            return MakePositiveAngle(180 * ((Math.Atan(dy / dx) * ((dx < 0) ? -1 : 1) / Math.PI)) +90);
+            //dy = -1 * dy;
+            if (dx < 0)     // in quadrant 2 or 3; angle needs to be btw 180 and 360 exclusive
+            {
+                return 270 + 180 * (Math.Atan(dy / -dx) / Math.PI); // 270 + neg num = quadrant 3, 270 + pos num = quadrant 2
+            }
+            else            // in quadrant 1 or 4; angle needs to be btw 0 and 180 inclusive
+            {
+                return 90 - 180 * (Math.Atan(dy / dx) / Math.PI);  // 90 - neg num = quadrant 4, 90 - pos num = quadrant 1
+            }
+            //return MakePositiveAngle(180 * ((Math.Atan(dy / dx) * ((dx < 0) ? -1 : 1) / Math.PI)) +90);
         }
 
+        /*
         public double MakePositiveAngle(double angle)
         {
             while (angle < 0)
@@ -388,7 +397,7 @@ namespace RoboMagellan
             }
             return angle;
         }
-
+        */
         /// <summary>
         /// Get Handler
         /// </summary>
