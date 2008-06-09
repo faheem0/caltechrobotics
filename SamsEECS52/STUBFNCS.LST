@@ -1,4 +1,4 @@
-iC-86  COMPILER   STUBFNCS                                                                   06/01/:8 07:19:15  PAGE   1
+iC-86  COMPILER   STUBFNCS                                                                   06/08/:8 23:27:37  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE STUBFNCS
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
    49             
    50             /* library include files */
    51               /* none */
-iC-86  COMPILER   STUBFNCS                                                                   06/01/:8 07:19:15  PAGE   2
+iC-86  COMPILER   STUBFNCS                                                                   06/08/:8 23:27:37  PAGE   2
 
 
    52             
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
   106             }
   107             
   108             void  display_artist(const char far *a)
-iC-86  COMPILER   STUBFNCS                                                                   06/01/:8 07:19:15  PAGE   3
+iC-86  COMPILER   STUBFNCS                                                                   06/08/:8 23:27:37  PAGE   3
 
 
   109             {

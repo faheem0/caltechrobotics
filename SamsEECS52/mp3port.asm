@@ -2,8 +2,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
-;                                    MP3Port               	     ;
-;                           MP3Port Event Handler                ;
+;                                    MP3Port               	     			 ;
+;                           MP3Port Event Handler               			 ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -22,6 +22,7 @@
 
 ;     5/5/08  Samuel Yang     
 ;     5/9/08 update() added
+;	  6/6/08  fixing the code, commenting, still untested
 
 ; local include files
 $INCLUDE(mp3port.INC)
@@ -48,7 +49,7 @@ CODE SEGMENT PUBLIC 'CODE'
 ;
 ; Local Variables:   None.
 ; Shared Variables:  None.
-; Input:            None.
+; Input:             None.
 ; Output:            None.
 ;
 ; Error Handling:    None.
@@ -125,6 +126,10 @@ audio_play       PROC    NEAR
 		MOV AX, INT1CtrlrVal
 		OUT DX, AL
 		
+		MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
+        MOV     AX, Int1Vec					; to kickstart
+        OUT     DX, AL
+		
 		POP BX
 		POP AX
 		POP DI
@@ -174,7 +179,7 @@ update       PROC    NEAR
 		MOV BP, SP
 		PUSH SI
 		PUSH DI
-		PUSH AX
+		;PUSH AX
 		PUSH BX
 		MOV BX, [BP+4]
 		MOV SI, [BP+6]
@@ -205,7 +210,7 @@ endUpdateFalse:
 		MOV AX, FALSE
 endUpdate:	
 		POP BX
-		POP AX
+		;POP AX
 		POP DI
 		POP SI
 		POP BP
@@ -218,16 +223,17 @@ update       ENDP
 
 ; Int1EventHandler
 ;
-; Description:       This procedure is the event handler for when the
-;                       keypad debouncing chip signals a pressed key.
+; Description:       This procedure is the event handler for the mp3 board
+;						interrupt.
 ;
-; Operation:         Reads data in, updates status of pressed key.
+; Operation:         Outputs data serially, switches source buffers if necessary.
 ;
 ; Arguments:         None.
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
-; Shared Variables:  keyCode, keyReady
+; Shared Variables:  bufferInUse, mp3buffsegment[], mp3buffindex[], bufferRequired
+;						buffInUse
 
 ; Input:            From keypad debouncing chip.
 ; Output:            None.
@@ -238,9 +244,9 @@ update       ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       3 words
+; Stack Depth:       8 words
 ;
-; Last Modified:     5-5-2008
+; Last Modified:     6-6-2008
 
 Int1EventHandler       PROC    NEAR
 					PUBLIC Int1EventHandler
@@ -248,21 +254,19 @@ Int1EventHandler       PROC    NEAR
 		PUSH BX
 		PUSH CX
 		PUSH DX
+		PUSH ES
+		PUSH SI
 		
-		MOV BX, mp3index
-		INC BX
-		INC BX
-		;do wrap here
-		AND BX, mp3testbufflength-1
-		MOV mp3index, BX
-		MOV AX, mp3buff[BX]
-	
-dataReady:
-		MOV DX, mp3portAddress
+		MOV BX, bufferInUse				;get word to output
+		MOV ES, mp3buffsegment[BX]
+		MOV SI, mp3buffIndex[BX]		
+		MOV AL, ES:[SI]
+		
+		MOV DX, mp3portAddress			;prepare to output to address
 		ROL AL, 1
-		ROL AH, 1
+		;MOV CX, 8
 		
-outputBits:		
+outputBits:								;unrolled loop, actually outputs data
 		OUT DX, AL
 		ROL AL, 1
 		OUT DX, AL
@@ -297,44 +301,13 @@ outputBits:
 		OUT DX, AL
 		ROL AL, 1
 		
-		MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
-        MOV     AX, Int1Vec
-        OUT     DX, AL
-		
-		POP DX							;restore register values
-		POP CX
-		POP BX
-		POP AX
-        IRET                            ;and return (Event Handlers end with IRET not RET)
-
-
-Int1EventHandler       ENDP
-
-Int1EventHandlerREAL       PROC    NEAR
-					PUBLIC Int1EventHandlerREAL
-		PUSH AX                         ;save register values
-		PUSH BX
-		PUSH CX
-		PUSH DX
-		
-		MOV BX, bufferInUse				;get byte to output
-		MOV ES, mp3buffsegment[BX]
-		MOV SI, mp3buffIndex[BX]		
-		MOV AL, ES:[SI]
-		
-		MOV DX, mp3portAddress
-		ROL AL, 1
-		MOV CX, 8
-outputBitsr:		
-		OUT DX, AL
-		ROL AL, 1
-		LOOP outputBitsr
-		
-		;increment buffer index
-		DEC mp3bufflength[BX]
+		DEC mp3bufflength[BX]	
+		INC mp3buffindex[BX] ;increment buffer index
+		INC mp3buffindex[BX]
 		CMP mp3bufflength, lengthZero
 		JNE doneInc
-		;JE switch buffers
+		;JE switchBuffers
+switchBuffers:		
 		MOV bufferRequired, TRUE				;new buffer required
 		INC bufferInUse							;switches buffers between 0 and 1
 		AND bufferInUse, mp3buffRequiredMask
@@ -344,6 +317,8 @@ doneInc:
         MOV     AX, Int1Vec
         OUT     DX, AL
 		
+		POP SI
+		POP ES
 		POP DX							;restore register values
 		POP CX
 		POP BX
@@ -351,7 +326,7 @@ doneInc:
         IRET                            ;and return (Event Handlers end with IRET not RET)
 
 
-Int1EventHandlerREAL       ENDP
+Int1EventHandler       ENDP
 
 ; InitMP3Port
 ;
@@ -363,7 +338,7 @@ Int1EventHandlerREAL       ENDP
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
-; Shared Variables:  keyCode, keyReady
+; Shared Variables:  bufferRequired, bufferInUse
 
 ; Input:            None.
 ; Output:            None.
@@ -376,16 +351,11 @@ Int1EventHandlerREAL       ENDP
 ; Registers Changed: None
 ; Stack Depth:       1 words
 ;
-; Last Modified:     5-2-2008
+; Last Modified:     6-6-2008
 InitMP3Port   PROC    NEAR
 			PUBLIC InitMP3Port
-		;do nothing yet
-		PUSH BX
-		PUSH CX
-		MOV mp3index, 0
-		
-		POP CX
-		POP BX
+		MOV bufferRequired, TRUE
+		MOV bufferInUse, mp3buff0
 		RET
 InitMP3Port   ENDP
 
@@ -433,14 +403,15 @@ InstallHandlerInt1  PROC    NEAR
                                 ;store the vector
         MOV     ES: WORD PTR (4 * Int1Vec), OFFSET(Int1EventHandler)
         MOV     ES: WORD PTR (4 * Int1Vec + 2), SEG(Int1EventHandler)
-
-		MOV DX, INT1Ctrlr
-		MOV AL, INT1CtrlrVal
-		OUT DX, AL
 		
-		MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
-        MOV     AX, Int1Vec
-        OUT     DX, AL
+		CALL audio_halt
+		;MOV DX, INT1Ctrlr
+	;	MOV AL, INT1CtrlrVal
+;		OUT DX, AL
+		
+		;MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
+        ;MOV     AX, Int1Vec
+        ;OUT     DX, AL
 		;STI ;enable interrupts
 		
         RET                     ;all done, return
@@ -466,7 +437,6 @@ mp3bufflength DW 2 DUP(?)
 bufferRequired DB ?
 bufferInUse    DW ?
 
-mp3buff DW (mp3testbufflength/2)	DUP(?)
 DATA    ENDS
 
 
