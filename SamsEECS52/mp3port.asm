@@ -109,9 +109,9 @@ audio_play       PROC    NEAR
 		PUSH DI
 		PUSH AX
 		PUSH BX
-		MOV BX, [BP+4]
-		MOV SI, [BP+6]
-		MOV ES, [BP+8]
+		MOV BX, [BP+8]
+		MOV SI, [BP+4]
+		MOV ES, [BP+6]
 
 	
 		MOV mp3buffsegment[mp3buff0], ES	;store buffer information
@@ -181,9 +181,9 @@ update       PROC    NEAR
 		PUSH DI
 		;PUSH AX
 		PUSH BX
-		MOV BX, [BP+4]
-		MOV SI, [BP+6]
-		MOV ES, [BP+8]
+		MOV BX, [BP+8]
+		MOV SI, [BP+4]
+		MOV ES, [BP+6]
 
 		
 		CMP bufferRequired, TRUE
@@ -192,7 +192,7 @@ update       PROC    NEAR
 		MOV bufferRequired, FALSE	;reset bufferRequired flag
 		
 		CMP bufferInUse, mp3buff0	;save location and length of new buffer
-		JNE replaceBuff1
+		JE replaceBuff1
 replaceBuff0:	
 		MOV mp3buffsegment[mp3buff0], ES
 		MOV mp3buffindex[mp3buff0], SI
@@ -260,12 +260,12 @@ Int1EventHandler       PROC    NEAR
 		MOV BX, bufferInUse				;get word to output
 		MOV ES, mp3buffsegment[BX]
 		MOV SI, mp3buffIndex[BX]		
-		MOV AL, ES:[SI]
+		MOV AX, ES:[SI]
 		
 		MOV DX, mp3portAddress			;prepare to output to address
 		ROL AL, 1
 		;MOV CX, 8
-		
+preoutputbits:		
 outputBits:								;unrolled loop, actually outputs data
 		OUT DX, AL
 		ROL AL, 1
@@ -282,9 +282,7 @@ outputBits:								;unrolled loop, actually outputs data
 		OUT DX, AL
 		ROL AL, 1
 		OUT DX, AL
-		ROL AL, 1
 		XCHG AH, AL
-		OUT DX, AL
 		ROL AL, 1
 		OUT DX, AL
 		ROL AL, 1
@@ -300,16 +298,18 @@ outputBits:								;unrolled loop, actually outputs data
 		ROL AL, 1
 		OUT DX, AL
 		ROL AL, 1
+		OUT DX, AL
 		
 		DEC mp3bufflength[BX]	
 		INC mp3buffindex[BX] ;increment buffer index
 		INC mp3buffindex[BX]
-		CMP mp3bufflength, lengthZero
+		CMP mp3bufflength[BX], lengthZero
 		JNE doneInc
 		;JE switchBuffers
 switchBuffers:		
 		MOV bufferRequired, TRUE				;new buffer required
 		INC bufferInUse							;switches buffers between 0 and 1
+		INC bufferInUse
 		AND bufferInUse, mp3buffRequiredMask
 		;JMP doneInc
 doneInc:		
