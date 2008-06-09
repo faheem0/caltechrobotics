@@ -22,6 +22,7 @@
 	                         PARENT_DIR_CHAR, and SUBDIR_CHAR.
       4/29/06  Glen George       Updated value of IDE_BLOCK_SIZE to be in
 	                         units of words, not bytes.
+      6/2/08    Samuel Yang	DRAM_STARTSEG changed
 */
 
 
@@ -39,7 +40,7 @@
 
 
 
-#define  DRAM_STARTSEG   0x4000
+#define  DRAM_STARTSEG   0xA000
 
 #define  KEY_TRACKUP     0
 #define  KEY_TRACKDOWN   1
