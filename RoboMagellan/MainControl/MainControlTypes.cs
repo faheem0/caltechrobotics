@@ -69,6 +69,12 @@ namespace RoboMagellan
         public Queue<gps.UTMData> _destinations = new Queue<gps.UTMData>();
     }
 
+    [DataContract()]
+    public struct ResetInfo
+    {
+
+    }
+
     /// <summary>
     /// The MainControl Update State
     /// </summary>
@@ -113,7 +119,8 @@ namespace RoboMagellan
                                                 HttpGet,
                                                 HttpPost, 
                                                 StateNotification,
-                                                Enqueue>
+                                                Enqueue,
+                                                Reset>
     {
     }
 
@@ -123,6 +130,11 @@ namespace RoboMagellan
         public Enqueue(gps.UTMData a) { this.Body = a; }
     }
 
+    public class Reset : Submit<ResetInfo, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public Reset() { }
+        public Reset(ResetInfo a) { this.Body = a; }
+    }
     /// <summary>
     /// MainControl Get Operation
     /// </summary>

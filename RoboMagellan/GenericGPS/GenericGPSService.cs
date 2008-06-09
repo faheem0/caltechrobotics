@@ -23,10 +23,14 @@ namespace RoboMagellan.GenericGPS
 
         private static string PORT = "COM8";
 
+        private const int MAX_SAT = 12;
+
         private GenericGPSState _state = new GenericGPSState();
         private AC12GPS _gps = null;
         private GpsDataPort _gpsDataPort = new GpsDataPort();
-
+        private bool first_coord = true;
+     
+       
         [ServicePort("/gps", AllowMultipleInstances = false)]
         private GenericGPSOperations _mainPort = new GenericGPSOperations();
 
@@ -123,9 +127,22 @@ namespace RoboMagellan.GenericGPS
         private void DataReceivedHandler(UTMData d)
         {
             //Console.WriteLine("Received GPS data");
-            _state.Coords = d;
 
-            SendNotification(_subMgrPort, new UTMNotification(d)); 
+            /*Implements a simple filter that uses the DOP (Number of Satellites) 
+             * information from the measurements to weight the GPS data */
+            /*if (!first_coord)
+            {
+                float alpha = 2 * (float)d.NumSat / (float)MAX_SAT;
+                d.East = (1 - alpha) * _state.Coords.East + d.East;
+                d.North = (1 - alpha) * _state.Coords.North + d.North;*/
+                _state.Coords = d;
+            /*}
+            else
+            {
+                _state.Coords = d;
+                first_coord = false;
+            }*/
+            SendNotification(_subMgrPort, new UTMNotification(_state.Coords)); 
         }
     }
 }
