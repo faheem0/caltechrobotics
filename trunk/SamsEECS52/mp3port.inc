@@ -19,7 +19,7 @@ mp3testbufflength EQU 8192
 mp3portAddress EQU 0000H    	  ;location of mp3 port, uses PCS0
 
 mp3buff0 EQU 0
-mp3buff1 EQU 1
-mp3buffRequiredMask EQU 0FEh
+mp3buff1 EQU 2
+mp3buffRequiredMask EQU 02h
 lengthZero EQU 0
 
