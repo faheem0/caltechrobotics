@@ -45,6 +45,8 @@ namespace RoboMagellan
 
         private static double CONE_ANGLE_THRESHOLD = 10;
 
+        private static int SPEED = 40;
+
         private ControlDataPort CPort = new ControlDataPort();
 
 
@@ -287,8 +289,8 @@ namespace RoboMagellan
                                 _state._state = MainControlStates.STATE_DRIVING;
                                 PostUpdate();
                                 motor.MotorSpeed ms = new motor.MotorSpeed();
-                                ms.Left = 20;
-                                ms.Right = 20;
+                                ms.Left = (sbyte)SPEED;
+                                ms.Right = (sbyte)SPEED;
                                 motor.SetSpeed setspeed = new motor.SetSpeed(ms);
                                 _motorPort.Post(setspeed);
                             }));
@@ -457,6 +459,49 @@ namespace RoboMagellan
         {
             gps.UTMData data = s.Body;
             _state._destinations.Enqueue(data);
+            PostUpdate();
+            yield break;
+        }
+
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> ResetHandler(Reset s)
+        {
+            _gpsPort = new RoboMagellan.GenericGPS.Proxy.GenericGPSOperations();
+            _gpsNotify = new RoboMagellan.GenericGPS.Proxy.GenericGPSOperations();
+            _compassPort = new RoboMagellan.GenericCompass.Proxy.GenericCompassOperations();
+            _compassNotify = new compass.GenericCompassOperations();
+            _motorPort = new motor.GenericMotorOperations();
+            _conePort = new cone.ConeDetectOperations();
+            _coneNotify = new cone.ConeDetectOperations();
+
+            Console.WriteLine("MainControl re-initializing");
+            DirectoryInsert();
+
+            //Activate Handlers for GPS, Compass, and Cone Detection
+            Activate<ITask>(
+                Arbiter.Interleave(
+                    new TeardownReceiverGroup(),
+                    new ExclusiveReceiverGroup(
+                       Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler),
+                       Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler),
+                       Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler)),
+                   new ConcurrentReceiverGroup()));
+            PostUpdate();
+
+            //Subscribe to Compass, GPS, and Cone Detection
+            _compassPort.Subscribe(_compassNotify);
+            Console.WriteLine("Main Control subscribed to compass");
+            _gpsPort.Subscribe(_gpsNotify);
+            Console.WriteLine("Main Control subscribed to GPS, standing by");
+            _conePort.Subscribe(_coneNotify);
+            Console.WriteLine("Main Control subscribed to Cone Detection, standing by");
+
+            _state._state = MainControlStates.STATE_STANDBY;
+            _state._destination = new RoboMagellan.GenericGPS.Proxy.UTMData();
+            _state._angle = 0;
+            _state._waypointAngle = 0;
+            _state._location = new RoboMagellan.GenericGPS.Proxy.UTMData();
+            _state._destinations.Clear();
             PostUpdate();
             yield break;
         }

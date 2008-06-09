@@ -49,6 +49,7 @@ namespace RoboMagellan.GenericGPS
     public class GenericGPSState
     {
         UTMData _coords;
+        UTMData _prevCoords;
 
         [DataMember]
         [DisplayName("Current coordinates in UTM")]
