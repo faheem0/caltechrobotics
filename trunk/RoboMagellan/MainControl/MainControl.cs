@@ -150,6 +150,8 @@ namespace RoboMagellan
                                     _state._state = MainControlStates.STATE_SCANNING;
                                     PostUpdate();
                                 }));
+
+                            _motorPort.Post(t);
                         }
                         //Drive towards the cone.
                         else
@@ -184,6 +186,8 @@ namespace RoboMagellan
                                 _state._state = MainControlStates.STATE_SCANNING;
                                 PostUpdate();
                             }));
+
+                        _motorPort.Post(t);
                     }
                     break;
                 case MainControlStates.STATE_CONE_TURN:
