@@ -59,7 +59,8 @@
 #define  STATUS_FASTFWD  1
 #define  STATUS_REVERSE  2
 #define  STATUS_IDLE     3
-#define  STATUS_ILLEGAL  4
+#define  STATUS_PAUSE    4
+#define  STATUS_ILLEGAL  5
 
 #define  IDE_BLOCK_SIZE  256		/* 256 words/block */
 

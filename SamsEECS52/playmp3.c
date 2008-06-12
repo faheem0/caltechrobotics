@@ -494,7 +494,7 @@ enum status  pause_Play(enum status cur_status)
 #endif
 
     /* return with the new status */
-    return  STAT_IDLE;
+    return  STAT_PAUS;
 
 }
 

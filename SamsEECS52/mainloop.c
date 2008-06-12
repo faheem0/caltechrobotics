@@ -35,7 +35,8 @@
 	                         longer used.
       6/5/03   Glen George       Added initialization to FAT directory system.
       6/5/03   Glen George       Updated function headers.
-	  6/11/08 Samuel Yang	  	 Added pause_Play()	function to state machine
+	  6/11/08 Samuel Yang	  	 Added pause_Play()	function and STAT_PAUS to 
+							state machine
 */
 
 
@@ -106,27 +107,28 @@ int  main()
         {  STATUS_IDLE,      /* system idle */
            STATUS_PLAY,      /* playing (or repeat playing) a track */
            STATUS_FASTFWD,   /* fast forwarding a track */
-           STATUS_REVERSE    /* reversing a track */
+           STATUS_REVERSE,    /* reversing a track */
+		   STATUS_PAUSE		/* pausing a track */
         };
 
     /* update functions (one for each system status type) */
     static enum status  (* const update_fnc[NUM_STATUS])(enum status) =
         /*                        Current System Status                           */
         /*    idle        play      fast forward      reverse      */
-        {  no_update, update_Play, update_FastFwd, update_Reverse  };
+        {  no_update, update_Play, update_FastFwd, update_Reverse, no_update  };
 
     /* key processing functions (one for each system status type and key) */
     static enum status  (* const process_key[NUM_KEYCODES][NUM_STATUS])(enum status) =
         /*                            Current System Status                                                */
-        /* idle           play            fast forward   reverse                  key         */
-      { {  do_TrackUp,    no_action,      no_action,     no_action     },   /* <Track Up>     */
-        {  do_TrackDown,  no_action,      no_action,     no_action     },   /* <Track Down>   */
-        {  start_Play,    pause_Play,      begin_Play,    begin_Play    },   /* <Play>         */
-        {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay },   /* <Repeat Play>  */
-        {  start_FastFwd, switch_FastFwd, stop_FFRev,    begin_FastFwd },   /* <Fast Forward> */
-        {  start_Reverse, switch_Reverse, begin_Reverse, stop_FFRev    },   /* <Reverse>      */
-        {  stop_idle,     stop_Play,      stop_FFRev,    stop_FFRev    },   /* <Stop>         */
-        {  no_action,     no_action,      no_action,     no_action     } }; /* illegal key    */
+        /* idle           play            fast forward   reverse        pause            key         */
+      { {  do_TrackUp,    no_action,      no_action,     no_action,    no_action   },   /* <Track Up>     */
+        {  do_TrackDown,  no_action,      no_action,     no_action,    no_action   },   /* <Track Down>   */
+        {  start_Play,    pause_Play,      begin_Play,    begin_Play,  start_Play    },   /* <Play>         */
+        {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay, no_action},   /* <Repeat Play>  */
+        {  start_FastFwd, switch_FastFwd, stop_FFRev,    begin_FastFwd, no_action },   /* <Fast Forward> */
+        {  start_Reverse, switch_Reverse, begin_Reverse, stop_FFRev,   no_action   },   /* <Reverse>      */
+        {  stop_idle,     stop_Play,      stop_FFRev,    stop_FFRev,   no_action   },   /* <Stop>         */
+        {  no_action,     no_action,      no_action,     no_action,    no_action  } }; /* illegal key    */
 
 
 

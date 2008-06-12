@@ -192,6 +192,7 @@ enum status  {  STAT_IDLE,              /* system idle */
                 STAT_PLAY,              /* playing (or repeat playing) a track */
                 STAT_FF,                /* fast forwarding a track */
                 STAT_REV,               /* reversing a track */
+				STAT_PAUS,				/* pausing a track */
                 NUM_STATUS              /* number of status types */
              };
 
