@@ -1,0 +1,11 @@
+how to ROM: 
+-download OH86 from the website, copy/paste in working folder
+-add "OH86 startup TO startup.hex" to the end of the batch file
+-assemble and link the bootcode (written a long time ago, just initializes UCS (ROM)
+-remember to move the include file into the same folder as the boot code .asm file
+-change the locate command parameters-code segment to start at 0f8000h, add a "boot" segment starting at 0ffff0h
+-in the startup code (c0smrom.asm orginally) delete the "START" on the last line, "END START"
+-change the "START:" to a "START LABEL FAR" and "PUBLIC START" on the next line
+-put an "END" at the very end of the boot code
+-move the extrn in the boot code outside of the segment
+-link the boot code last

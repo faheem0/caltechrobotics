@@ -1,0 +1,81 @@
+8086/87/88/186 MACRO ASSEMBLER    BOOT                                                     05:56:34  06/12/:8  PAGE    1
+
+
+DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE BOOT
+OBJECT MODULE PLACED IN BOOTCODE.OBJ
+ASSEMBLER INVOKED BY:  C:\ASMSTU~1\ASM86.EXE BOOTCODE.ASM M1 DB EP
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                             1             NAME    BOOT
+                             2     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                             3     ;                                                                            ;
+                             4     ;                                   Boot Code                                ;
+                             5     ;                               For booting from ROM                         ;
+                             6     ;                                                                            ;
+                             7     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+                                      
+                             8     ;EECS 52 MP3 Player Boot Code
+                             9     ;Samuel Yang
+                            10     ;April 26, 2008
+                            11     ; June 11, 2008 debugged
+                            12     
+                            13 +1  $INCLUDE(bootcode.INC)
+                      =1    14     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    15     ;                                                                            ;
+                      =1    16     ;                                  bootcode.INC                              ;
+                      =1    17     ;                              Boot Code Register Values                     ;
+                      =1    18     ;                                 Include File                               ;
+                      =1    19     ;                                                                            ;
+                      =1    20     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    21     
+                      =1    22     ; This file contains the definitions for bootcode.asm
+                      =1    23     ;
+                      =1    24     ; Revision History:
+                      =1    25     
+                      =1    26     ;     4/26/2008 Samuel Yang     File started
+                      =1    27     
+  FFA0                =1    28     UCSCtrl equ 0FFA0h              ;address of UCMS
+  3000                =1    29     UCSCtrlVal     EQU     3000H          ;value to write to UCS Ctrl Register
+                      =1    30                                             ;--11000000------  starting address 0F0000h (
+                                   64k)
+                      =1    31                                             ;-------------0--  enable bus ready
+                      =1    32                                             ;--------------00  0 wait states             
+                                                              ;----000000------  reserved
+  FFA2                =1    33     LCSCtrl equ 0FFA2h              ;address of LCMS                                     
+                                      
+  07C0                =1    34     LCSCtrlVal     EQU     07C0H          ;value to write to LCS Ctrl Register
+                      =1    35                                             ;--00011111------  ending address 07FFFFh (32
+                                   k)
+                      =1    36                                             ;-------------0--  enable bus ready
+                      =1    37                                             ;--------------00  0 wait states 
+                            38     
+                            39     
+                            40     ;segment register assumptions (only CS for this code)
+                            41     ASSUME CS:BOOT
+                            42     
+                            43     EXTRN Start:FAR ;declare the starup code, must be FAR
+                            44     
+                            45     ;the actual boot code-should be located at FFFF:0000
+8086/87/88/186 MACRO ASSEMBLER    BOOT                                                     05:56:34  06/12/:8  PAGE    2
+
+
+LOC  OBJ                  LINE     SOURCE
+
+----                        46     BOOT SEGMENT WORD PUBLIC 'BOOT'
+                            47     
+                            48     
+                            49     
+0000                        50     BootUp:
+0000 BAA0FF                 51     MOV DX, UCSCtrl ;need to setup UCS control register to match ROM size
+0003 B80030                 52     MOV AX,UCSCtrlVal
+0006 EE                     53     OUT DX,AL               
+                            54     
+0007 EA0000----     E       55     JMP Start               ;UCS setup, jump (FAR) to startup code
+                            56     
+----                        57     BOOT ENDS
+                            58     
+                            59     END
+
+ASSEMBLY COMPLETE, NO ERRORS FOUND

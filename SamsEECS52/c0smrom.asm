@@ -94,8 +94,8 @@ CODE    SEGMENT   PUBLIC  'CODE'
 
 
        
-START:
-
+START LABEL FAR
+PUBLIC START
 main0:                                  ;start the program
 	;PUBLIC  Start			;public so can jump to from power on code
 
@@ -120,7 +120,7 @@ main0:                                  ;start the program
 		CALL InitMP3Port		
 		CALL InitElapsedTimer
 		CALL InitDMA
-		CALL InstallHandlerInt2	
+		;CALL InstallHandlerInt2	
 		CALL InstallHandlerInt1		
 		CALL InstallHandlerInt0		;has STI command
 ;infLoop: JMP infLoop		
@@ -134,4 +134,4 @@ CODE    ENDS
 
 
 
-        END START
+        END
