@@ -23,6 +23,7 @@
 ;     5/5/08  Samuel Yang     
 ;     5/9/08 update() added
 ;	  6/6/08  fixing the code, commenting, still untested
+;	  6/11/08  reading of IntREQST added in event handler
 
 ; local include files
 $INCLUDE(mp3port.INC)
@@ -246,7 +247,7 @@ update       ENDP
 ; Registers Changed: None
 ; Stack Depth:       8 words
 ;
-; Last Modified:     6-6-2008
+; Last Modified:     6-11-2008
 
 Int1EventHandler       PROC    NEAR
 					PUBLIC Int1EventHandler
@@ -256,7 +257,7 @@ Int1EventHandler       PROC    NEAR
 		PUSH DX
 		PUSH ES
 		PUSH SI
-		
+outputWord:		
 		MOV BX, bufferInUse				;get word to output
 		MOV ES, mp3buffsegment[BX]
 		MOV SI, mp3buffIndex[BX]		
@@ -267,41 +268,16 @@ Int1EventHandler       PROC    NEAR
 		;MOV CX, 8
 preoutputbits:		
 outputBits:								;unrolled loop, actually outputs data
+		%REPEAT(8)(
 		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
+		ROL AL, 1)
 		XCHG AH, AL
+		%REPEAT(8)(
 		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
-		ROL AL, 1
-		OUT DX, AL
+		OUT DX, AL)
 		
 		DEC mp3bufflength[BX]	
-		INC mp3buffindex[BX] ;increment buffer index
+		INC mp3buffindex[BX] 	;increment buffer index
 		INC mp3buffindex[BX]
 		CMP mp3bufflength[BX], lengthZero
 		JNE doneInc
@@ -312,7 +288,16 @@ switchBuffers:
 		INC bufferInUse
 		AND bufferInUse, mp3buffRequiredMask
 		;JMP doneInc
-doneInc:		
+doneInc:
+		NOP
+checkStillInterrupting:
+		MOV DX, IntREQSTAddr
+		IN AL, DX
+		AND AL, Int1REQSTMask
+		CMP AL, Int1REQSTPending		;if interrupt still pending, output another word
+		JE outputWord
+		;JNE endInt1EventHandler
+endInt1EventHandler:		
 		MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
         MOV     AX, Int1Vec
         OUT     DX, AL
