@@ -643,20 +643,54 @@ checkBusy:
 		RET
 readBusyFlag   ENDP
 
+contrast_up   PROC    NEAR
+			PUBLIC contrast_up
+		
+		PUSH AX
+		PUSH CX
+		PUSH DX
+		
+		MOV CX, numContrastSteps
+		MOV DX, digipotAddressUp
+upContrastLoop:				
+		OUT DX, AL					;doesn't matter what's outputted
+		LOOP upContrastLoop
+				
+		POP DX
+		POP CX
+		POP AX
+		
+		RET
+contrast_up   ENDP
+
+contrast_down   PROC    NEAR
+			PUBLIC contrast_down
+		
+		PUSH AX
+		PUSH CX
+		PUSH DX
+		
+		MOV CX, numContrastSteps
+		MOV DX, digipotAddressDown
+downContrastLoop:				
+		OUT DX, AL					;doesn't matter what's outputted
+		LOOP downContrastLoop
+				
+		POP DX
+		POP CX
+		POP AX
+		
+		RET
+contrast_down   ENDP
 
 ;array of status strings (predefined constants)
 statuses  LABEL BYTE
 		
-		;DB 'PLAY l>',0
-		;DB 'FFWD >>',0
-		;DB 'RWD  <<',0
-		;DB 'IDLE ..',0
-		;DB 'PAUSE  ',0
-		DB 1,'      ',0
-		DB 2,'      ',0
-		DB 3,'      ',0
-		DB 4,'      ',0
-		DB 5,'      ',0
+		DB '   ',1,'   ',0 ;play
+		DB '   ',2,'   ',0 ;FFWD
+		DB '   ',3,'   ',0 ;RWD
+		DB '   ',4,'   ',0 ;IDLE/STOP
+		DB '   ',5,'   ',0 ;PAUSE
 		DB 'ILLEGAL',0
 CODE ENDS
 

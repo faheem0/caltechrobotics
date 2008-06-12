@@ -498,6 +498,24 @@ enum status  pause_Play(enum status cur_status)
 
 }
 
+enum status  step_contrast_up(enum status cur_status)
+{
+    
+	contrast_up();
+ 
+    /* return with the new status */
+    return  STAT_PAUS;
+
+}
+enum status  step_contrast_down(enum status cur_status)
+{
+    
+	contrast_down();
+ 
+    /* return with the new status */
+    return  STAT_PAUS;
+
+}
 
 /*
    init_Play

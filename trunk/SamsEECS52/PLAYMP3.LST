@@ -1,4 +1,4 @@
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   1
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE PLAYMP3
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
    49                   6/7/00   Glen George       Call elapsed_time() in init_Play() to reset
    50                                              the play timing.
    51                   6/14/00  Glen George       "Fix" arithmetic in init_Play() so it
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   2
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   2
 
 
    52                                              actually does long int calculations.
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   107             /* local include files */
   108             #include  "mp3defs.h"
   109             #include  "keyproc.h"
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   3
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   3
 
 
   110             #include  "updatfnc.h"
@@ -178,7 +178,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   164             
   165                Shared Variables: rpt_play - set to FALSE.
   166             
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   4
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   4
 
 
   167                Author:           Glen George
@@ -238,7 +238,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   221                                  beginning.  If the track is empty or a directory, nothing
   222                                  is played and the function returns the passed status.
   223             
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   5
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   5
 
 
   224                Arguments:        cur_status (enum status) - the current system status.
@@ -298,7 +298,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   278                                  the end of the track.
   279             
   280                Arguments:        cur_status (enum status) - the current system status (not
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   6
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   6
 
 
   281                                                             used).
@@ -358,7 +358,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   335                Error Handling:   None.
   336             
   337                Algorithms:       None.
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   7
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   7
 
 
   338                Data Structures:  None.
@@ -418,7 +418,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   392             
   393             enum status  begin_RptPlay(enum status cur_status)
   394             {
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   8
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   8
 
 
   395     1           /* variables */
@@ -478,7 +478,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   450     1           /* if the PC version need to free memory */
   451     1       #ifdef PCVERSION
                   #endif
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE   9
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE   9
 
 
   458     1       
@@ -518,417 +518,435 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE PLAYMP3.C DEBUG EXTEND MOD186 SMALL OP
   498     1       
   499     1       }
   500             
-  501             
-  502             /*
-  503                init_Play
-  504             
-  505                Description:      This function handles starting a track playing for the
-  506                                  <Play> and <Repeat Play> keys.  It starts playing the
-  507                                  track at the current position.  If there is no time
-  508                                  remaining on the track (for example, it is at the end)
-  509                                  the function returns with the current status, otherwise
-  510                                  it returns with the status set to STAT_PLAY.
-  511             
-  512                Arguments:        cur_status (enum status) - the current system status.
-  513                Return Value:     (enum status) - the new system status: STAT_PLAY if there
-  514                                  is something to play on the track, the passed status
-  515                                  otherwise.
-  516             
-  517                Input:            None.
-  518                Output:           The new time for the track is output to the display.
+  501             enum status  step_contrast_up(enum status cur_status)
+  502             {
+  503     1           
+  504     1           contrast_up();
+  505     1        
+  506     1           /* return with the new status */
+  507     1           return  STAT_PAUS;
+  508     1       
+  509     1       }
+  510             enum status  step_contrast_down(enum status cur_status)
+  511             {
+  512     1           
+  513     1           contrast_down();
+  514     1        
+  515     1           /* return with the new status */
+  516     1           return  STAT_PAUS;
+  517     1       
+  518     1       }
   519             
-  520                Error Handling:   None.
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  10
+  520             /*
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  10
 
 
-  521             
-  522                Algorithms:       None.
-  523                Data Structures:  None.
-  524             
-  525                Shared Variables: buffers        - initialized with data.
-  526                                  empty_buffer   - filled with NO_MP3_DATA signal.
-  527                                  current_buffer - set to first buffer (0).
-  528                                  play_time      - set to the current track time.
-  529                                  rpt_play       - used to determine normal or repeat play.
-  530             
-  531                Author:           Glen George
-  532                Last Modified:    June 6, 2006
-  533             
-  534             */
-  535             
-  536             static  enum status  init_Play(enum status cur_status)
-  537             {
-  538     1           /* variables */
-  539     1           int           blocks_to_read;       /* number of blocks to read */
-  540     1           int           blocks_read;          /* blocks actually read from disk */
-  541     1           int           tot_blocks_read = 0;  /* total number of blocks read */
-  542     1       
-  543     1           long int      bytes_left;           /* bytes left in the track */
-  544     1       
-  545     1           int           have_buffer = FALSE;  /* have a buffer with data */
-  546     1           int           end_track = FALSE;    /* at the end of the track */
-  547     1       
-  548     1           unsigned int  tmp;                  /* temporary variable for intermediate results */
-  549     1                                               /*    (seems to fix a compiler bug) */
-  550     1       
-  551     1           int           i;                    /* loop index */
-  552     1       
-  553     1       
-  554     1       
-  555     1           /* first initialize the buffer pointers and buffer structure */
-  556     1           for (i = 0; i < NO_BUFFERS; i++)  {
-  557     2               /* nothing in the buffer, it isn't the end, and point to DRAM */
-  558     2               buffers[i].size = 0;
-  559     2               buffers[i].done = FALSE;
-  560     2           }
-  561     1       
-  562     1           /* allocate the buffer (remember it is words (short ints) */
-  563     1           /* unroll the loop to workaround a possible compiler problem */
-  564     1       #ifdef  PCVERSION
+  521                init_Play
+  522             
+  523                Description:      This function handles starting a track playing for the
+  524                                  <Play> and <Repeat Play> keys.  It starts playing the
+  525                                  track at the current position.  If there is no time
+  526                                  remaining on the track (for example, it is at the end)
+  527                                  the function returns with the current status, otherwise
+  528                                  it returns with the status set to STAT_PLAY.
+  529             
+  530                Arguments:        cur_status (enum status) - the current system status.
+  531                Return Value:     (enum status) - the new system status: STAT_PLAY if there
+  532                                  is something to play on the track, the passed status
+  533                                  otherwise.
+  534             
+  535                Input:            None.
+  536                Output:           The new time for the track is output to the display.
+  537             
+  538                Error Handling:   None.
+  539             
+  540                Algorithms:       None.
+  541                Data Structures:  None.
+  542             
+  543                Shared Variables: buffers        - initialized with data.
+  544                                  empty_buffer   - filled with NO_MP3_DATA signal.
+  545                                  current_buffer - set to first buffer (0).
+  546                                  play_time      - set to the current track time.
+  547                                  rpt_play       - used to determine normal or repeat play.
+  548             
+  549                Author:           Glen George
+  550                Last Modified:    June 6, 2006
+  551             
+  552             */
+  553             
+  554             static  enum status  init_Play(enum status cur_status)
+  555             {
+  556     1           /* variables */
+  557     1           int           blocks_to_read;       /* number of blocks to read */
+  558     1           int           blocks_read;          /* blocks actually read from disk */
+  559     1           int           tot_blocks_read = 0;  /* total number of blocks read */
+  560     1       
+  561     1           long int      bytes_left;           /* bytes left in the track */
+  562     1       
+  563     1           int           have_buffer = FALSE;  /* have a buffer with data */
+  564     1           int           end_track = FALSE;    /* at the end of the track */
+  565     1       
+  566     1           unsigned int  tmp;                  /* temporary variable for intermediate results */
+  567     1                                               /*    (seems to fix a compiler bug) */
+  568     1       
+  569     1           int           i;                    /* loop index */
+  570     1       
+  571     1       
+  572     1       
+  573     1           /* first initialize the buffer pointers and buffer structure */
+  574     1           for (i = 0; i < NO_BUFFERS; i++)  {
+  575     2               /* nothing in the buffer, it isn't the end, and point to DRAM */
+  576     2               buffers[i].size = 0;
+  577     2               buffers[i].done = FALSE;
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  11
+
+
+  578     2           }
+  579     1       
+  580     1           /* allocate the buffer (remember it is words (short ints) */
+  581     1           /* unroll the loop to workaround a possible compiler problem */
+  582     1       #ifdef  PCVERSION
                   #else
-  570     1           buffers[0].p    = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, 0UL);
-  571     1           buffers[1].p    = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, 1UL * BUFFER_SIZE * sizeof
+  588     1           buffers[0].p    = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, 0UL);
+  589     1           buffers[1].p    = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, 1UL * BUFFER_SIZE * sizeof
                 -(short int));
-  572     1           buffers[2].p    = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, 2UL * BUFFER_SIZE * sizeof
+  590     1           buffers[2].p    = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, 2UL * BUFFER_SIZE * sizeof
                 -(short int));
-  573     1       #endif
-  574     1       
-  575     1           /* need to setup empty buffer too */
-  576     1           /* first the pointer */
-  577     1       #ifdef  PCVERSION
+  591     1       #endif
+  592     1       
+  593     1           /* need to setup empty buffer too */
+  594     1           /* first the pointer */
+  595     1       #ifdef  PCVERSION
                   #else
-  581     1           empty_buffer = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, (unsigned long int) NO_BUFFER
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  11
-
-
+  599     1           empty_buffer = (unsigned short int far *) MAKE_FARPTR(DRAM_STARTSEG, (unsigned long int) NO_BUFFER
                 -S * BUFFER_SIZE);
-  582     1       #endif
-  583     1           /* now fill it */
-  584     1           for (i = 0; i < BUFFER_SIZE; i++)
-  585     1               empty_buffer[i] = NO_MP3_DATA;
-  586     1       
-  587     1       
-  588     1           /* now setup the playing time */
-  589     1           play_time = get_track_time() * TIME_SCALE;
-  590     1       
-  591     1       
-  592     1           /* now get the two buffers for the track from the disk */
-  593     1           for (i = 0 ; (i < 2); i++)  {
-  594     2       
-  595     2               /* first check if at end of track */
-  596     2               if (get_track_remaining_length() == 0)  {
-  597     3                   /* at end of track - check if repeat playing */
-  598     3                   if (rpt_play)  {
-  599     4                       /* at end and repeat playing - restart at beginning */
-  600     4                       init_track();
-  601     4                       /* need to reset total number of blocks read for track too */
-  602     4                       tot_blocks_read = 0;
-  603     4                   }
-  604     3                   else  {
-  605     4                       /* at end, but not repeating, so set flag */
-  606     4                       end_track = TRUE;
-  607     4                   }
-  608     3               }
-  609     2       
-  610     2               /* if not at end, read the blocks for this buffer */
-  611     2               if (!end_track)  {
-  612     3       
-  613     3                   /* compute the number of blocks to read (block size is in words) */
-  614     3                   bytes_left = get_track_remaining_length() - (2 * IDE_BLOCK_SIZE * tot_blocks_read);
-  615     3                   blocks_to_read = (bytes_left + (2 * IDE_BLOCK_SIZE - 1)) / (2 * IDE_BLOCK_SIZE);
-  616     3                   /* but only read up to BUFFER_BLOCKS blocks */
-  617     3                   if (blocks_to_read > BUFFER_BLOCKS)
-  618     3                       blocks_to_read = BUFFER_BLOCKS;
-  619     3       
-  620     3                   /* now read the blocks */
-  621     3                   blocks_read = get_blocks(get_track_block_position() + tot_blocks_read + SECTOR_ADJUST, blo
+  600     1       #endif
+  601     1           /* now fill it */
+  602     1           for (i = 0; i < BUFFER_SIZE; i++)
+  603     1               empty_buffer[i] = NO_MP3_DATA;
+  604     1       
+  605     1       
+  606     1           /* now setup the playing time */
+  607     1           play_time = get_track_time() * TIME_SCALE;
+  608     1       
+  609     1       
+  610     1           /* now get the two buffers for the track from the disk */
+  611     1           for (i = 0 ; (i < 2); i++)  {
+  612     2       
+  613     2               /* first check if at end of track */
+  614     2               if (get_track_remaining_length() == 0)  {
+  615     3                   /* at end of track - check if repeat playing */
+  616     3                   if (rpt_play)  {
+  617     4                       /* at end and repeat playing - restart at beginning */
+  618     4                       init_track();
+  619     4                       /* need to reset total number of blocks read for track too */
+  620     4                       tot_blocks_read = 0;
+  621     4                   }
+  622     3                   else  {
+  623     4                       /* at end, but not repeating, so set flag */
+  624     4                       end_track = TRUE;
+  625     4                   }
+  626     3               }
+  627     2       
+  628     2               /* if not at end, read the blocks for this buffer */
+  629     2               if (!end_track)  {
+  630     3       
+  631     3                   /* compute the number of blocks to read (block size is in words) */
+  632     3                   bytes_left = get_track_remaining_length() - (2 * IDE_BLOCK_SIZE * tot_blocks_read);
+  633     3                   blocks_to_read = (bytes_left + (2 * IDE_BLOCK_SIZE - 1)) / (2 * IDE_BLOCK_SIZE);
+  634     3                   /* but only read up to BUFFER_BLOCKS blocks */
+  635     3                   if (blocks_to_read > BUFFER_BLOCKS)
+  636     3                       blocks_to_read = BUFFER_BLOCKS;
+  637     3       
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  12
+
+
+  638     3                   /* now read the blocks */
+  639     3                   blocks_read = get_blocks(get_track_block_position() + tot_blocks_read + SECTOR_ADJUST, blo
                 -cks_to_read, buffers[i].p);
-  622     3       
-  623     3                   /* check if read anything */
-  624     3                   if (blocks_read > 0)  {
-  625     4                       /* did read something, store how much (in words, not bytes) */
-  626     4                       if (bytes_left >= (2 * IDE_BLOCK_SIZE * blocks_read))
-  627     4                           /* all of the blocks are data */
-  628     4                           tmp = blocks_read * IDE_BLOCK_SIZE;
-  629     4                       else
-  630     4                           /* remember the buffer size is in words */
-  631     4                           tmp = (bytes_left + 1) / 2;
-  632     4                       /* now store the buffer size */
-  633     4                       buffers[i].size = tmp;
-  634     4                       /* also set the flag that we read data */
-  635     4                       have_buffer = TRUE;
-  636     4                   }
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  12
+  640     3       
+  641     3                   /* check if read anything */
+  642     3                   if (blocks_read > 0)  {
+  643     4                       /* did read something, store how much (in words, not bytes) */
+  644     4                       if (bytes_left >= (2 * IDE_BLOCK_SIZE * blocks_read))
+  645     4                           /* all of the blocks are data */
+  646     4                           tmp = blocks_read * IDE_BLOCK_SIZE;
+  647     4                       else
+  648     4                           /* remember the buffer size is in words */
+  649     4                           tmp = (bytes_left + 1) / 2;
+  650     4                       /* now store the buffer size */
+  651     4                       buffers[i].size = tmp;
+  652     4                       /* also set the flag that we read data */
+  653     4                       have_buffer = TRUE;
+  654     4                   }
+  655     3                   else  {
+  656     4                       /* couldn't read anything, it is the end of the track */
+  657     4                       end_track = TRUE;
+  658     4                   }
+  659     3       
+  660     3                   /* update number of blocks read so far */
+  661     3                   tot_blocks_read += blocks_read;
+  662     3               }
+  663     2       
+  664     2               /* if at the end of the track need to play the empty buffer */
+  665     2               if (end_track)  {
+  666     3                   buffers[i].size = BUFFER_SIZE;
+  667     3                   buffers[i].done = TRUE;
+  668     3                   buffers[i].p = empty_buffer;
+  669     3               }
+  670     2           }
+  671     1       
+  672     1       
+  673     1           /* got a buffer, start the audio output if there is anything to output */
+  674     1           if (have_buffer)  {
+  675     2               /* have audio data - play it */
+  676     2               audio_play(buffers[0].p, buffers[0].size);
+  677     2               /* on the first buffer */
+  678     2               current_buffer = 0;
+  679     2               /* also update the time display */
+  680     2               display_time(play_time / TIME_SCALE);
+  681     2               /* and reset the elapsed time */
+  682     2               elapsed_time();
+  683     2           }
+  684     1       
+  685     1       
+  686     1           /* finally, return with the proper status */
+  687     1           if (have_buffer)
+  688     1               /* have something to play - return with play status */
+  689     1               return  STAT_PLAY;
+  690     1           else
+  691     1               /* empty track - return with status unchanged */
+  692     1               return  cur_status;
+  693     1       
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  13
 
 
-  637     3                   else  {
-  638     4                       /* couldn't read anything, it is the end of the track */
-  639     4                       end_track = TRUE;
-  640     4                   }
-  641     3       
-  642     3                   /* update number of blocks read so far */
-  643     3                   tot_blocks_read += blocks_read;
-  644     3               }
-  645     2       
-  646     2               /* if at the end of the track need to play the empty buffer */
-  647     2               if (end_track)  {
-  648     3                   buffers[i].size = BUFFER_SIZE;
-  649     3                   buffers[i].done = TRUE;
-  650     3                   buffers[i].p = empty_buffer;
-  651     3               }
-  652     2           }
-  653     1       
-  654     1       
-  655     1           /* got a buffer, start the audio output if there is anything to output */
-  656     1           if (have_buffer)  {
-  657     2               /* have audio data - play it */
-  658     2               audio_play(buffers[0].p, buffers[0].size);
-  659     2               /* on the first buffer */
-  660     2               current_buffer = 0;
-  661     2               /* also update the time display */
-  662     2               display_time(play_time / TIME_SCALE);
-  663     2               /* and reset the elapsed time */
-  664     2               elapsed_time();
-  665     2           }
-  666     1       
-  667     1       
-  668     1           /* finally, return with the proper status */
-  669     1           if (have_buffer)
-  670     1               /* have something to play - return with play status */
-  671     1               return  STAT_PLAY;
-  672     1           else
-  673     1               /* empty track - return with status unchanged */
-  674     1               return  cur_status;
-  675     1       
-  676     1       }
-  677             
-  678             
-  679             
-  680             
-  681             /*
-  682                update_Play
-  683             
-  684                Description:      This function handles updates when playing or repeat
-  685                                  playing.  It first checks if it is time for an update (by
-  686                                  calling the function update) and if so it gets the next
-  687                                  buffer to output and updates the time as is appropriate.
-  688                                  When it reaches the end of the track (when not in repeat
-  689                                  play mode) it uses the empty_buffer, which was previously
-  690                                  filled with NO_MP3_DATA signal, to fill out the track and
-  691                                  make sure all of the "good" signal has made it all the
-  692                                  way through the pipeline.
-  693             
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  13
-
-
-  694                Arguments:        cur_status (enum status) - the current system status.
-  695                Return Value:     (enum status) - the new system status: STAT_IDLE if have
-  696                                  finished with the track, the passed status otherwise.
+  694     1       }
+  695             
+  696             
   697             
-  698                Input:            None.
-  699                Output:           The new time for the track is output to the display.
-  700             
-  701                Error Handling:   None.
-  702             
-  703                Algorithms:       None.
-  704                Data Structures:  None.
-  705             
-  706                Shared Variables: buffers        - used for track data and filled.
-  707                                  empty_buffer   - output at the end of the track.
-  708                                  current_buffer - set to the buffer now being played.
-  709                                  play_time      - updated to the time the track has left
-  710                                                   to play.
-  711                                  rpt_play       - accessed to determine normal or repeat
-  712                                                   play mode.
-  713             
-  714                Author:           Glen George
-  715                Last Modified:    June 6, 2006
-  716             
-  717             */
+  698             
+  699             /*
+  700                update_Play
+  701             
+  702                Description:      This function handles updates when playing or repeat
+  703                                  playing.  It first checks if it is time for an update (by
+  704                                  calling the function update) and if so it gets the next
+  705                                  buffer to output and updates the time as is appropriate.
+  706                                  When it reaches the end of the track (when not in repeat
+  707                                  play mode) it uses the empty_buffer, which was previously
+  708                                  filled with NO_MP3_DATA signal, to fill out the track and
+  709                                  make sure all of the "good" signal has made it all the
+  710                                  way through the pipeline.
+  711             
+  712                Arguments:        cur_status (enum status) - the current system status.
+  713                Return Value:     (enum status) - the new system status: STAT_IDLE if have
+  714                                  finished with the track, the passed status otherwise.
+  715             
+  716                Input:            None.
+  717                Output:           The new time for the track is output to the display.
   718             
-  719             enum status  update_Play(enum status cur_status)
-  720             {
-  721     1           /* variables */
-  722     1           long int  old_play_time = play_time;    /* previous time value */
-  723     1       
-  724     1           int       next_buffer;                  /* next buffer to play */
-  725     1           int       previous_buffer;              /* buffer that just finished */
-  726     1           int       fill_buffer;                  /* next buffer to fill */
-  727     1       
-  728     1           long int  start_pos;                    /* starting position for read */
-  729     1           int       blocks_to_read;               /* number of blocks to read */
-  730     1           int       blocks_read;                  /* blocks actually read from disk */
-  731     1       
-  732     1           long int  bytes_left;                   /* bytes left in the track */
-  733     1           long int  words_read;                   /* words read and waiting to play */
-  734     1       
-  735     1           int       end_play = FALSE;             /* done playing (out of data) */
-  736     1       
-  737     1       #ifdef  PCVERSION
-                  #endif
-  740     1       
+  719                Error Handling:   None.
+  720             
+  721                Algorithms:       None.
+  722                Data Structures:  None.
+  723             
+  724                Shared Variables: buffers        - used for track data and filled.
+  725                                  empty_buffer   - output at the end of the track.
+  726                                  current_buffer - set to the buffer now being played.
+  727                                  play_time      - updated to the time the track has left
+  728                                                   to play.
+  729                                  rpt_play       - accessed to determine normal or repeat
+  730                                                   play mode.
+  731             
+  732                Author:           Glen George
+  733                Last Modified:    June 6, 2006
+  734             
+  735             */
+  736             
+  737             enum status  update_Play(enum status cur_status)
+  738             {
+  739     1           /* variables */
+  740     1           long int  old_play_time = play_time;    /* previous time value */
   741     1       
-  742     1       
-  743     1           /* figure out the next buffer */
-  744     1           next_buffer = current_buffer + 1;
-  745     1           /* check if wrapping around the end of the buffers */
-  746     1           if (next_buffer >= NO_BUFFERS)
-  747     1               next_buffer -= NO_BUFFERS;
-  748     1       
+  742     1           int       next_buffer;                  /* next buffer to play */
+  743     1           int       previous_buffer;              /* buffer that just finished */
+  744     1           int       fill_buffer;                  /* next buffer to fill */
+  745     1       
+  746     1           long int  start_pos;                    /* starting position for read */
+  747     1           int       blocks_to_read;               /* number of blocks to read */
+  748     1           int       blocks_read;                  /* blocks actually read from disk */
   749     1       
-  750     1           /* check if it is time to do an update */
-  751     1           if (update(buffers[next_buffer].p, buffers[next_buffer].size))  {
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  14
+  750     1           long int  bytes_left;                   /* bytes left in the track */
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  14
 
 
-  752     2       
-  753     2               /* system was ready for the buffer - need to do an update */
-  754     2       
-  755     2               /* update the track position */
-  756     2               /* get the buffer that just finished */
-  757     2               previous_buffer = current_buffer - 1;
-  758     2               /* take care of wrapping around start of array */
-  759     2               if (previous_buffer < 0)
-  760     2                   previous_buffer += NO_BUFFERS;
-  761     2               /* now update the position if not starting over on a repeat play */
-  762     2               /* this is necessary because previous_buffer and/or current_buffer */
-  763     2               /* could be from the last iteration of the repeat play */
-  764     2               if (!(buffers[previous_buffer].done || buffers[current_buffer].done))
-  765     2                   /* not finishing an iteration - update the position */
-  766     2                   /* remember that buffer size is in words and track position is */
-  767     2                   /* maintained in bytes */
-  768     2                   update_track_position(2 * buffers[previous_buffer].size);
-  769     2       
-  770     2               /* check if at the end of the track (if now outputting done buffer */
-  771     2               /* this guarantees last buffer with data has been output) */
-  772     2               if (buffers[current_buffer].done && !rpt_play)  {
-  773     3       
-  774     3                   /* done with this track - turn off audio output */
-  775     3                   audio_halt();
-  776     3       
-  777     3                   /* if the PC version need to free memory */
-  778     3       #ifdef  PCVERSION
+  751     1           long int  words_read;                   /* words read and waiting to play */
+  752     1       
+  753     1           int       end_play = FALSE;             /* done playing (out of data) */
+  754     1       
+  755     1       #ifdef  PCVERSION
                   #endif
-  785     3       
-  786     3                   /* reset to start of track */
-  787     3                   init_track();
-  788     3       
-  789     3                   /* set status back to idle */
-  790     3                   cur_status = STAT_IDLE;
-  791     3               }
-  792     2               else  {
-  793     3       
-  794     3                   /* not done playing */
-  795     3       
-  796     3                   /* get the next buffer to fill */
-  797     3                   fill_buffer = current_buffer + 2;
-  798     3                   /* watch out for wrapping */
-  799     3                   if (fill_buffer >= NO_BUFFERS)
-  800     3                       fill_buffer -= NO_BUFFERS;
-  801     3       
-  802     3                   /* attempt to get another buffer */
+  758     1       
+  759     1       
+  760     1       
+  761     1           /* figure out the next buffer */
+  762     1           next_buffer = current_buffer + 1;
+  763     1           /* check if wrapping around the end of the buffers */
+  764     1           if (next_buffer >= NO_BUFFERS)
+  765     1               next_buffer -= NO_BUFFERS;
+  766     1       
+  767     1       
+  768     1           /* check if it is time to do an update */
+  769     1           if (update(buffers[next_buffer].p, buffers[next_buffer].size))  {
+  770     2       
+  771     2               /* system was ready for the buffer - need to do an update */
+  772     2       
+  773     2               /* update the track position */
+  774     2               /* get the buffer that just finished */
+  775     2               previous_buffer = current_buffer - 1;
+  776     2               /* take care of wrapping around start of array */
+  777     2               if (previous_buffer < 0)
+  778     2                   previous_buffer += NO_BUFFERS;
+  779     2               /* now update the position if not starting over on a repeat play */
+  780     2               /* this is necessary because previous_buffer and/or current_buffer */
+  781     2               /* could be from the last iteration of the repeat play */
+  782     2               if (!(buffers[previous_buffer].done || buffers[current_buffer].done))
+  783     2                   /* not finishing an iteration - update the position */
+  784     2                   /* remember that buffer size is in words and track position is */
+  785     2                   /* maintained in bytes */
+  786     2                   update_track_position(2 * buffers[previous_buffer].size);
+  787     2       
+  788     2               /* check if at the end of the track (if now outputting done buffer */
+  789     2               /* this guarantees last buffer with data has been output) */
+  790     2               if (buffers[current_buffer].done && !rpt_play)  {
+  791     3       
+  792     3                   /* done with this track - turn off audio output */
+  793     3                   audio_halt();
+  794     3       
+  795     3                   /* if the PC version need to free memory */
+  796     3       #ifdef  PCVERSION
+                  #endif
   803     3       
-  804     3                   /* first figure out where the buffer is and how big it is */
-  805     3                   /* the next buffer has to be part of the newest iteration */
-  806     3                   words_read = buffers[next_buffer].size;
-  807     3                   /* only include the current buffer if it wasn't the end of the previous iteration */
-  808     3                   if (!(buffers[current_buffer].done))
-  809     3                       words_read += buffers[current_buffer].size;
-  810     3                   /* now compute the number of bytes left and starting position */
-  811     3                   bytes_left = get_track_remaining_length() - (2 * words_read);
-  812     3                   start_pos = get_track_block_position() + (words_read / IDE_BLOCK_SIZE);
+  804     3                   /* reset to start of track */
+  805     3                   init_track();
+  806     3       
+  807     3                   /* set status back to idle */
+  808     3                   cur_status = STAT_IDLE;
+  809     3               }
+  810     2               else  {
+  811     3       
+  812     3                   /* not done playing */
   813     3       
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  15
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  15
 
 
-  814     3                   /* check if out of data */
-  815     3                   if (bytes_left <= 0)  {
-  816     4                       /* nothing left to play, check if repeating */
-  817     4                       if (rpt_play)  {
-  818     5                           /* repeating, so can reinitialize the track */
-  819     5                           init_track();
-  820     5                           /* and recompute the number of bytes left */
-  821     5                           bytes_left = get_track_remaining_length();
-  822     5                           /* and the starting position */
-  823     5                           start_pos = get_track_block_position();
-  824     5                           /* the block just sent was last one of the iteration */
-  825     5                           buffers[next_buffer].done = TRUE;
-  826     5                       }
-  827     4                       else  {
-  828     5                           /* not repeating, we're done */
-  829     5                           end_play = TRUE;
-  830     5                       }
-  831     4                   }
-  832     3       
-  833     3                   /* if still playing, can get the data */
-  834     3                   if (!end_play)  {
-  835     4       
-  836     4                       /* compute the number of blocks to read */
-  837     4                       blocks_to_read = (bytes_left + (2 * IDE_BLOCK_SIZE - 1)) / (2 * IDE_BLOCK_SIZE);
-  838     4                       /* but only read up to BUFFER_BLOCKS blocks */
-  839     4                       if (blocks_to_read > BUFFER_BLOCKS)
-  840     4                           blocks_to_read = BUFFER_BLOCKS;
-  841     4       
-  842     4                       /* now read the blocks */
-  843     4                       blocks_read = get_blocks(start_pos + SECTOR_ADJUST, blocks_to_read, buffers[fill_buffe
+  814     3                   /* get the next buffer to fill */
+  815     3                   fill_buffer = current_buffer + 2;
+  816     3                   /* watch out for wrapping */
+  817     3                   if (fill_buffer >= NO_BUFFERS)
+  818     3                       fill_buffer -= NO_BUFFERS;
+  819     3       
+  820     3                   /* attempt to get another buffer */
+  821     3       
+  822     3                   /* first figure out where the buffer is and how big it is */
+  823     3                   /* the next buffer has to be part of the newest iteration */
+  824     3                   words_read = buffers[next_buffer].size;
+  825     3                   /* only include the current buffer if it wasn't the end of the previous iteration */
+  826     3                   if (!(buffers[current_buffer].done))
+  827     3                       words_read += buffers[current_buffer].size;
+  828     3                   /* now compute the number of bytes left and starting position */
+  829     3                   bytes_left = get_track_remaining_length() - (2 * words_read);
+  830     3                   start_pos = get_track_block_position() + (words_read / IDE_BLOCK_SIZE);
+  831     3       
+  832     3                   /* check if out of data */
+  833     3                   if (bytes_left <= 0)  {
+  834     4                       /* nothing left to play, check if repeating */
+  835     4                       if (rpt_play)  {
+  836     5                           /* repeating, so can reinitialize the track */
+  837     5                           init_track();
+  838     5                           /* and recompute the number of bytes left */
+  839     5                           bytes_left = get_track_remaining_length();
+  840     5                           /* and the starting position */
+  841     5                           start_pos = get_track_block_position();
+  842     5                           /* the block just sent was last one of the iteration */
+  843     5                           buffers[next_buffer].done = TRUE;
+  844     5                       }
+  845     4                       else  {
+  846     5                           /* not repeating, we're done */
+  847     5                           end_play = TRUE;
+  848     5                       }
+  849     4                   }
+  850     3       
+  851     3                   /* if still playing, can get the data */
+  852     3                   if (!end_play)  {
+  853     4       
+  854     4                       /* compute the number of blocks to read */
+  855     4                       blocks_to_read = (bytes_left + (2 * IDE_BLOCK_SIZE - 1)) / (2 * IDE_BLOCK_SIZE);
+  856     4                       /* but only read up to BUFFER_BLOCKS blocks */
+  857     4                       if (blocks_to_read > BUFFER_BLOCKS)
+  858     4                           blocks_to_read = BUFFER_BLOCKS;
+  859     4       
+  860     4                       /* now read the blocks */
+  861     4                       blocks_read = get_blocks(start_pos + SECTOR_ADJUST, blocks_to_read, buffers[fill_buffe
                 -r].p);
-  844     4       
-  845     4                       /* check if read anything */
-  846     4                       if (blocks_read > 0)  {
-  847     5                           /* did read something, store how much (words, not bytes) */
-  848     5                           if (bytes_left >= (2 * IDE_BLOCK_SIZE * blocks_read))
-  849     5                               /* all of the blocks are data */
-  850     5                               buffers[fill_buffer].size = blocks_read * IDE_BLOCK_SIZE;
-  851     5                           else
-  852     5                               /* only play the real data */
-  853     5                               /* remember that buffer sizes are in words, not bytes */
-  854     5                               buffers[fill_buffer].size = (bytes_left + 1) / 2;
-  855     5                           /* this block is not the last one */
-  856     5                           buffers[fill_buffer].done = FALSE;
-  857     5                       }
-  858     4                       else  {
-  859     5                           /* couldn't read anything, it is the end of the track */
-  860     5                           end_play = TRUE;
-  861     5                       }
-  862     4                   }
-  863     3       
-  864     3                   /* if at the end of play, need to play the empty buffer */
-  865     3                   if (end_play)  {
-  866     4                       buffers[fill_buffer].p = empty_buffer;
-  867     4                       buffers[fill_buffer].size = BUFFER_SIZE;
-  868     4                       buffers[fill_buffer].done = TRUE;
-  869     4                   }
-iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 03:28:05  PAGE  16
+  862     4       
+  863     4                       /* check if read anything */
+  864     4                       if (blocks_read > 0)  {
+  865     5                           /* did read something, store how much (words, not bytes) */
+  866     5                           if (bytes_left >= (2 * IDE_BLOCK_SIZE * blocks_read))
+  867     5                               /* all of the blocks are data */
+  868     5                               buffers[fill_buffer].size = blocks_read * IDE_BLOCK_SIZE;
+  869     5                           else
+iC-86  COMPILER   PLAYMP3                                                                    06/12/:8 04:14:05  PAGE  16
 
 
-  870     3       
-  871     3       
-  872     3                   /* finally, update the current buffer */
-  873     3                   current_buffer = next_buffer;
-  874     3               }
-  875     2           }
-  876     1       
-  877     1       
-  878     1           /* always update the displayed time */
-  879     1       
-  880     1           /* get the elapsed time */
-  881     1           play_time -= elapsed_time();
-  882     1           /* see if we need to update the display */
-  883     1           if ((play_time / TIME_SCALE) != (old_play_time / TIME_SCALE))
-  884     1               /* the time has changed - update the display */
-  885     1               display_time(abs(play_time / TIME_SCALE));
-  886     1       
-  887     1       
-  888     1           /* done with update, return possibly new status */
-  889     1           return  cur_status;
-  890     1       
-  891     1       }
+  870     5                               /* only play the real data */
+  871     5                               /* remember that buffer sizes are in words, not bytes */
+  872     5                               buffers[fill_buffer].size = (bytes_left + 1) / 2;
+  873     5                           /* this block is not the last one */
+  874     5                           buffers[fill_buffer].done = FALSE;
+  875     5                       }
+  876     4                       else  {
+  877     5                           /* couldn't read anything, it is the end of the track */
+  878     5                           end_play = TRUE;
+  879     5                       }
+  880     4                   }
+  881     3       
+  882     3                   /* if at the end of play, need to play the empty buffer */
+  883     3                   if (end_play)  {
+  884     4                       buffers[fill_buffer].p = empty_buffer;
+  885     4                       buffers[fill_buffer].size = BUFFER_SIZE;
+  886     4                       buffers[fill_buffer].done = TRUE;
+  887     4                   }
+  888     3       
+  889     3       
+  890     3                   /* finally, update the current buffer */
+  891     3                   current_buffer = next_buffer;
+  892     3               }
+  893     2           }
+  894     1       
+  895     1       
+  896     1           /* always update the displayed time */
+  897     1       
+  898     1           /* get the elapsed time */
+  899     1           play_time -= elapsed_time();
+  900     1           /* see if we need to update the display */
+  901     1           if ((play_time / TIME_SCALE) != (old_play_time / TIME_SCALE))
+  902     1               /* the time has changed - update the display */
+  903     1               display_time(abs(play_time / TIME_SCALE));
+  904     1       
+  905     1       
+  906     1           /* done with update, return possibly new status */
+  907     1           return  cur_status;
+  908     1       
+  909     1       }
 
 
 
 MODULE INFORMATION:
 
-     CODE AREA SIZE               = 0664H   1636D
+     CODE AREA SIZE               = 0684H   1668D
      CONSTANT AREA SIZE           = 0000H      0D
      DATA AREA SIZE               = 0024H     36D
      MAXIMUM STACK SIZE           = 0030H     48D

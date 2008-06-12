@@ -5,7 +5,7 @@ INPUT FILES: LNK2.LNK, MAINLOOP.OBJ, PLAYMP3.OBJ, KEYUPDAT.OBJ,
   TRAKUTIL.OBJ
 OUTPUT FILE: STARTUP.LNK
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
-DATE:  06/12/:8  TIME:  03:28:05
+DATE:  06/12/:8  TIME:  04:14:05
 
 
 LINK MAP OF MODULE STARTUP
@@ -13,7 +13,7 @@ LINK MAP OF MODULE STARTUP
 LOGICAL SEGMENTS INCLUDED:
 LENGTH ADDRESS ALIGN  SEGMENT         CLASS           OVERLAY
  0000H ------    G    ??SEG                                         
- 2227H ------    G    CODE            CODE                          
+ 2267H ------    G    CODE            CODE                          
  0A63H ------    G    DATA            DATA                          
  0512H ------    W    STACK           STACK                         
 

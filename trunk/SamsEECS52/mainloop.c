@@ -121,8 +121,8 @@ int  main()
     static enum status  (* const process_key[NUM_KEYCODES][NUM_STATUS])(enum status) =
         /*                            Current System Status                                                */
         /* idle           play            fast forward   reverse        pause            key         */
-      { {  do_TrackUp,    no_action,      no_action,     no_action,    no_action   },   /* <Track Up>     */
-        {  do_TrackDown,  no_action,      no_action,     no_action,    no_action   },   /* <Track Down>   */
+      { {  do_TrackUp,    no_action,      no_action,     no_action,    step_contrast_up   },   /* <Track Up>     */
+        {  do_TrackDown,  no_action,      no_action,     no_action,    step_contrast_down   },   /* <Track Down>   */
         {  start_Play,    pause_Play,      begin_Play,    begin_Play,  start_Play    },   /* <Play>         */
         {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay, no_action},   /* <Repeat Play>  */
         {  start_FastFwd, switch_FastFwd, stop_FFRev,    begin_FastFwd, no_action },   /* <Fast Forward> */
