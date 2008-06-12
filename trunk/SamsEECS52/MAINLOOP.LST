@@ -1,4 +1,4 @@
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:13:41  PAGE   1
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:35:58  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE MAINLOOP
@@ -44,254 +44,265 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
    35                                          longer used.
    36                   6/5/03   Glen George       Added initialization to FAT directory system.
    37                   6/5/03   Glen George       Updated function headers.
-   38                   6/11/08 Samuel Yang        Added pause_Play() function to state machine
-   39             */
-   40             
+   38                   6/11/08 Samuel Yang        Added pause_Play() function and STAT_PAUS to 
+   39                                         state machine
+   40             */
    41             
    42             
-   43             /* library include files */
-   44             #include  <stddef.h>
-   45             
-   46             /* local include files */
-   47             #include  "interfac.h"
-   48             #include  "mp3defs.h"
-   49             #include  "keyproc.h"
-   50             #include  "updatfnc.h"
-   51             #include  "trakutil.h"
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:13:41  PAGE   2
+   43             
+   44             /* library include files */
+   45             #include  <stddef.h>
+   46             
+   47             /* local include files */
+   48             #include  "interfac.h"
+   49             #include  "mp3defs.h"
+   50             #include  "keyproc.h"
+   51             #include  "updatfnc.h"
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:35:58  PAGE   2
 
 
-   52             #include  "fatutil.h"
-   53             
+   52             #include  "trakutil.h"
+   53             #include  "fatutil.h"
    54             
    55             
    56             
-   57             /* local function declarations */
-   58             enum keycode  key_lookup(void);      /* translate key values into keycodes */
-   59             
+   57             
+   58             /* local function declarations */
+   59             enum keycode  key_lookup(void);      /* translate key values into keycodes */
    60             
    61             
    62             
-   63             /*
-   64                main
-   65             
-   66                Description:      This procedure is the main program loop for the MP3
-   67                                  Jukebox.  It loops getting keys from the keypad,
-   68                                  processing those keys as is appropriate.  It also handles
-   69                                  updating the display and setting up the buffers for MP3
-   70                                  playback.
-   71             
-   72                Arguments:        None.
-   73                Return Value:     (int) - return code, always 0 (never returns).
-   74             
-   75                Input:            Keys from the keypad.
-   76                Output:           Status information to the display.
-   77             
-   78                Error Handling:   Invalid input is ignored.
-   79             
-   80                Algorithms:       The function is table-driven.  The processing routines
-   81                                  for each input are given in tables which are selected
-   82                                  based on the context (state) in which the program is
-   83                                  operating.
-   84                Data Structures:  None.
-   85             
-   86                Shared Variables: None.
-   87             
-   88                Author:           Glen George
-   89                Last Modified:    June 5, 2003
-   90             
-   91             */
-   92             
-   93             int  main()
-   94             {
-   95     1           /* variables */
-   96     1           enum keycode  key;                      /* an input key */
-   97     1       
-   98     1           enum status   cur_status = STAT_IDLE;   /* current program status */
-   99     1           enum status   prev_status = STAT_IDLE;  /* previous program status */
-  100     1       
-  101     1           long int      root_dir_start;       /* start of the root directory */
-  102     1       
-  103     1           /* array of status type translations (from enum status to #defines) */
-  104     1           /* note: the array must match the enum definition order exactly */
-  105     1           static const unsigned int  xlat_stat[] =
-  106     1               {  STATUS_IDLE,      /* system idle */
-  107     1                  STATUS_PLAY,      /* playing (or repeat playing) a track */
-  108     1                  STATUS_FASTFWD,   /* fast forwarding a track */
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:13:41  PAGE   3
+   63             
+   64             /*
+   65                main
+   66             
+   67                Description:      This procedure is the main program loop for the MP3
+   68                                  Jukebox.  It loops getting keys from the keypad,
+   69                                  processing those keys as is appropriate.  It also handles
+   70                                  updating the display and setting up the buffers for MP3
+   71                                  playback.
+   72             
+   73                Arguments:        None.
+   74                Return Value:     (int) - return code, always 0 (never returns).
+   75             
+   76                Input:            Keys from the keypad.
+   77                Output:           Status information to the display.
+   78             
+   79                Error Handling:   Invalid input is ignored.
+   80             
+   81                Algorithms:       The function is table-driven.  The processing routines
+   82                                  for each input are given in tables which are selected
+   83                                  based on the context (state) in which the program is
+   84                                  operating.
+   85                Data Structures:  None.
+   86             
+   87                Shared Variables: None.
+   88             
+   89                Author:           Glen George
+   90                Last Modified:    June 5, 2003
+   91             
+   92             */
+   93             
+   94             int  main()
+   95             {
+   96     1           /* variables */
+   97     1           enum keycode  key;                      /* an input key */
+   98     1       
+   99     1           enum status   cur_status = STAT_IDLE;   /* current program status */
+  100     1           enum status   prev_status = STAT_IDLE;  /* previous program status */
+  101     1       
+  102     1           long int      root_dir_start;       /* start of the root directory */
+  103     1       
+  104     1           /* array of status type translations (from enum status to #defines) */
+  105     1           /* note: the array must match the enum definition order exactly */
+  106     1           static const unsigned int  xlat_stat[] =
+  107     1               {  STATUS_IDLE,      /* system idle */
+  108     1                  STATUS_PLAY,      /* playing (or repeat playing) a track */
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:35:58  PAGE   3
 
 
-  109     1                  STATUS_REVERSE    /* reversing a track */
-  110     1               };
-  111     1       
-  112     1           /* update functions (one for each system status type) */
-  113     1           static enum status  (* const update_fnc[NUM_STATUS])(enum status) =
-  114     1               /*                        Current System Status                           */
-  115     1               /*    idle        play      fast forward      reverse      */
-  116     1               {  no_update, update_Play, update_FastFwd, update_Reverse  };
-  117     1       
-  118     1           /* key processing functions (one for each system status type and key) */
-  119     1           static enum status  (* const process_key[NUM_KEYCODES][NUM_STATUS])(enum status) =
-  120     1               /*                            Current System Status                                           
+  109     1                  STATUS_FASTFWD,   /* fast forwarding a track */
+  110     1                  STATUS_REVERSE,    /* reversing a track */
+  111     1                  STATUS_PAUSE     /* pausing a track */
+  112     1               };
+  113     1       
+  114     1           /* update functions (one for each system status type) */
+  115     1           static enum status  (* const update_fnc[NUM_STATUS])(enum status) =
+  116     1               /*                        Current System Status                           */
+  117     1               /*    idle        play      fast forward      reverse      */
+  118     1               {  no_update, update_Play, update_FastFwd, update_Reverse, no_update  };
+  119     1       
+  120     1           /* key processing functions (one for each system status type and key) */
+  121     1           static enum status  (* const process_key[NUM_KEYCODES][NUM_STATUS])(enum status) =
+  122     1               /*                            Current System Status                                           
                 -     */
-  121     1               /* idle           play            fast forward   reverse                  key         */
-  122     1             { {  do_TrackUp,    no_action,      no_action,     no_action     },   /* <Track Up>     */
-  123     1               {  do_TrackDown,  no_action,      no_action,     no_action     },   /* <Track Down>   */
-  124     1               {  start_Play,    pause_Play,      begin_Play,    begin_Play    },   /* <Play>         */
-  125     1               {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay },   /* <Repeat Play>  */
-  126     1               {  start_FastFwd, switch_FastFwd, stop_FFRev,    begin_FastFwd },   /* <Fast Forward> */
-  127     1               {  start_Reverse, switch_Reverse, begin_Reverse, stop_FFRev    },   /* <Reverse>      */
-  128     1               {  stop_idle,     stop_Play,      stop_FFRev,    stop_FFRev    },   /* <Stop>         */
-  129     1               {  no_action,     no_action,      no_action,     no_action     } }; /* illegal key    */
-  130     1       
-  131     1       
+  123     1               /* idle           play            fast forward   reverse        pause            key         *
+                -/
+  124     1             { {  do_TrackUp,    no_action,      no_action,     no_action,    no_action   },   /* <Track Up> 
+                -    */
+  125     1               {  do_TrackDown,  no_action,      no_action,     no_action,    no_action   },   /* <Track Down
+                ->   */
+  126     1               {  start_Play,    pause_Play,      begin_Play,    begin_Play,  start_Play    },   /* <Play>   
+                -      */
+  127     1               {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay, no_action},   /* <Repeat Play>
+                -  */
+  128     1               {  start_FastFwd, switch_FastFwd, stop_FFRev,    begin_FastFwd, no_action },   /* <Fast Forwar
+                -d> */
+  129     1               {  start_Reverse, switch_Reverse, begin_Reverse, stop_FFRev,   no_action   },   /* <Reverse>  
+                -    */
+  130     1               {  stop_idle,     stop_Play,      stop_FFRev,    stop_FFRev,   no_action   },   /* <Stop>     
+                -    */
+  131     1               {  no_action,     no_action,      no_action,     no_action,    no_action  } }; /* illegal key 
+                -   */
   132     1       
-  133     1           /* first initialize everything */
-  134     1           /* initalize FAT directory functions */
-  135     1           root_dir_start = init_FAT_system();
-  136     1       
-  137     1           /* get the first directory entry (file/song) */
-  138     1           if (root_dir_start != 0)  {
-  139     2           /* have a valid starting sector - get the first directory entry */
-  140     2           get_first_dir_entry(root_dir_start);
-  141     2           /* and setup the information for the track/file */
-  142     2           setup_cur_track_info();
-  143     2           }
-  144     1           else  {
-  145     2               /* had an error - fill with error track information */
-  146     2           setup_error_track_info();
-  147     2           }
-  148     1       
-  149     1       
-  150     1           /* display track information */
-  151     1           display_time(get_track_time());
-  152     1           display_title(get_track_title());
-  153     1           display_artist(get_track_artist());
-  154     1       
-  155     1           display_status(xlat_stat[cur_status]);  /* display status */
+  133     1       
+  134     1       
+  135     1           /* first initialize everything */
+  136     1           /* initalize FAT directory functions */
+  137     1           root_dir_start = init_FAT_system();
+  138     1       
+  139     1           /* get the first directory entry (file/song) */
+  140     1           if (root_dir_start != 0)  {
+  141     2           /* have a valid starting sector - get the first directory entry */
+  142     2           get_first_dir_entry(root_dir_start);
+  143     2           /* and setup the information for the track/file */
+  144     2           setup_cur_track_info();
+  145     2           }
+  146     1           else  {
+  147     2               /* had an error - fill with error track information */
+  148     2           setup_error_track_info();
+  149     2           }
+  150     1       
+  151     1       
+  152     1           /* display track information */
+  153     1           display_time(get_track_time());
+  154     1           display_title(get_track_title());
+  155     1           display_artist(get_track_artist());
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:35:58  PAGE   4
+
+
   156     1       
-  157     1       
-  158     1           /* infinite loop processing input */
-  159     1           while(TRUE)  {
-  160     2       
-  161     2               /* handle updates */
-  162     2               cur_status = update_fnc[cur_status](cur_status);
-  163     2       
-  164     2       
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:13:41  PAGE   4
-
-
-  165     2               /* now check for keypad input */
-  166     2               if (key_available())  {
-  167     3       
-  168     3                   /* have keypad input - get the key */
-  169     3                   key = key_lookup();
-  170     3       
-  171     3                   /* execute processing routine for that key */
-  172     3                   cur_status = process_key[key][cur_status](cur_status);
-  173     3               }
-  174     2       
-  175     2       
-  176     2               /* finally, if the status has changed - display the new status */
-  177     2               if (cur_status != prev_status)  {
-  178     3       
-  179     3                   /* status has changed - update the status display */
-  180     3                   display_status(xlat_stat[cur_status]);
-  181     3               }
-  182     2       
-  183     2               /* always remember the current status for next loop iteration */
-  184     2               prev_status = cur_status;
-  185     2           }
-  186     1       
-  187     1       
-  188     1           /* done with main (never should get here), return 0 */
-  189     1           return  0;
-  190     1       
-  191     1       }
-  192             
-  193             
+  157     1           display_status(xlat_stat[cur_status]);  /* display status */
+  158     1       
+  159     1       
+  160     1           /* infinite loop processing input */
+  161     1           while(TRUE)  {
+  162     2       
+  163     2               /* handle updates */
+  164     2               cur_status = update_fnc[cur_status](cur_status);
+  165     2       
+  166     2       
+  167     2               /* now check for keypad input */
+  168     2               if (key_available())  {
+  169     3       
+  170     3                   /* have keypad input - get the key */
+  171     3                   key = key_lookup();
+  172     3       
+  173     3                   /* execute processing routine for that key */
+  174     3                   cur_status = process_key[key][cur_status](cur_status);
+  175     3               }
+  176     2       
+  177     2       
+  178     2               /* finally, if the status has changed - display the new status */
+  179     2               if (cur_status != prev_status)  {
+  180     3       
+  181     3                   /* status has changed - update the status display */
+  182     3                   display_status(xlat_stat[cur_status]);
+  183     3               }
+  184     2       
+  185     2               /* always remember the current status for next loop iteration */
+  186     2               prev_status = cur_status;
+  187     2           }
+  188     1       
+  189     1       
+  190     1           /* done with main (never should get here), return 0 */
+  191     1           return  0;
+  192     1       
+  193     1       }
   194             
   195             
-  196             /*
-  197                key_lookup
-  198             
-  199                Description:      This function gets a key from the keypad and translates
-  200                                  the raw keycode to an enumerated keycode for the main
-  201                                  loop.
-  202             
-  203                Arguments:        None.
-  204                Return Value:     (enum keycode) - type of the key input on keypad.
-  205             
-  206                Input:            Keys from the keypad.
-  207                Output:           None.
-  208             
-  209                Error Handling:   Invalid keys are returned as KEYCODE_ILLEGAL.
+  196             
+  197             
+  198             /*
+  199                key_lookup
+  200             
+  201                Description:      This function gets a key from the keypad and translates
+  202                                  the raw keycode to an enumerated keycode for the main
+  203                                  loop.
+  204             
+  205                Arguments:        None.
+  206                Return Value:     (enum keycode) - type of the key input on keypad.
+  207             
+  208                Input:            Keys from the keypad.
+  209                Output:           None.
   210             
-  211                Algorithms:       The function uses an array to lookup the key types.
-  212                Data Structures:  Array of key types versus key codes.
-  213             
-  214                Shared Variables: None.
+  211                Error Handling:   Invalid keys are returned as KEYCODE_ILLEGAL.
+  212             
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:35:58  PAGE   5
+
+
+  213                Algorithms:       The function uses an array to lookup the key types.
+  214                Data Structures:  Array of key types versus key codes.
   215             
-  216                Author:           Glen George
-  217                Last Modified:    May 15, 2003
-  218             
-  219             */
+  216                Shared Variables: None.
+  217             
+  218                Author:           Glen George
+  219                Last Modified:    May 15, 2003
   220             
-  221             static  enum keycode  key_lookup()
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:13:41  PAGE   5
-
-
-  222             {
-  223     1           /* variables */
-  224     1       
-  225     1           static const enum keycode  keycodes[] = /* array of keycodes */
-  226     1               {                                   /* order must match keys array exactly */
-  227     1                  KEYCODE_TRACKUP,    /* <Track Up>     */    /* also needs to have extra */
-  228     1                  KEYCODE_TRACKDOWN,  /* <Track Down>   */    /* entry for illegal codes */
-  229     1                  KEYCODE_PLAY,       /* <Play>         */
-  230     1                  KEYCODE_RPTPLAY,    /* <Repeat Play>  */
-  231     1                  KEYCODE_FASTFWD,    /* <Fast Forward> */
-  232     1                  KEYCODE_REVERSE,    /* <Reverse>      */
-  233     1                  KEYCODE_STOP,       /* <Stop>         */
-  234     1                  KEYCODE_ILLEGAL     /* other keys     */
-  235     1               }; 
-  236     1       
-  237     1           static const int  keys[] =   /* array of key values */
-  238     1               {                        /* order must match keycodes array exactly */
-  239     1                  KEY_TRACKUP,    /* <Track Up>     */
-  240     1                  KEY_TRACKDOWN,  /* <Track Down>   */
-  241     1                  KEY_PLAY,       /* <Play>         */
-  242     1                  KEY_RPTPLAY,    /* <Repeat Play>  */
-  243     1                  KEY_FASTFWD,    /* <Fast Forward> */
-  244     1                  KEY_REVERSE,    /* <Reverse>      */
-  245     1                  KEY_STOP        /* <Stop>         */
-  246     1               }; 
-  247     1       
-  248     1           int     key;           /* an input key */
+  221             */
+  222             
+  223             static  enum keycode  key_lookup()
+  224             {
+  225     1           /* variables */
+  226     1       
+  227     1           static const enum keycode  keycodes[] = /* array of keycodes */
+  228     1               {                                   /* order must match keys array exactly */
+  229     1                  KEYCODE_TRACKUP,    /* <Track Up>     */    /* also needs to have extra */
+  230     1                  KEYCODE_TRACKDOWN,  /* <Track Down>   */    /* entry for illegal codes */
+  231     1                  KEYCODE_PLAY,       /* <Play>         */
+  232     1                  KEYCODE_RPTPLAY,    /* <Repeat Play>  */
+  233     1                  KEYCODE_FASTFWD,    /* <Fast Forward> */
+  234     1                  KEYCODE_REVERSE,    /* <Reverse>      */
+  235     1                  KEYCODE_STOP,       /* <Stop>         */
+  236     1                  KEYCODE_ILLEGAL     /* other keys     */
+  237     1               }; 
+  238     1       
+  239     1           static const int  keys[] =   /* array of key values */
+  240     1               {                        /* order must match keycodes array exactly */
+  241     1                  KEY_TRACKUP,    /* <Track Up>     */
+  242     1                  KEY_TRACKDOWN,  /* <Track Down>   */
+  243     1                  KEY_PLAY,       /* <Play>         */
+  244     1                  KEY_RPTPLAY,    /* <Repeat Play>  */
+  245     1                  KEY_FASTFWD,    /* <Fast Forward> */
+  246     1                  KEY_REVERSE,    /* <Reverse>      */
+  247     1                  KEY_STOP        /* <Stop>         */
+  248     1               }; 
   249     1       
-  250     1           size_t  i;             /* general loop index */
+  250     1           int     key;           /* an input key */
   251     1       
-  252     1       
+  252     1           size_t  i;             /* general loop index */
   253     1       
-  254     1           /* get a key */
-  255     1           key = getkey();
-  256     1       
-  257     1       
-  258     1           /* lookup key in keys array */
-  259     1           for (i = 0; ((i < (sizeof(keys)/sizeof(int))) && (key != keys[i])); i++);
-  260     1       
-  261     1       
-  262     1           /* return the appropriate key type */
-  263     1           return  keycodes[i];
-  264     1       
-  265     1       }
-
+  254     1       
+  255     1       
+  256     1           /* get a key */
+  257     1           key = getkey();
+  258     1       
+  259     1       
+  260     1           /* lookup key in keys array */
+  261     1           for (i = 0; ((i < (sizeof(keys)/sizeof(int))) && (key != keys[i])); i++);
+  262     1       
+  263     1       
+  264     1           /* return the appropriate key type */
+  265     1           return  keycodes[i];
+  266     1       
+  267     1       }
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 02:35:58  PAGE   6
 
 
 MODULE INFORMATION:
 
      CODE AREA SIZE               = 0114H    276D
-     CONSTANT AREA SIZE           = 006EH    110D
+     CONSTANT AREA SIZE           = 0082H    130D
      DATA AREA SIZE               = 0000H      0D
      MAXIMUM STACK SIZE           = 0016H     22D
 
