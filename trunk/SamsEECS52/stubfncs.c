@@ -42,7 +42,6 @@
       4/29/06  Glen George       Updated definitions of get_blocks(),
                                  update(), and audio_play() to use words
 				 instead of bytes.
-      5/3/08 Samuel Yang        some functions implemented
 */
 
 
@@ -58,25 +57,25 @@
 
 /* update function */
 
-/*unsigned char  update(unsigned short int far *p, int n)
+unsigned char  update(unsigned short int far *p, int n)
 {
     return  FALSE;
 }
-*/
+
 
 
 /* timing function */
 
-/*int  elapsed_time()
+int  elapsed_time()
 {
     return  0;
 }
-*/
+
 
 
 /* keypad functions */
 
-/*unsigned char  key_available()
+unsigned char  key_available()
 {
     return  FALSE;
 }
@@ -84,13 +83,13 @@
 int  getkey()
 {
     return  KEY_ILLEGAL;
-}*/
+}
 
 
 
 /* display functions  */
 
-/*void  display_time(unsigned int t)
+void  display_time(unsigned int t)
 {
     return;
 }
@@ -108,22 +107,22 @@ void  display_title(const char far *t)
 void  display_artist(const char far *a)
 {
     return;
-}*/
+}
 
 
 
 /* IDE interface function */
 
-/*int  get_blocks(unsigned long int b, int n, unsigned short int far *p)
+int  get_blocks(unsigned long int b, int n, unsigned short int far *p)
 {
     return  n;
-}*/
+}
 
 
 
 /* audio functions */
 
-/*void  audio_play(unsigned short int far *p, int n)
+void  audio_play(unsigned short int far *p, int n)
 {
     return;
 }
@@ -132,4 +131,4 @@ void  audio_halt()
 {
     return;
 }
-*/
+

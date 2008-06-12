@@ -18,14 +18,13 @@ IC86 keyupdat.c debug extend mod186 small optimize(0) rom
 IC86 mainloop.c debug extend mod186 small optimize(0) rom
 IC86 playmp3.c debug extend mod186 small optimize(0) rom
 echo IC86 simide.c debug extend mod186 small optimize(0) rom
-IC86 stubfncs.c debug extend mod186 small optimize(0) rom
 IC86 trakutil.c debug extend mod186 small optimize(0) rom
 echo ================================
 link86 c0smrom.obj, mp3port.obj, keypad.obj, display.obj, lib188.obj TO lnk1.lnk
 echo ================================
 link86 lnk1.lnk, timer.obj,dma.obj,fatutil.obj, ffrev.obj, IC86.lib, SCLIB.lib to lnk2.lnk
 echo ================================
-link86 lnk2.lnk,  mainloop.obj, playmp3.obj,stubfncs.obj, keyupdat.obj, trakutil.obj to startup.lnk
+link86 lnk2.lnk,  mainloop.obj, playmp3.obj, keyupdat.obj, trakutil.obj to startup.lnk
 echo ================================
 loc86 startup.lnk to startup noic ad(sm(code(0500h), data(4000h), stack(7000h)))
 echo ================================

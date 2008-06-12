@@ -56,6 +56,10 @@
       4/29/06  Glen George       Removed display_track() declaration and
 	                         MAX_NO_TRACKS definition since they are no
 				 longer used.
+      6/5/08   Glen George       Removed FFREV_RATE and added MIN_FFREV_RATE,
+	                         MAX_FFREV_RATE, and DELTA_FFREV_RATE to
+				 handle variable rate fast forward and
+				 reverse.
 */
 
 
@@ -101,8 +105,11 @@
 #define  BUFFER_BLOCKS        32
 #define  BUFFER_SIZE          (BUFFER_BLOCKS * IDE_BLOCK_SIZE)
 
-/* rate at which fast forward and reverse are to run */
-#define  FFREV_RATE           3
+/* rates at which fast forward and reverse are to run */
+#define  MIN_FFREV_RATE        3    /* minimum fast forward/reverse rate */
+#define  MAX_FFREV_RATE       10    /* maximum fast forward/reverse rate */
+#define  DELTA_FFREV_RATE      2    /* amount to change fast forward/reverse rate */
+
 /* minimum amount of time (in ms) to move by when in fast forward or reverse */
 #define  MIN_FFREV_TIME       500
 

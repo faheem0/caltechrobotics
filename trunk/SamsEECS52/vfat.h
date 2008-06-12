@@ -43,6 +43,10 @@
       6/28/07  Glen George      Changed short int elements to mask off bits
                                 past bit 15 in case short int's are larger
 			        than 16 bits (for portability).
+      6/5/08   Glen George      Added definitions for PARTITION_START_HI and
+                                PARTITION_START_LO, the position of the high
+			        and low word of the first partition's starting
+				sector number in the partition table sector.
 */
 
 
@@ -62,6 +66,10 @@
 
 
 /* constants */
+
+/* offset of high and low word of the first partition's starting sector */
+#define  PARTITION_START_HI  0xE4
+#define  PARTITION_START_LO  0xE3
 
 /* words in a directory entry */
 #define  DIR_ENTRY_SIZE     16

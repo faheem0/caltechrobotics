@@ -41,6 +41,7 @@
       dirstack_ptr           - the stack pointer into directory info stacks
       filename               - filename of current directory entry
       first_file_sector      - sector of the first file on the hard drive
+      partition_start        - starting sector of the first partition
       sectors_per_cluster    - number of sectors per cluster
       start_sector           - starting sector of current directory
 
@@ -67,6 +68,17 @@
                                  accessing hard drive data for portability.
       5/3/06   Glen George       Updated to use the modified macros in vfat.h
                                  for portability.
+      5/3/06   Glen George       Updated to use the modified macros in vfat.h
+                                 for portability.
+      5/3/06   Glen George       Updated to use the modified macros in vfat.h
+                                 for portability.
+      5/3/06   Glen George       Updated to use the modified macros in vfat.h
+                                 for portability.
+      6/5/08   Glen George       Modified to also read the partition table to
+                                 get the start of the first partition.  Mainly
+                                 adds the shared variable partition_start
+				 which is added to all hard drive sector
+				 numbers.
 */
 
 
@@ -105,6 +117,8 @@ unsigned long int   get_dir_tos_sector(void);   /* get starting sector of direct
 static  union  VFAT_dir_entry  dir_sector[ENTRIES_PER_SECTOR];  /* directory entries in a sector */
 static  int                    cur_dir;             /* current entry in dir_sector[] */
 
+static  unsigned long int      partition_start;     /* starting sector number of the first partition */
+
 static  long int               sectors_per_cluster; /* number of sectors per cluster */
 static  unsigned long int      first_file_sector;   /* sector of the first file on the hard drive */
 
@@ -122,11 +136,13 @@ static  char  filename[MAX_LFN_LEN];                /* filename of current entry
 /*
    init_FAT_system(unsigned long int, long int)
 
-   Description:      This function initializes FAT file system.  It sets up
-                     the directory parameters: the starting sector number for
-                     files on the drive, and the number of sectors per
-                     cluster.  It also initializes the directory stack and the
-                     directory name and filename.
+   Description:      This function initializes FAT file system.
+	   
+   Operation:        The function reads the partition table and boot record to
+	             set up the directory parameters: the starting sector
+                     number for files on the drive, and the number of sectors
+                     per cluster.  It also initializes the directory stack and
+                     the directory name and filename.
 
    Arguments:        None.
    Return Value:     (long int) - starting sector of the root directory, zero
@@ -142,11 +158,13 @@ static  char  filename[MAX_LFN_LEN];                /* filename of current entry
    Data Structures:  None.
 
    Shared Variables: first_file_sector   - set to the computed sector number.
+	             partition_start     - starting sector number of the
+			                   partition.
                      sectors_per_cluster - set to the read sectors per
                                            cluster.
 
    Author:           Glen George
-   Last Modified:    April 29, 2006
+   Last Modified:    June 5, 2008
 
 */
 
@@ -161,8 +179,17 @@ long int  init_FAT_system()
 
 
 
-    /* read the first sector from the harddrive */
+    /* read the first sector from the harddrive to get the partition table */
     error = (get_blocks(0, 1, (unsigned short int far *) &s) != 1);
+
+    /* compute and store the starting sector of the partition */
+    partition_start = (unsigned long int) s.words[PARTITION_START_LO] +
+                      (((unsigned long int) s.words[PARTITION_START_HI]) << 16);
+
+
+    /* now read the first sector of the partition from the harddrive */
+    /* retrieves the BIOS Parameter Block (assuming no errors) */
+    error = error || (get_blocks(partition_start, 1, (unsigned short int far *) &s) != 1);
 
 
     /* compute the start of the root directory (in sectors) */
@@ -669,7 +696,8 @@ char  get_next_dir_entry()
             /* update the directory sector number */
             dir_offset++;
             /* read a sector of directory entries, watching for an error */
-            error = (get_blocks(start_sector + dir_offset, 1, (unsigned short int far *) dir_sector) != 1);
+            error = (get_blocks((start_sector + dir_offset + partition_start),
+                                1, (unsigned short int far *) dir_sector) != 1);
             /* reset the pointer into the sector of entries */
             /* set to -1 so will be properly incremented in a couple lines */
             cur_dir = -1;
@@ -741,7 +769,8 @@ char  get_next_dir_entry()
                     /* check if need to restore the directory sector */
                     if (dir_offset != old_dir_offset)  {
                         /* need to restore the old directory sector */
-                        error = (get_blocks(start_sector + old_dir_offset, 1, (unsigned short int far *) dir_sector) != 1);
+                        error = (get_blocks((start_sector + old_dir_offset + partition_start),
+                                            1, (unsigned short int far *) dir_sector) != 1);
                         /* also restore the actual offset */
                         dir_offset = old_dir_offset;
                     }
@@ -957,7 +986,8 @@ char  get_previous_dir_entry()
             else  {
                 /* have a directory entry to check, read the sector of */
                 /*    directory entries, watching for an error */
-                error = (get_blocks(start_sector + dir_offset, 1, (unsigned short int far *) dir_sector) != 1);
+                error = (get_blocks((start_sector + dir_offset + partition_start),
+                                    1, (unsigned short int far *) dir_sector) != 1);
                 /* and reset to the last file entry in the directory */
                 cur_dir = ENTRIES_PER_SECTOR - 1;
             }

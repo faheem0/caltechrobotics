@@ -1,4 +1,4 @@
-iC-86  COMPILER   STUBFNCS                                                                   06/09/:8 00:46:19  PAGE   1
+iC-86  COMPILER   STUBFNCS                                                                   06/11/:8 20:54:01  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE STUBFNCS
@@ -51,111 +51,110 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE STUBFNCS.C DEBUG EXTEND MOD186 SMALL O
    42                   4/29/06  Glen George       Updated definitions of get_blocks(),
    43                                              update(), and audio_play() to use words
    44                              instead of bytes.
-   45                   5/3/08 Samuel Yang        some functions implemented
-   46             */
+   45             */
+   46             
    47             
    48             
-   49             
-   50             /* library include files */
-   51               /* none */
-iC-86  COMPILER   STUBFNCS                                                                   06/09/:8 00:46:19  PAGE   2
+   49             /* library include files */
+   50               /* none */
+   51             
+iC-86  COMPILER   STUBFNCS                                                                   06/11/:8 20:54:01  PAGE   2
 
 
-   52             
-   53             /* local include files */
-   54             #include  "mp3defs.h"
+   52             /* local include files */
+   53             #include  "mp3defs.h"
+   54             
    55             
    56             
    57             
-   58             
-   59             /* update function */
-   60             
-   61             /*unsigned char  update(unsigned short int far *p, int n)
-   62             {
-   63                 return  FALSE;
-   64             }
-   65             */
+   58             /* update function */
+   59             
+   60             unsigned char  update(unsigned short int far *p, int n)
+   61             {
+   62     1           return  FALSE;
+   63     1       }
+   64             
+   65             
    66             
-   67             
-   68             /* timing function */
-   69             
-   70             /*int  elapsed_time()
-   71             {
-   72                 return  0;
-   73             }
-   74             */
+   67             /* timing function */
+   68             
+   69             int  elapsed_time()
+   70             {
+   71     1           return  0;
+   72     1       }
+   73             
+   74             
    75             
-   76             
-   77             /* keypad functions */
-   78             
-   79             /*unsigned char  key_available()
-   80             {
-   81                 return  FALSE;
-   82             }
-   83             
-   84             int  getkey()
-   85             {
-   86                 return  KEY_ILLEGAL;
-   87             }*/
+   76             /* keypad functions */
+   77             
+   78             unsigned char  key_available()
+   79             {
+   80     1           return  FALSE;
+   81     1       }
+   82             
+   83             int  getkey()
+   84             {
+   85     1           return  KEY_ILLEGAL;
+   86     1       }
+   87             
    88             
    89             
-   90             
-   91             /* display functions  */
-   92             
-   93             /*void  display_time(unsigned int t)
-   94             {
-   95                 return;
-   96             }
-   97             
-   98             void  display_status(unsigned int s)
-   99             {
-  100                 return;
-  101             }
-  102             
-  103             void  display_title(const char far *t)
-  104             {
-  105                 return;
-  106             }
-  107             
-  108             void  display_artist(const char far *a)
-iC-86  COMPILER   STUBFNCS                                                                   06/09/:8 00:46:19  PAGE   3
+   90             /* display functions  */
+   91             
+   92             void  display_time(unsigned int t)
+   93             {
+   94     1           return;
+   95     1       }
+   96             
+   97             void  display_status(unsigned int s)
+   98             {
+   99     1           return;
+  100     1       }
+  101             
+  102             void  display_title(const char far *t)
+  103             {
+  104     1           return;
+  105     1       }
+  106             
+  107             void  display_artist(const char far *a)
+  108             {
+iC-86  COMPILER   STUBFNCS                                                                   06/11/:8 20:54:01  PAGE   3
 
 
-  109             {
-  110                 return;
-  111             }*/
+  109     1           return;
+  110     1       }
+  111             
   112             
   113             
-  114             
-  115             /* IDE interface function */
-  116             
-  117             /*int  get_blocks(unsigned long int b, int n, unsigned short int far *p)
-  118             {
-  119                 return  n;
-  120             }*/
+  114             /* IDE interface function */
+  115             
+  116             int  get_blocks(unsigned long int b, int n, unsigned short int far *p)
+  117             {
+  118     1           return  n;
+  119     1       }
+  120             
   121             
   122             
-  123             
-  124             /* audio functions */
-  125             
-  126             /*void  audio_play(unsigned short int far *p, int n)
-  127             {
-  128                 return;
-  129             }
-  130             
-  131             void  audio_halt()
-  132             {
-  133                 return;
-  134             }
-  135             */
+  123             /* audio functions */
+  124             
+  125             void  audio_play(unsigned short int far *p, int n)
+  126             {
+  127     1           return;
+  128     1       }
+  129             
+  130             void  audio_halt()
+  131             {
+  132     1           return;
+  133     1       }
+  134             
 
 
 
 MODULE INFORMATION:
 
-     CODE AREA SIZE               = 0000H      0D
+     CODE AREA SIZE               = 0077H    119D
      CONSTANT AREA SIZE           = 0000H      0D
      DATA AREA SIZE               = 0000H      0D
-     MAXIMUM STACK SIZE           = 0000H      0D
+     MAXIMUM STACK SIZE           = 000CH     12D
 
 iC-86 COMPILATION COMPLETE.      0 WARNINGS,     0 ERRORS

@@ -5,7 +5,7 @@ INPUT FILES: LNK1.LNK, TIMER.OBJ, DMA.OBJ, FATUTIL.OBJ, FFREV.OBJ,
   IC86.LIB, SCLIB.LIB
 OUTPUT FILE: LNK2.LNK
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
-DATE:  06/09/:8  TIME:  00:46:19
+DATE:  06/11/:8  TIME:  21:10:05
 
 
 LINK MAP OF MODULE STARTUP
@@ -13,8 +13,8 @@ LINK MAP OF MODULE STARTUP
 LOGICAL SEGMENTS INCLUDED:
 LENGTH ADDRESS ALIGN  SEGMENT         CLASS           OVERLAY
  0000H ------    G    ??SEG                                         
- 13CBH ------    G    CODE            CODE                          
- 0922H ------    G    DATA            DATA                          
+ 14ABH ------    G    CODE            CODE                          
+ 0928H ------    G    DATA            DATA                          
  04B0H ------    W    STACK           STACK                         
 
 INPUT MODULES INCLUDED:
