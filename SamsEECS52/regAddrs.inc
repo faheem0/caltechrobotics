@@ -37,11 +37,11 @@ INTCtrlrCVal    EQU     00001H          ;set priority for timers to 1 and enable
                                         ;000000000000----  reserved
                                         ;------------0---  enable timer interrupt
                                         ;-------------001  timer priority
-INT0CtrlrVal    EQU		00011H			;set to level triggering, priority 2, enable
+INT0CtrlrVal    EQU		00001H			;set to level triggering, priority 2, enable
                                         ;000000000-------  reserved
                                         ;---------0------  disable fully nested mode
                                         ;----------0-----  disable cascade mode
-										;-----------1----  level triggering
+										;-----------0----  edge triggering
                                         ;------------0---  enable interrupt
                                         ;-------------010  int priority							
 INT2CtrlrVal    EQU		00011H			;set to level triggering, priority 2, enable

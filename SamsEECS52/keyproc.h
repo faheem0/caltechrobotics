@@ -19,6 +19,7 @@
                                  Project).
       6/5/08   Glen George       Added declarations for dec_FFRev_rate() and
                                  inc_FFRev_rate() functions.
+      6/11/08 Samuel Yang	  Added pause_Play()	function					
 */
 
 
@@ -59,6 +60,7 @@ enum status  do_TrackDown(enum status);   /* go to the previous track */
 enum status  start_Play(enum status);     /* begin playing the current track */
 enum status  begin_Play(enum status);     /* start playing from fast forward or reverse */
 enum status  stop_Play(enum status);      /* stop playing */
+enum status pause_Play(enum status);	  /* pause playing */
 
 enum status  start_RptPlay(enum status);  /* begin repeatedly playing the current track */
 enum status  cont_RptPlay(enum status);   /* switch to repeat play from standard play */
