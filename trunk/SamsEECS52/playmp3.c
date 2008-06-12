@@ -469,6 +469,34 @@ enum status  stop_Play(enum status cur_status)
 }
 
 
+enum status  pause_Play(enum status cur_status)
+{
+    /* variables */
+#ifdef  PCVERSION
+    int  i;             /* loop index */
+#else
+    /* none */
+#endif
+
+
+
+    /* first halt the audio output */
+    audio_halt();
+
+
+    /* if the PC version need to free memory */
+#ifdef PCVERSION
+    for (i = 0; i < NO_BUFFERS; i++)  {
+        /* free the buffer */
+        farfree(buffers[i].p);
+    }
+    farfree(empty_buffer);
+#endif
+
+    /* return with the new status */
+    return  STAT_IDLE;
+
+}
 
 
 /*

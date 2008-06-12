@@ -35,6 +35,7 @@
 	                         longer used.
       6/5/03   Glen George       Added initialization to FAT directory system.
       6/5/03   Glen George       Updated function headers.
+	  6/11/08 Samuel Yang	  	 Added pause_Play()	function to state machine
 */
 
 
@@ -120,7 +121,7 @@ int  main()
         /* idle           play            fast forward   reverse                  key         */
       { {  do_TrackUp,    no_action,      no_action,     no_action     },   /* <Track Up>     */
         {  do_TrackDown,  no_action,      no_action,     no_action     },   /* <Track Down>   */
-        {  start_Play,    no_action,      begin_Play,    begin_Play    },   /* <Play>         */
+        {  start_Play,    pause_Play,      begin_Play,    begin_Play    },   /* <Play>         */
         {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay },   /* <Repeat Play>  */
         {  start_FastFwd, switch_FastFwd, stop_FFRev,    begin_FastFwd },   /* <Fast Forward> */
         {  start_Reverse, switch_Reverse, begin_Reverse, stop_FFRev    },   /* <Reverse>      */
