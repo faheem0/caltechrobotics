@@ -10,7 +10,8 @@
 ;
 ; Revision History:
 
-;     5/2/2008 Samuel Yang     
+;     5/2/2008 Samuel Yang  
+;	  6/11/2008 Samuel Yang special characters added   
 
 
 displayAddressCMD   EQU     00100H           ;display address for commands
@@ -26,15 +27,16 @@ cursorLeft			EQU 10H						;shifts cursor left one
 cursorRight			EQU 14H						;shifts cursor right one
 returnHome			EQU 02H						;
 
+
 ;display format constants
 statusOffset EQU 0
-statusLength EQU 4
-timeOffset EQU 5
+statusLength EQU 8
+timeOffset EQU 9
 timeLength EQU 8
-titleOffset EQU 14
-titleLength EQU 26
-artistOffset EQU 40
-artistLength EQU 40
+titleOffset EQU 40
+titleLength EQU 40
+artistOffset EQU 18
+artistLength EQU 22
 
 
 
@@ -62,3 +64,70 @@ busyFlagMask	EQU 80h
 LCDbusy 	EQU 80h
 statusStringLength EQU 8
 blankSpace EQU 32
+
+;special character table
+LCDSpecialPlay 	 EQU 01000000b+00001000b
+LCDSpecialFFW  	 EQU 01001000b+00001000b
+LCDSpecialRWD    EQU 01010000b+00001000b
+LCDSpecialStop   EQU 01011000b+00001000b
+LCDSpecialPause  EQU 01100000b+00001000b
+;LCDSpecialUnused0 EQU 01101000b+00001000b
+;LCDSpecialUnused1 EQU 01110000b+00001000b
+;LCDSpecialUnused2 EQU 01111000b 
+
+LCDSpecialPlayLine0 EQU 00010000b
+LCDSpecialPlayLine1 EQU 00011000b
+LCDSpecialPlayLine2 EQU 00010100b
+LCDSpecialPlayLine3 EQU 00010010b
+LCDSpecialPlayLine4 EQU 00010001b
+LCDSpecialPlayLine5 EQU 00010010b
+LCDSpecialPlayLine6 EQU 00010100b
+LCDSpecialPlayLine7 EQU 00011000b
+
+LCDSpecialStopLine0 EQU 00011111b
+LCDSpecialStopLine1 EQU 00010001b
+LCDSpecialStopLine2 EQU 00010001b
+LCDSpecialStopLine3 EQU 00010001b
+LCDSpecialStopLine4 EQU 00010001b
+LCDSpecialStopLine5 EQU 00010001b
+LCDSpecialStopLine6 EQU 00010001b
+LCDSpecialStopLine7 EQU 00011111b
+
+LCDSpecialFFWLine0 EQU 00000000b
+LCDSpecialFFWLine1 EQU 00000000b
+LCDSpecialFFWLine2 EQU 00010100b
+LCDSpecialFFWLine3 EQU 00001010b
+LCDSpecialFFWLine4 EQU 00000101b
+LCDSpecialFFWLine5 EQU 00001010b
+LCDSpecialFFWLine6 EQU 00010100b
+LCDSpecialFFWLine7 EQU 00000000b
+
+LCDSpecialRWDLine0 EQU 00000000b
+LCDSpecialRWDLine1 EQU 00000000b
+LCDSpecialRWDLine2 EQU 00000101b
+LCDSpecialRWDLine3 EQU 00001010b
+LCDSpecialRWDLine4 EQU 00010100b
+LCDSpecialRWDLine5 EQU 00001010b
+LCDSpecialRWDLine6 EQU 00000101b
+LCDSpecialRWDLine7 EQU 00000000b
+
+LCDSpecialPauseLine0 EQU 00010001b
+LCDSpecialPauseLine1 EQU 00010001b
+LCDSpecialPauseLine2 EQU 00010001b
+LCDSpecialPauseLine3 EQU 00010001b
+LCDSpecialPauseLine4 EQU 00010001b
+LCDSpecialPauseLine5 EQU 00010001b
+LCDSpecialPauseLine6 EQU 00010001b
+LCDSpecialPauseLine7 EQU 00010001b
+
+
+
+
+
+
+
+
+
+
+
+

@@ -25,6 +25,7 @@
 ; Revision History:
 ;     5/2/08  Samuel Yang     file started
 ;     5/3/08  Samuel Yang	functions tested, working, comments updated
+;	  6/11/2008 Samuel Yang special characters added
 CGROUP GROUP CODE
 DGROUP GROUP DATA
 
@@ -83,6 +84,159 @@ InitDisplay   PROC    NEAR
 			MOV AL, displayOnOffCtrl
 			OUT DX, AL
 			CALL readBusyFlag
+			
+			;init special characters here
+			MOV DX, displayAddressCMD
+			MOV AL, LCDSpecialPlay
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV DX, displayAddressDAT
+			MOV AL, LCDSpecialPlayLine0
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine1
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine3
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine4
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine5
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine6
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPlayLine7
+			OUT DX, AL
+			CALL readBusyFlag
+			
+			MOV DX, displayAddressCMD
+			MOV AL, LCDSpecialStop
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV DX, displayAddressDAT
+			MOV AL, LCDSpecialStopLine0
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine1
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine3
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine4
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine5
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine6
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStopLine7
+			OUT DX, AL
+			CALL readBusyFlag
+			
+			MOV DX, displayAddressCMD
+			MOV AL, LCDSpecialFFW
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV DX, displayAddressDAT
+			MOV AL, LCDSpecialFFWLine0
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine1
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine3
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine4
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine5
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine6
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialFFWLine7
+			OUT DX, AL
+			CALL readBusyFlag
+			
+			MOV DX, displayAddressCMD
+			MOV AL, LCDSpecialRWD
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV DX, displayAddressDAT
+			MOV AL, LCDSpecialRWDLine0
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine1
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine3
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine4
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine5
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine6
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialRWDLine7
+			OUT DX, AL
+			CALL readBusyFlag
+			
+			MOV DX, displayAddressCMD
+			MOV AL, LCDSpecialPause
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV DX, displayAddressDAT
+			MOV AL, LCDSpecialPauseLine0
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine1
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine3
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine4
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine5
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine6
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialPauseLine7
+			OUT DX, AL
+			CALL readBusyFlag
+			;end init special characters
+			
 			
 			POP DX
 			POP AX
@@ -493,13 +647,17 @@ readBusyFlag   ENDP
 ;array of status strings (predefined constants)
 statuses  LABEL BYTE
 		
-		DB 'PLAY l>',0
-		DB 'FFWD >>',0
-		DB 'RWD  <<',0
-		DB 'IDLE ..',0
+		;DB 'PLAY l>',0
+		;DB 'FFWD >>',0
+		;DB 'RWD  <<',0
+		;DB 'IDLE ..',0
+		;DB 'PAUSE  ',0
+		DB 1,'      ',0
+		DB 2,'      ',0
+		DB 3,'      ',0
+		DB 4,'      ',0
+		DB 5,'      ',0
 		DB 'ILLEGAL',0
-
-
 CODE ENDS
 
 
