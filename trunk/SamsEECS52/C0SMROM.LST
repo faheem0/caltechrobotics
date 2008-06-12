@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  21:10:04  06/11/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  23:04:47  06/11/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     
                       =1    49     ; This file contains the boolean definitions for the 80188 MP3 Player.
                       =1    50     ;
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  21:10:04  06/11/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  23:04:47  06/11/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   101                                             ;------------0---  enable interrupt
                       =1   102                                             ;-------------010  int priority         
                                                                       
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  21:10:04  06/11/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  23:04:47  06/11/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   149     
                       =1   150     
                       =1   151     ; General Definitions
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  21:10:04  06/11/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  23:04:47  06/11/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            200     
                            201     
                            202     ; the data segment - used for static and global variables
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  21:10:04  06/11/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  23:04:47  06/11/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
                            252             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 0014 E80000         E      253                     CALL InitCS
 0017 E80000         E      254                     CALL ClrIRQVectors
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  21:10:04  06/11/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  23:04:47  06/11/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE

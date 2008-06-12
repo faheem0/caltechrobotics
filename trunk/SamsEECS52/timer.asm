@@ -2,8 +2,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
-;                                    timer               	    	     ;
-;                           Timer Event Handler                   ;
+;                                    timer               	    	    	 ;
+;                           Timer Event Handler                  			 ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -21,6 +21,7 @@
 ; Revision History:
 
 ;     5/30/08 copied from EE/CS 51 code
+;	  6/11/08 interrupts only every 10ms
 
 ; local include files
 $INCLUDE(boolean.INC)
@@ -132,14 +133,14 @@ InitElapsedTimer ENDP
 ; Stack Depth:       3 words
 ;
 ; Author:            Samuel Yang
-; Last Modified:     5-30-2008
+; Last Modified:     6-11-2008
 
 Timer0EventHandler       PROC    NEAR
 					PUBLIC Timer0EventHandler
 		PUSH AX                         ;save register values
 		PUSH DX
 		
-		INC msElapsed
+		ADD msElapsed, MS_PER_INT		;update counter
 
 EndTimerEventHandler:                   ;done taking care of the timer
 
