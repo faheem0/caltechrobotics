@@ -17,6 +17,8 @@
                         function)
       begin_Reverse   - switch to reverse from fast forward (key processing
                         function)
+      dec_FFRev_rate  - decrease the fast forward/reverse rate
+      inc_FFRev_rate  - increase the fast forward/reverse rate
       start_FastFwd   - start going fast forward (key processing function)
       start_Reverse   - start going reverse (key processing function)
       stop_FFRev      - stop when doing fast forward or reverse (key
@@ -31,6 +33,7 @@
       none
 
    The locally global variable definitions included are:
+      FFRev_rate - rate at which to run fast forward/reverse
       time_FFRev - leftover (after rounding) time for fast forward/reverse
 
 
@@ -55,6 +58,10 @@
       6/5/03   Glen George       Added #include of fatutil.h for function
                                  declarations needed by above change.
       6/5/03   Glen George       Updated function headers.
+      6/5/08   Glen George       Added functions dec_FFRev_rate and
+                                 inc_FFRev_rate along with the shared variable
+				 FFRev_rate to support variable rate fast
+				 forward and reverse.
 */
 
 
@@ -72,6 +79,9 @@
 
 
 /* locally global variables */
+
+static int  FFRev_rate;         /* rate at which to increment/decrement fast forward/reverse */
+
 static int  time_FFRev;         /* leftover time (after rounding) for fast forward/reverse */
 
 
@@ -81,10 +91,11 @@ static int  time_FFRev;         /* leftover time (after rounding) for fast forwa
    start_FastFwd
 
    Description:      This function handles the <Fast Forward> key when nothing
-                     is happening in the system.  It starts the fast forward
-                     operation if there is time remaining on the current track
-                     to fast forward thru and the track is not a directory and
-                     does nothing otherwise.
+                     is happening in the system.
+			     
+   Operation:        It starts the fast forward operation if there is time
+                     remaining on the current track to fast forward thru and
+                     the track is not a directory and does nothing otherwise.
 
    Arguments:        cur_status (enum status) - the current system status.
    Return Value:     (enum status) - the new system status: STAT_FF if there
@@ -99,10 +110,11 @@ static int  time_FFRev;         /* leftover time (after rounding) for fast forwa
    Algorithms:       None.
    Data Structures:  None.
 
-   Shared Variables: time_FFRev - reset to 0.
+   Shared Variables: FFRev_rate - reset to MIN_FFREV_RATE.
+                     time_FFRev - reset to 0.
 
    Author:           Glen George
-   Last Modified:    June 5, 2003
+   Last Modified:    June 5, 2008
 
 */
 
@@ -123,6 +135,9 @@ enum status  start_FastFwd(enum status cur_status)
         /* also clear leftover time */
         time_FFRev = 0;
 
+	/* start at slowest fast forward rate */
+	FFRev_rate = MIN_FFREV_RATE;
+
         /* set status to fast forward */
         cur_status = STAT_FF;
     }
@@ -140,10 +155,11 @@ enum status  start_FastFwd(enum status cur_status)
    start_Reverse
 
    Description:      This function handles the <Reverse> key when nothing is
-                     happening in the system.  It starts the reverse operation
-                     if there is data to be reversed thru on the current track
-                     and the track is not a direcotry and does nothing
-                     otherwise.
+                     happening in the system.
+
+   Operation:        The function starts the reverse operation if there is
+                     data to be reversed thru on the current track and the
+                     track is not a directory and does nothing otherwise.
 
    Arguments:        cur_status (enum status) - the current system status.
    Return Value:     (enum status) - the new system status: STAT_REV if there
@@ -158,10 +174,11 @@ enum status  start_FastFwd(enum status cur_status)
    Algorithms:       None.
    Data Structures:  None.
 
-   Shared Variables: time_FFRev - reset to 0.
+   Shared Variables: FFRev_rate - reset to MIN_FFREV_RATE.
+                     time_FFRev - reset to 0.
 
    Author:           Glen George
-   Last Modified:    June 5, 2003
+   Last Modified:    June 5, 2008
 
 */
 
@@ -181,6 +198,9 @@ enum status  start_Reverse(enum status cur_status)
         (void) elapsed_time();
         /* also clear leftover time */
         time_FFRev = 0;
+
+	/* start at slowest reverse rate */
+	FFRev_rate = MIN_FFREV_RATE;
 
         /* set status to reverse */
         cur_status = STAT_REV;
@@ -293,8 +313,10 @@ enum status  switch_Reverse(enum status cur_status)
    begin_FastFwd
 
    Description:      This function handles the <Fast Forward> key when
-                     currently going in reverse.  It just resets the time for
-                     timing the fast forward operation and returns a new
+                     currently going in reverse.
+
+   Operation:        The function resets the time for timing the fast forward
+                     operation and the fast forward rate and returns a new
                      status.
 
    Arguments:        cur_status (enum status) - the current system status (not
@@ -309,10 +331,11 @@ enum status  switch_Reverse(enum status cur_status)
    Algorithms:       None.
    Data Structures:  None.
 
-   Shared Variables: time_FFRev - reset to 0.
+   Shared Variables: FFRev_rate - reset to MIN_FFREV_RATE.
+                     time_FFRev - reset to 0.
 
    Author:           Glen George
-   Last Modified:    June 1, 2002
+   Last Modified:    June 5, 2008
 
 */
 
@@ -328,6 +351,9 @@ enum status  begin_FastFwd(enum status cur_status)
     /* also clear leftover time */
     time_FFRev = 0;
 
+    /* start at slowest fast forward rate */
+    FFRev_rate = MIN_FFREV_RATE;
+
     /* and return the new status */
     return  STAT_FF;
 
@@ -340,9 +366,11 @@ enum status  begin_FastFwd(enum status cur_status)
    begin_Reverse
 
    Description:      This function handles the <Reverse> key when currently
-                     operating in fast forward.  It just resets the timer used
-                     to time the reverse operation and returns STAT_REV as the
-                     status.
+                     operating in fast forward.
+
+   Operation:        The function resets the timer used to time the reverse
+                     operation and the reverse rate and then returns STAT_REV
+                     as the status.
 
    Arguments:        cur_status (enum status) - the current system status (not
                                                 used).
@@ -356,10 +384,11 @@ enum status  begin_FastFwd(enum status cur_status)
    Algorithms:       None.
    Data Structures:  None.
 
-   Shared Variables: time_FFRev - reset to 0.
+   Shared Variables: FFRev_rate - reset to MIN_FFREV_RATE.
+                     time_FFRev - reset to 0.
 
    Author:           Glen George
-   Last Modified:    June 1, 2002
+   Last Modified:    June 5, 2008
 
 */
 
@@ -374,6 +403,9 @@ enum status  begin_Reverse(enum status cur_status)
     (void) elapsed_time();
     /* also clear leftover time */
     time_FFRev = 0;
+
+    /* start at slowest reverse rate */
+    FFRev_rate = MIN_FFREV_RATE;
 
     /* and return STAT_REV as the new status */
     return  STAT_REV;
@@ -467,7 +499,7 @@ enum status  update_FastFwd(enum status cur_status)
 
         /* something on track - get the elapsed time for fast forward operation */
         /* it needs to be scaled and have any leftover time added in */
-        etime = FFREV_RATE * elapsed_time() + time_FFRev;
+        etime = FFRev_rate * elapsed_time() + time_FFRev;
 
         /* has enough time elapsed for fast forwarding */
         if (etime > MIN_FFREV_TIME)  {
@@ -559,7 +591,7 @@ enum status  update_Reverse(enum status cur_status)
 
         /* something on track - get the elapsed time for reverse operation */
         /* it needs to be scaled and have any leftover time added in */
-        etime = FFREV_RATE * elapsed_time() + time_FFRev;
+        etime = FFRev_rate * elapsed_time() + time_FFRev;
 
         /* has enough time elapsed for reversing */
         if (etime > MIN_FFREV_TIME)  {
@@ -606,5 +638,111 @@ enum status  update_Reverse(enum status cur_status)
 
     /* all done, return the possibly new status */
     return  cur_status;
+
+}
+
+
+
+
+/*
+   dec_FFRev_rate
+
+   Description:      This function decrements the fast forward/reverse rate by
+                     DELTA_FFREV_RATE.  It can only be decremented down to
+                     MIN_FFREV_RATE, it cannot be decremented below that.
+
+   Operation:        DELTA_FFREV_RATE is subtracted from the shared variable
+                     FFRev_rate and if it is less than MIN_FFREV_RATE it is
+		     set to that value.
+
+   Arguments:        None.
+   Return Value:     None.
+
+   Input:            None.
+   Output:           None.
+
+   Error Handling:   None.
+
+   Algorithms:       None.
+   Data Structures:  None.
+
+   Shared Variables: FFRev_rate - decremented by DELTA_FFREV_RATE.
+
+   Author:           Glen George
+   Last Modified:    June 5, 2008
+
+*/
+
+void  dec_FFRev_rate(void)
+{
+    /* variables */
+      /* none */
+
+
+
+    /* decrement the fast forward/reverse rate */
+    FFRev_rate -= DELTA_FFREV_RATE;
+
+    /* make sure the rate isn't too low */
+    if (FFRev_rate < MIN_FFREV_RATE)
+        /* limit FFRev_rate to [MIN_FFREV_RATE, MAX_FFREV_RATE] */
+	FFRev_rate = MIN_FFREV_RATE;
+
+
+    /* done computing the new fast forward/reverse rate */
+    return;
+
+}
+
+
+
+
+/*
+   inc_FFRev_rate
+
+   Description:      This function increments the fast forward/reverse rate by
+                     DELTA_FFREV_RATE.  It can only be incremented to
+                     MAX_FFREV_RATE, it cannot be incremented above that.
+
+   Operation:        DELTA_FFREV_RATE is added to the shared variable
+                     FFRev_rate and if it is greater than MAX_FFREV_RATE it
+		     is set to that value.
+
+   Arguments:        None.
+   Return Value:     None.
+
+   Input:            None.
+   Output:           None.
+
+   Error Handling:   None.
+
+   Algorithms:       None.
+   Data Structures:  None.
+
+   Shared Variables: FFRev_rate - incremented by DELTA_FFREV_RATE.
+
+   Author:           Glen George
+   Last Modified:    June 5, 2008
+
+*/
+
+void  inc_FFRev_rate(void)
+{
+    /* variables */
+      /* none */
+
+
+
+    /* increment the fast forward/reverse rate */
+    FFRev_rate += DELTA_FFREV_RATE;
+
+    /* make sure the rate isn't too high */
+    if (FFRev_rate > MAX_FFREV_RATE)
+        /* limit FFRev_rate to [MIN_FFREV_RATE, MAX_FFREV_RATE] */
+	FFRev_rate = MAX_FFREV_RATE;
+
+
+    /* done computing the new fast forward/reverse rate */
+    return;
 
 }

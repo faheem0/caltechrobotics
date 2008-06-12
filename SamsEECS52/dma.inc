@@ -12,7 +12,7 @@
 ; Revision History:
 
 ;     5/30/2008 Samuel Yang     
-IDEoffset	  EQU 	  003fH			 ;for samsung IDE
+IDEoffset	  EQU 	  0000H			 ;for samsung IDE
 
 
 IDE_BLOCK_SIZE EQU 256               ;words, must NOT change

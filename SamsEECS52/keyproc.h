@@ -17,6 +17,8 @@
       6/4/00   Glen George       Initial revision (from the 3/6/99 version of
                                  keyproc.h for the Digital Audio Recorder
                                  Project).
+      6/5/08   Glen George       Added declarations for dec_FFRev_rate() and
+                                 inc_FFRev_rate() functions.
 */
 
 
@@ -71,6 +73,9 @@ enum status  switch_Reverse(enum status); /* switch to reverse from play */
 enum status  begin_Reverse(enum status);  /* switch to reverse from fast forward */
 
 enum status  stop_FFRev(enum status);     /* stop fast forward or reverse */
+
+void         dec_FFRev_rate(void);        /* decrease fast forward/reverse speed */
+void         inc_FFRev_rate(void);        /* increase fast forward/reverse speed */
 
 
 #endif
