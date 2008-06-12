@@ -76,6 +76,9 @@ enum status  begin_Reverse(enum status);  /* switch to reverse from fast forward
 
 enum status  stop_FFRev(enum status);     /* stop fast forward or reverse */
 
+enum status step_contrast_up(enum status);	  /* contrast up*/
+enum status step_contrast_down(enum status);  /* contrast down */
+
 void         dec_FFRev_rate(void);        /* decrease fast forward/reverse speed */
 void         inc_FFRev_rate(void);        /* increase fast forward/reverse speed */
 

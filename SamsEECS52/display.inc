@@ -12,10 +12,15 @@
 
 ;     5/2/2008 Samuel Yang  
 ;	  6/11/2008 Samuel Yang special characters added   
-
+;	  6/11/2008 Samuel Yang digipot added
 
 displayAddressCMD   EQU     00100H           ;display address for commands
 displayAddressDAT   EQU     00101H           ;display address for data
+
+digipotAddressUp	EQU 	00180H			 ;address of digipot, contrast up
+digipotAddressDown	EQU 	00182H			 ;address of digipot, contrast down
+
+numContrastSteps    EQU 20					 ;number of steps to increment contrast by
 
 ;LCD commands-send to displayAddressCMD
 functionSet          EQU 3CH					;8 bit, 2 line, 5x7 dots
@@ -26,6 +31,7 @@ displayOnOffCtrl 	EQU 0CH						;display on, cursor off
 cursorLeft			EQU 10H						;shifts cursor left one
 cursorRight			EQU 14H						;shifts cursor right one
 returnHome			EQU 02H						;
+
 
 
 ;display format constants

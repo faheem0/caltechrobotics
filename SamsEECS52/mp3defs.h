@@ -236,5 +236,8 @@ int  get_blocks(unsigned long int, int, unsigned short int far *);   /* get data
 void  audio_play(unsigned short int far *, int);  /* start playing */
 void  audio_halt(void);                           /* halt play or record */
 
+/* contrast control functions */
+void  contrast_up(void);  /* step contrast up */
+void  contrast_down(void);  /* step contrast down */
 
 #endif

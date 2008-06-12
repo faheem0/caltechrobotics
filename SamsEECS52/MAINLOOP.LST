@@ -1,4 +1,4 @@
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 03:28:05  PAGE   1
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 04:14:05  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE MAINLOOP
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
    49             #include  "mp3defs.h"
    50             #include  "keyproc.h"
    51             #include  "updatfnc.h"
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 03:28:05  PAGE   2
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 04:14:05  PAGE   2
 
 
    52             #include  "trakutil.h"
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
   106     1           static const unsigned int  xlat_stat[] =
   107     1               {  STATUS_IDLE,      /* system idle */
   108     1                  STATUS_PLAY,      /* playing (or repeat playing) a track */
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 03:28:05  PAGE   3
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 04:14:05  PAGE   3
 
 
   109     1                  STATUS_FASTFWD,   /* fast forwarding a track */
@@ -138,10 +138,10 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
                 -     */
   123     1               /* idle           play            fast forward   reverse        pause            key         *
                 -/
-  124     1             { {  do_TrackUp,    no_action,      no_action,     no_action,    no_action   },   /* <Track Up> 
-                -    */
-  125     1               {  do_TrackDown,  no_action,      no_action,     no_action,    no_action   },   /* <Track Down
-                ->   */
+  124     1             { {  do_TrackUp,    no_action,      no_action,     no_action,    step_contrast_up   },   /* <Tra
+                -ck Up>     */
+  125     1               {  do_TrackDown,  no_action,      no_action,     no_action,    step_contrast_down   },   /* <T
+                -rack Down>   */
   126     1               {  start_Play,    pause_Play,      begin_Play,    begin_Play,  start_Play    },   /* <Play>   
                 -      */
   127     1               {  start_RptPlay, cont_RptPlay,   begin_RptPlay, begin_RptPlay, no_action},   /* <Repeat Play>
@@ -178,7 +178,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
   153     1           display_time(get_track_time());
   154     1           display_title(get_track_title());
   155     1           display_artist(get_track_artist());
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 03:28:05  PAGE   4
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 04:14:05  PAGE   4
 
 
   156     1       
@@ -238,7 +238,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
   210             
   211                Error Handling:   Invalid keys are returned as KEYCODE_ILLEGAL.
   212             
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 03:28:05  PAGE   5
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 04:14:05  PAGE   5
 
 
   213                Algorithms:       The function uses an array to lookup the key types.
@@ -296,7 +296,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE MAINLOOP.C DEBUG EXTEND MOD186 SMALL O
   265     1           return  keycodes[i];
   266     1       
   267     1       }
-iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 03:28:05  PAGE   6
+iC-86  COMPILER   MAINLOOP                                                                   06/12/:8 04:14:05  PAGE   6
 
 
 MODULE INFORMATION:
