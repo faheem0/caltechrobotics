@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE DMA
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    47     
   0100                =1    48     IDE_BLOCK_SIZE EQU 256               ;words, must NOT change
                       =1    49     
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                                    01----------  src increment
                       =1    87                                                                                     ;----
                                    --1---------  terminate on TC
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   123     
   0021                =1   124     IDECommandReadSectors  EQU     21H    ;read sectors without retries
                       =1   125     
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            168     ; Operation:        
                            169     ;
                            170     ; Arguments:         None.
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
                            221     ; Registers Changed: None
                            222     ; Stack Depth:       10 words
                            223     ;
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -358,7 +358,7 @@ LOC  OBJ                  LINE     SOURCE
                            276                     ;write LBA to IDE registers
 005B 680080                277                     PUSH IDEsegment ;use ES to reference IDE segment
 005E 07                    278                     POP ES
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    7
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -418,7 +418,7 @@ LOC  OBJ                  LINE     SOURCE
 00CC EF                    330                     OUT DX, AX
                            331                     
                            332                     ;set DMA terminal counter
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    8
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -478,7 +478,7 @@ LOC  OBJ                  LINE     SOURCE
                            383     ; Return Value:      None.
                            384     ;
                            385     ; Local Variables:   None.
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE    9
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -538,7 +538,7 @@ LOC  OBJ                  LINE     SOURCE
                            438     ; Error Handling:    Blocking function
                            439     ;
                            440     ; Algorithms:        None.
-8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:04:47  06/11/:8  PAGE   10
+8086/87/88/186 MACRO ASSEMBLER    DMA                                                      23:28:31  06/11/:8  PAGE   10
 
 
 LOC  OBJ                  LINE     SOURCE
