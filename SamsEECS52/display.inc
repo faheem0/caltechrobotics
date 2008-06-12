@@ -30,7 +30,7 @@ displayOnOffCtrl 	EQU 0CH						;display on, cursor off
 
 cursorLeft			EQU 10H						;shifts cursor left one
 cursorRight			EQU 14H						;shifts cursor right one
-returnHome			EQU 02H						;
+returnHome			EQU 02H						;return cursor home
 
 
 
@@ -77,7 +77,7 @@ LCDSpecialFFW  	 EQU 01001000b+00001000b
 LCDSpecialRWD    EQU 01010000b+00001000b
 LCDSpecialStop   EQU 01011000b+00001000b
 LCDSpecialPause  EQU 01100000b+00001000b
-;LCDSpecialUnused0 EQU 01101000b+00001000b
+LCDSpecialStop2 EQU 01101000b+00001000b
 ;LCDSpecialUnused1 EQU 01110000b+00001000b
 ;LCDSpecialUnused2 EQU 01111000b 
 
@@ -91,13 +91,22 @@ LCDSpecialPlayLine6 EQU 00010100b
 LCDSpecialPlayLine7 EQU 00011000b
 
 LCDSpecialStopLine0 EQU 00011111b
-LCDSpecialStopLine1 EQU 00010001b
-LCDSpecialStopLine2 EQU 00010001b
-LCDSpecialStopLine3 EQU 00010001b
-LCDSpecialStopLine4 EQU 00010001b
-LCDSpecialStopLine5 EQU 00010001b
-LCDSpecialStopLine6 EQU 00010001b
+LCDSpecialStopLine1 EQU 00010000b
+LCDSpecialStopLine2 EQU 00010000b
+LCDSpecialStopLine3 EQU 00010000b
+LCDSpecialStopLine4 EQU 00010000b
+LCDSpecialStopLine5 EQU 00010000b
+LCDSpecialStopLine6 EQU 00010000b
 LCDSpecialStopLine7 EQU 00011111b
+
+LCDSpecialStop2Line0 EQU 00011111b
+LCDSpecialStop2Line1 EQU 00000001b
+LCDSpecialStop2Line2 EQU 00000001b
+LCDSpecialStop2Line3 EQU 00000001b
+LCDSpecialStop2Line4 EQU 00000001b
+LCDSpecialStop2Line5 EQU 00000001b
+LCDSpecialStop2Line6 EQU 00000001b
+LCDSpecialStop2Line7 EQU 00011111b
 
 LCDSpecialFFWLine0 EQU 00000000b
 LCDSpecialFFWLine1 EQU 00000000b
