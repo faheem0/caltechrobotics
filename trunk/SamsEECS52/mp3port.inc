@@ -23,3 +23,6 @@ mp3buff1 EQU 2
 mp3buffRequiredMask EQU 02h
 lengthZero EQU 0
 
+IntREQSTAddr	 EQU 0ff2Eh			;address of Interrupt Request register
+Int1REQSTMask    EQU 0020h 			;get condition of interrupt 1
+Int1REQSTPending EQU 0020h			;value if a request is pending on int1

@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE DISPLAY
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
   0100                =1    48     displayAddressCMD   EQU     00100H           ;display address for commands
   0101                =1    49     displayAddressDAT   EQU     00101H           ;display address for data
                       =1    50     
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
   0008                =1    95     statusStringLength EQU 8
   0020                =1    96     blankSpace EQU 32
                             97 +1  $INCLUDE(boolean.INC)
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                            150                             PUBLIC InitDisplay
 0000 50                    151                             PUSH AX
 0001 52                    152                             PUSH DX
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
 0026 53                    205                     PUSH BX
 0027 8B7604                206                     MOV SI, [BP+4]
 002A 8E4606                207                     MOV ES, [BP+6]
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
 004C BB2800                260                     MOV BX, artistOffset
                            261                     
 004F E8CF00                262                     CALL DisplayStr
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -358,7 +358,7 @@ LOC  OBJ                  LINE     SOURCE
 0067 68----90       R      314                     PUSH SEG(statuses)      ;Use ES:[SI] to point to the predefined statu
                                    s message
 006B 07                    315                     POP ES
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    7
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -418,7 +418,7 @@ LOC  OBJ                  LINE     SOURCE
 0089 50                    367                     PUSH AX
 008A 53                    368                     PUSH BX
 008B 51                    369                     PUSH CX
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    8
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -478,7 +478,7 @@ LOC  OBJ                  LINE     SOURCE
                            421                     
                            422                     ;write tenths of seconds
 00ED 83C130                423                     ADD CX, ASCIIDecCons
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE    9
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -538,7 +538,7 @@ LOC  OBJ                  LINE     SOURCE
                            474     ; Stack Depth:       5 words
                            475     ;
                            476     ; Last Modified:     5-2-2008
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE   10
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE   10
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -598,7 +598,7 @@ LOC  OBJ                  LINE     SOURCE
 0161 5B                    524                     POP BX
 0162 58                    525                     POP AX
 0163 5E                    526                     POP SI
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE   11
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE   11
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -658,7 +658,7 @@ LOC  OBJ                  LINE     SOURCE
 017C 46465744203E3E        578                     DB 'FFWD >>',0
 0183 00
 0184 52574420203C3C        579                     DB 'RWD  <<',0
-8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  00:50:22  06/12/:8  PAGE   12
+8086/87/88/186 MACRO ASSEMBLER    DISPLAY                                                  01:10:19  06/12/:8  PAGE   12
 
 
 LOC  OBJ                  LINE     SOURCE
