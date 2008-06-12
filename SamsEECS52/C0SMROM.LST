@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:10:19  06/12/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:43:42  06/12/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE STARTUP
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1    48     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       =1    49     
                       =1    50     ; This file contains the boolean definitions for the 80188 MP3 Player.
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:10:19  06/12/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:43:42  06/12/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   102                                             ;----------0-----  disable cascade mode
                       =1   103                                                                                     ;----
                                    -------1----  level triggering
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:10:19  06/12/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:43:42  06/12/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   146                                             ;0000000000------  starts at address 0
                       =1   147                                             ;----------000---  reserved
                       =1   148                                             ;-------------0--  wait for RDY inputs
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:10:19  06/12/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:43:42  06/12/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            197     
                            198     EXTRN InitCS:Near
                            199     EXTRN ClrIRQVectors:Near
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:10:19  06/12/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:43:42  06/12/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
                            249             ;PUBLIC  Start                  ;public so can jump to from power on code
                            250     
 0000 BAA2FF                251                     MOV DX, LCSCtrl ;need to setup LCS control register to match RAM size
-8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:10:19  06/12/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    STARTUP                                                  01:43:42  06/12/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE

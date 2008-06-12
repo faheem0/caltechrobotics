@@ -12,6 +12,7 @@
 ; Revision History:
 
 ;     5/5/2008 Samuel Yang     
+;	  6/11/2008 Samuel Yang added reading of IntREQST
 
 
 mp3Loc   EQU     00000H           ;location of mp3 file
