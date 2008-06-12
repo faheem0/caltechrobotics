@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE MP3PORT
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
   2000                =1    46     mp3testbufflength EQU 8192
   0000                =1    47     mp3portAddress EQU 0000H          ;location of mp3 port, uses PCS0
                       =1    48     
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
   FF3A                =1   101     INT1Ctrlr        EQU    0FF3AH           ;address of interrupt 1 controller
   FF32                =1   102     INTCtrlrCtrl    EQU     0FF32H          ;address of interrupt controller for timer
   FF22                =1   103     INTCtrlrEOI     EQU     0FF22H          ;address of interrupt controller EOI register
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   147                                             ;---------------1  1 wait state min
   0003                =1   148     PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
                       =1   149                                             ;0000000000------  starts at address 0
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            202     ;
                            203     ; Last Modified:     5-9-2008
                            204     
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
 001C 8C060200       R      257                     MOV mp3buffsegment[mp3buff0], ES        ;store buffer information
 0020 89360600       R      258                     MOV mp3buffindex[mp3buff0], SI
 0024 891E0A00       R      259                     MOV mp3bufflength[mp3buff0], BX
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -358,7 +358,7 @@ LOC  OBJ                  LINE     SOURCE
                            309     ; Data Structures:   None.
                            310     ;
                            311     ; Registers Changed: None
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    7
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -418,7 +418,7 @@ LOC  OBJ                  LINE     SOURCE
                            363     
                            364     ; Int1EventHandler
                            365     ;
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    8
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -478,7 +478,7 @@ LOC  OBJ                  LINE     SOURCE
 00B8 D0C0                  417                     ROL AL, 1
 00BA EE                    418                     OUT DX, AL
 00BB D0C0                  419                     ROL AL, 1
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE    9
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -538,7 +538,7 @@ LOC  OBJ                  LINE     SOURCE
                            467     
                            468     
                            469     Int1EventHandler       ENDP
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE   10
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE   10
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -598,7 +598,7 @@ LOC  OBJ                  LINE     SOURCE
                            522     ;
                            523     ; Input:             None.
                            524     ; Output:            None.
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE   11
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE   11
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -658,7 +658,7 @@ LOC  OBJ                  LINE     SOURCE
      )
 0006 (2                    575     mp3buffindex  DW 2 DUP(?) 
      ????
-8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  21:10:04  06/11/:8  PAGE   12
+8086/87/88/186 MACRO ASSEMBLER    MP3PORT                                                  23:04:47  06/11/:8  PAGE   12
 
 
 LOC  OBJ                  LINE     SOURCE

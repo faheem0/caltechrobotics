@@ -12,6 +12,7 @@
 ; Revision History:
 
 ;     5/30/2008 Samuel Yang     copied from EE/CS 51 code
+;     6/11/2008 Samuel Yang     changed Timer 0 to interrupt every 16ms
 
 
 
@@ -59,6 +60,6 @@ NonSpecEOI      EQU     08000H          ;Non-specific EOI command
 ; Timing Definitions
 
 COUNTS_PER_MS   EQU     2304            ;number of timer counts per 1 ms (assumes 18.432 MHz clock)
-MS_PER_INT      EQU     1             ;number of ms for each segment
+MS_PER_INT      EQU     28             ;number of ms per interrupt
 
 
