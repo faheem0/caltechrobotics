@@ -17,7 +17,6 @@ IC86 ffrev.c debug extend mod186 small optimize(0) rom
 IC86 keyupdat.c debug extend mod186 small optimize(0) rom
 IC86 mainloop.c debug extend mod186 small optimize(0) rom
 IC86 playmp3.c debug extend mod186 small optimize(0) rom
-echo IC86 simide.c debug extend mod186 small optimize(0) rom
 IC86 trakutil.c debug extend mod186 small optimize(0) rom
 echo ================================
 link86 c0smrom.obj, mp3port.obj, keypad.obj, display.obj, lib188.obj TO lnk1.lnk

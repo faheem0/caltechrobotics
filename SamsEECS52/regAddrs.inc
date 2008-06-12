@@ -13,7 +13,7 @@
 
 ;     5/2/2008 Samuel Yang  
 ;	  6/11/2008 Samuel Yang only 1 wait state on PACS   
-
+;	  6/11/2008 Samuel Yang touch key support added (INT2, PCS3)
 
 
 
@@ -21,13 +21,14 @@
 ; Interrupt Vectors
 Int0Vec         EQU     12               ;interrupt vector for INT 0
 Int1Vec         EQU     13               ;interrupt vector for INT 1
-
+Int2Vec         EQU     14               ;interrupt vector for INT 2
 
 ; Interrupt Controller Definitions
 
 ; Addresses
 INT0Ctrlr        EQU    0FF38H           ;address of interrupt 0 controller
 INT1Ctrlr        EQU    0FF3AH           ;address of interrupt 1 controller
+INT2Ctrlr        EQU    0FF3CH           ;address of interrupt 2 controller
 INTCtrlrCtrl    EQU     0FF32H          ;address of interrupt controller for timer
 INTCtrlrEOI     EQU     0FF22H          ;address of interrupt controller EOI register
 
@@ -43,6 +44,14 @@ INT0CtrlrVal    EQU		00011H			;set to level triggering, priority 2, enable
 										;-----------1----  level triggering
                                         ;------------0---  enable interrupt
                                         ;-------------010  int priority							
+INT2CtrlrVal    EQU		00011H			;set to level triggering, priority 2, enable
+                                        ;000000000-------  reserved
+                                        ;---------0------  disable fully nested mode
+                                        ;----------0-----  disable cascade mode
+										;-----------1----  level triggering
+                                        ;------------0---  enable interrupt
+                                        ;-------------010  int priority							
+
 INT1CtrlrVal    EQU		00012H			;set to level triggering, priority 2, enable
                                         ;000000000-------  reserved
                                         ;---------0------  disable fully nested mode

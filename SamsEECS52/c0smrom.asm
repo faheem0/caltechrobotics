@@ -36,6 +36,7 @@
 ;                                  power on segment.
 ;   04/26/08 Samuel Yang	    modified for his board
 ;   05/30/08 Samuel Yang	    DRAM, IDE, elapsed_time added, unested
+;   06/11/08 Samuel Yang	    initialization of touchkey
 
 $INCLUDE(boolean.INC)
 $INCLUDE(regAddrs.INC)
@@ -49,6 +50,7 @@ EXTRN InitCS:Near
 EXTRN ClrIRQVectors:Near
 EXTRN InstallHandlerInt0:Near
 EXTRN InstallHandlerInt1:Near
+EXTRN InstallHandlerInt2:Near
 EXTRN InitKeypad:Near
 EXTRN InitMP3Port:Near
 EXTRN InitDisplay:Near
@@ -118,8 +120,9 @@ main0:                                  ;start the program
 		CALL InitMP3Port		
 		CALL InitElapsedTimer
 		CALL InitDMA
+		CALL InstallHandlerInt2	
 		CALL InstallHandlerInt1		
-		CALL InstallHandlerInt0
+		CALL InstallHandlerInt0		;has STI command
 ;infLoop: JMP infLoop		
         ;CALL    main2                    ;run the main function (no arguments)
 		CALL main

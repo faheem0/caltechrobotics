@@ -21,6 +21,7 @@
 ; Revision History:
 
 ;     5/2/08  Samuel Yang     
+;	  6/11/08 Samuel Yang touch key support added (INT2, PCS3)
 
 
 ; local include files
@@ -75,7 +76,8 @@ Int0EventHandler       PROC    NEAR
 		AND AX, KEYPADDATAMASK
 		MOV keyCode, AX
 		MOV keyReady, TRUE
-
+		
+		
         MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
         MOV     AX, Int0Vec
         OUT     DX, AL
@@ -87,6 +89,56 @@ Int0EventHandler       PROC    NEAR
 
 
 Int0EventHandler       ENDP
+
+; Int2EventHandler
+;
+; Description:       This procedure is the event handler for when the
+;                       keypad debouncing chip signals a pressed key.
+;
+; Operation:         Reads data in, updates status of pressed key.
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  keyCode, keyReady
+
+; Input:            From keypad debouncing chip.
+; Output:            None.
+;
+; Error Handling:    None.
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       3 words
+;
+; Last Modified:     6-11-2008
+
+Int2EventHandler       PROC    NEAR
+					PUBLIC Int2EventHandler
+		PUSH AX                         ;save register values
+		PUSH DX
+		XOR AX, AX
+		XOR DX, DX
+		MOV DX, touchkeyAddress
+		IN AL, DX
+		AND AX, TOUCHKEYDATAMASK
+		;MOV keyCode, AX
+		;MOV keyReady, TRUE
+		;DO STUFF HERE
+        MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
+        MOV     AX, Int2Vec
+        OUT     DX, AL
+		
+		
+		POP DX							;restore register values
+		POP AX
+        IRET                            ;and return (Event Handlers end with IRET not RET)
+
+
+Int2EventHandler       ENDP
 
 
 ; InitKeypad
@@ -287,7 +339,53 @@ InstallHandlerInt0  PROC    NEAR
 
 InstallHandlerInt0  ENDP
 
+; InstallHandlerInt2
+;
+; Description:       Install the event handler for the int2 interrupt.
+;
+; Operation:         Writes the address of the int 2 event handler to the
+;                    appropriate interrupt vector.
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
+; Global Variables:  None.
+;
+; Input:             None.
+; Output:            None.
+;
+; Error Handling:    None.
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: flags, AX, ES
+; Stack Depth:       0 words
+;
+; Author:            Samuel Yang
+; Last Modified:     6-11-2008
 
+InstallHandlerInt2  PROC    NEAR
+			PUBLIC InstallHandlerInt2
+
+
+        XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
+        MOV     ES, AX
+                                ;store the vector
+        MOV     ES: WORD PTR (4 * Int2Vec), OFFSET(Int2EventHandler)
+        MOV     ES: WORD PTR (4 * Int2Vec + 2), SEG(Int2EventHandler)
+
+		MOV DX, INT2Ctrlr
+		MOV AL, INT2CtrlrVal
+		OUT DX, AL
+		;STI ;enable interrupts
+		
+        RET                     ;all done, return
+
+
+InstallHandlerInt2  ENDP
 
 
 ; ClrIRQVectors
