@@ -11,7 +11,8 @@
 ;
 ; Revision History:
 
-;     5/2/2008 Samuel Yang     
+;     5/2/2008 Samuel Yang  
+;	  6/11/2008 Samuel Yang only 1 wait state on PACS   
 
 
 
@@ -73,12 +74,12 @@ MMCSvalue	    EQU	    8001H			;set to the following:
                                         ;1000000---------  start at 80000H
                                         ;-------000000---  reserved
                                         ;---------------1  1 wait state min
-PACSval         EQU     00003H          ;PCS base at 0, 3 wait states
+PACSval         EQU     00001H          ;PCS base at 0, 3 wait states
                                         ;0000000000------  starts at address 0
                                         ;----------000---  reserved
                                         ;-------------0--  wait for RDY inputs
                                         ;--------------11  3 wait states
-MPCSval         EQU     04000H          ;PCS in I/O space, use PCS5/6, 3 wait states
+MPCSval         EQU     04000H          ;copy pasted
                                         ;0---------000---  reserved
                                         ;-1000000--------  MCS is 512KB
                                         ;--------0-------  output PCS5/PCS6
