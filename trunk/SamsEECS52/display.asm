@@ -71,6 +71,7 @@ InitDisplay   PROC    NEAR
 			PUSH AX
 			PUSH DX
 			
+			;init LCD
 			MOV DX, displayAddressCMD
 			MOV AL, functionSet
 			OUT DX, AL
@@ -84,6 +85,9 @@ InitDisplay   PROC    NEAR
 			MOV AL, displayOnOffCtrl
 			OUT DX, AL
 			CALL readBusyFlag
+			
+			;init variables
+			MOV timeStringBuffer[0],0
 			
 			;init special characters here
 			MOV DX, displayAddressCMD
@@ -143,6 +147,36 @@ InitDisplay   PROC    NEAR
 			OUT DX, AL
 			CALL readBusyFlag
 			MOV AL, LCDSpecialStopLine7
+			OUT DX, AL
+			CALL readBusyFlag
+			
+			MOV DX, displayAddressCMD
+			MOV AL, LCDSpecialStop2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV DX, displayAddressDAT
+			MOV AL, LCDSpecialStop2Line0
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line1
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line2
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line3
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line4
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line5
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line6
+			OUT DX, AL
+			CALL readBusyFlag
+			MOV AL, LCDSpecialStop2Line7
 			OUT DX, AL
 			CALL readBusyFlag
 			
@@ -442,7 +476,7 @@ display_time   PROC    NEAR
 		PUSH CX
 		PUSH DX
 		
-		MOV CX, [BP+4] ;retreive time given in tenths of seconds
+		MOV CX, [BP+4] ;retrieve time given in tenths of seconds
 		CMP CX, TIME_NONE
 		JE timeNone
 	
@@ -499,17 +533,19 @@ display_time   PROC    NEAR
 		INC BX
 		MOV timeStringBuffer[BX], null
 		
+		JMP callGenericDisplay
+		
+		
+timeNone:		
+		MOV BX, 0				;if TIME_NONE, then print blank spaces
+		MOV timeStringBuffer[BX], null
+callGenericDisplay:		
 		;now call DisplayStr, passing it hte buffer
 		MOV AX, timeLength
 		MOV BX, timeOffset
 		PUSH SEG(timeStringBuffer)
 		POP ES
 		MOV SI, OFFSET(timeStringBuffer)
-		JMP callGenericDisplay
-timeNone:		
-		MOV BX, 0				;if TIME_NONE, then print blank spaces
-		MOV timeStringBuffer[BX], null
-callGenericDisplay:		
 		CALL DisplayStr
 		
 		POP DX
@@ -592,6 +628,7 @@ endDisplayLoop:
 		CALL readBusyFlag
 		LOOP displayLoop
 		
+endDisplay:		
 		POP DX
 		POP CX
 		POP BX
@@ -689,7 +726,7 @@ statuses  LABEL BYTE
 		DB '   ',1,'   ',0 ;play
 		DB '   ',2,'   ',0 ;FFWD
 		DB '   ',3,'   ',0 ;RWD
-		DB '   ',4,'   ',0 ;IDLE/STOP
+		DB '   ',4,6,'  ',0 ;IDLE/STOP
 		DB '   ',5,'   ',0 ;PAUSE
 		DB 'ILLEGAL',0
 CODE ENDS

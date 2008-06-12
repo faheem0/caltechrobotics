@@ -1,4 +1,4 @@
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   1
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE FATUTIL
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
    49                Revision History
    50                   6/5/03   Glen George       Initial revision.
    51                   6/10/03  Glen George       Updated get_cur_file_time() to use macros
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   2
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   2
 
 
    52                                              to extract the hours/minutes/seconds from a
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   106             void                init_dir_stack(void);       /* initialize stack of directory names */
   107             void                new_directory(void);        /* entering a new directory, update stack */
   108             const char         *get_dir_tos_name(void);     /* get name of directory at top of stack */
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   3
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   3
 
 
   109             unsigned long int   get_dir_tos_sector(void);   /* get starting sector of directory at top of stack */
@@ -178,7 +178,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   162                                            partition.
   163                                  sectors_per_cluster - set to the read sectors per
   164                                                        cluster.
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   4
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   4
 
 
   165             
@@ -238,7 +238,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   219     1       
   220     1       
   221     1           /* and return the start of the root directory or an error indicator */
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   5
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   5
 
 
   222     1           if (error)
@@ -298,7 +298,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   276             
   277             /*
   278                get_cur_file_attr
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   6
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   6
 
 
   279             
@@ -358,7 +358,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   333             
   334                Algorithms:       None.
   335                Data Structures:  None.
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   7
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   7
 
 
   336             
@@ -418,7 +418,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   390     1       
   391     1       
   392     1       
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   8
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   8
 
 
   393     1           /* just return whether or not current entry is the parent directory */
@@ -478,7 +478,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   447             
   448             
   449             
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE   9
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE   9
 
 
   450             /*
@@ -538,7 +538,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   504             
   505                Error Handling:   None.
   506             
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  10
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  10
 
 
   507                Algorithms:       None.
@@ -598,7 +598,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   561                Data Structures:  None.
   562             
   563                Shared Variables: dir_sector   - filled with a sector of directory entries.
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  11
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  11
 
 
   564                                  dir_offset   - set to zero (0), 1st sector of directory.
@@ -658,7 +658,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   618                                  variable is set to this long filename if it exists or the
   619                                  8.3 filename if it does not exist.  The current sector
   620                                  number and directory entry number are also updated.  If
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  12
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  12
 
 
   621                                  there is an error reading the directory entry the
@@ -718,7 +718,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   675     1       
   676     1           int   i;                            /* general loop indices */
   677     1           int   k;
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  13
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  13
 
 
   678     1       
@@ -778,7 +778,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   732     5                               longfilename[LFN_CHARS * lfn_seq + k] = L_LFN2(dir_sector[cur_dir], 2 * (k - L
                 -FN1_CHARS));
   733     5                           else
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  14
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  14
 
 
   734     5                               longfilename[LFN_CHARS * lfn_seq + k] = L_LFN3(dir_sector[cur_dir], 2 * (k - L
@@ -838,7 +838,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   787     6                               /* pointer to parent directory */
   788     6                               /* so get sector number and parent name */
   789     6                               cur_sector = get_dir_tos_sector();
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  15
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  15
 
 
   790     6                               strcpy(filename, get_dir_tos_name());
@@ -898,7 +898,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   844     5                           /* in any case, erase any long file name */
   845     5                           longfilename[0] = '\0';
   846     5                           /* and move to the next entry (ignore volume label) */
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  16
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  16
 
 
   847     5                           cur_dir++;
@@ -958,7 +958,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   898     2               /* set the sector to 0 */
   899     2               cur_sector = 0;
   900     2           }
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  17
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  17
 
 
   901     1       
@@ -1018,7 +1018,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
   955                Last Modified:    April 29, 2006
   956             
   957             */
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  18
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  18
 
 
   958             
@@ -1078,7 +1078,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
  1012     4                   }
  1013     3                   else  {
  1014     4       
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  19
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  19
 
 
  1015     4                       /* already have an entry, but need to skip its */
@@ -1138,7 +1138,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
  1069             
  1070             /*
  1071                init_dir_stack()
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  20
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  20
 
 
  1072             
@@ -1198,7 +1198,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
  1126             
  1127                Description:      This function handles a new directory.  It may be either
  1128                                  a subdirectory or a parent directory.  If a subdirectory
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  21
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  21
 
 
  1129                                  the directory information (name and starting sector) is
@@ -1258,7 +1258,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
  1183     2                   ((strlen(dirnames) + strlen(dirname)) < MAX_PATH_CHARS))  {
  1184     3       
  1185     3                   /* there is room - update the stack pointer */
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  22
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  22
 
 
  1186     3                   dirstack_ptr++;
@@ -1318,7 +1318,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
  1240     1           /* variables */
  1241     1           const char  *name;
  1242     1       
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  23
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  23
 
 
  1243     1       
@@ -1378,7 +1378,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE FATUTIL.C DEBUG EXTEND MOD186 SMALL OP
  1297             static  unsigned long int  get_dir_tos_sector()
  1298             {
  1299     1           /* variables */
-iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:14:04  PAGE  24
+iC-86  COMPILER   FATUTIL                                                                    06/12/:8 04:48:05  PAGE  24
 
 
  1300     1           unsigned long int  sect;
