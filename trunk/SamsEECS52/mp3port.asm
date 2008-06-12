@@ -24,6 +24,7 @@
 ;     5/9/08 update() added
 ;	  6/6/08  fixing the code, commenting, still untested
 ;	  6/11/08  reading of IntREQST added in event handler
+;	  6/11/08  updated event handler to use registers
 
 ; local include files
 $INCLUDE(mp3port.INC)
@@ -257,47 +258,52 @@ Int1EventHandler       PROC    NEAR
 		PUSH DX
 		PUSH ES
 		PUSH SI
-outputWord:		
+	
 		MOV BX, bufferInUse				;get word to output
 		MOV ES, mp3buffsegment[BX]
-		MOV SI, mp3buffIndex[BX]		
+		MOV SI, mp3buffIndex[BX]
+		MOV CX, mp3bufflength[BX]
+		
+		
+		
+outputWord:	
+		MOV DX, mp3portAddress			;prepare to output to address
 		MOV AX, ES:[SI]
 		
-		MOV DX, mp3portAddress			;prepare to output to address
-		ROL AL, 1
-		;MOV CX, 8
-preoutputbits:		
 outputBits:								;unrolled loop, actually outputs data
 		%REPEAT(8)(
-		OUT DX, AL
-		ROL AL, 1)
+		ROL AL, 1
+		OUT DX, AL)
 		XCHG AH, AL
 		%REPEAT(8)(
 		ROL AL, 1
 		OUT DX, AL)
-		
-		DEC mp3bufflength[BX]	
-		INC mp3buffindex[BX] 	;increment buffer index
-		INC mp3buffindex[BX]
-		CMP mp3bufflength[BX], lengthZero
-		JNE doneInc
+
+incIndex:		
+		INC SI 	;increment buffer index
+		INC SI
+		DEC CX  ;decrement length
+		CMP CX, lengthZero
+		JNE checkStillInterrupting
 		;JE switchBuffers
 switchBuffers:		
 		MOV bufferRequired, TRUE				;new buffer required
 		INC bufferInUse							;switches buffers between 0 and 1
 		INC bufferInUse
 		AND bufferInUse, mp3buffRequiredMask
-		;JMP doneInc
-doneInc:
-		NOP
+		JMP endInt1EventHandler
 checkStillInterrupting:
 		MOV DX, IntREQSTAddr
 		IN AL, DX
 		AND AL, Int1REQSTMask
 		CMP AL, Int1REQSTPending		;if interrupt still pending, output another word
 		JE outputWord
-		;JNE endInt1EventHandler
-endInt1EventHandler:		
+		;JNE writeRegistersBack
+writeRegistersBack:
+		MOV mp3buffindex[BX], SI
+		MOV mp3bufflength[BX],CX
+endInt1EventHandler:	
+		
 		MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
         MOV     AX, Int1Vec
         OUT     DX, AL
