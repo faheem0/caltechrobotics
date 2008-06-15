@@ -9,11 +9,13 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.Ccr.Core;
+using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
 using System;
 using System.Collections.Generic;
 using W3C.Soap;
+using Microsoft.Dss.Core.DsspHttp;
 using robomagellan = RoboMagellan;
 
 
@@ -48,10 +50,12 @@ namespace RoboMagellan.MotorControl
     public class GenericMotorOperations : PortSet<DsspDefaultLookup, 
                                                   DsspDefaultDrop, 
                                                   Get,
+                                                  Subscribe,
                                                   SetSpeed,
                                                   Stop,
                                                   SendAck,
-                                                  Turn>
+                                                  Turn,
+                                                  BumperActivated>
     {
     }
 
@@ -71,6 +75,11 @@ namespace RoboMagellan.MotorControl
     public struct StopInfo
     {
     }
+    public struct BumperInfo
+    {
+
+    }
+    public class Subscribe : Subscribe<SubscribeRequestType, PortSet<SubscribeResponseType, Fault>, GenericMotorOperations> { }
 
     public class StopComplete : Submit<StopInfo, DsspResponsePort<DefaultSubmitResponseType>>
     {
@@ -82,6 +91,11 @@ namespace RoboMagellan.MotorControl
     {
         public TurnComplete() { }
         public TurnComplete(StopInfo a) { this.Body = a; }
+    }
+
+    public class BumperActivated : Update<BumperInfo, DsspResponsePort<DefaultSubmitResponseType>>
+    {
+        public BumperActivated() { }
     }
 
     public class Stop : Submit<StopInfo, DsspResponsePort<DefaultSubmitResponseType>>

@@ -34,16 +34,6 @@ namespace RoboMagellan.ConeDetect
         /// </summary>
         public const String Identifier = "http://schemas.tempuri.org/2008/05/conedetect.html";
     }
-    public struct CamCalibrate
-    {
-        private Color _c;
-        [DataMember]
-        public Color Color
-        {
-            get { return _c; }
-            set { _c = value; }
-        }
-    }
     public struct Density_Check
     {
         public Rectangle r;
@@ -129,7 +119,7 @@ namespace RoboMagellan.ConeDetect
         /// </summary>
         [DataMember]
         [Description("Specifies the half angle LOS of Webcam.")]
-        public const int MAX_ANGLE = 160;
+        public const int MAX_ANGLE = 30;
 
     }
     
@@ -142,15 +132,22 @@ namespace RoboMagellan.ConeDetect
                                                 Get,
                                                 Subscribe,
                                                 ConeNotification,
-                                                Calibrate
+                                                Moving
                                                 >
     {
     }
-
-    public class Calibrate : Submit<CamCalibrate, DsspResponsePort<DefaultSubmitResponseType>>
+    
+    public class Moving : Submit<MovementStatus, DsspResponsePort<DefaultSubmitResponseType>>
     {
-        public Calibrate() { }
-        public Calibrate(CamCalibrate a) { this.Body = a; }
+        public Moving() { }
+        public Moving(MovementStatus a) { this.Body = a; }
+    }
+    [DataContract()]
+    public struct MovementStatus
+    {
+        [DataMember]
+        public bool _status;
+
     }
 
     public class Subscribe : Subscribe<SubscribeRequestType, PortSet<SubscribeResponseType, Fault>, ConeDetectOperations> { }
@@ -181,108 +178,6 @@ namespace RoboMagellan.ConeDetect
         public Get(Microsoft.Dss.ServiceModel.Dssp.GetRequestType body, Microsoft.Ccr.Core.PortSet<ConeDetectState,W3C.Soap.Fault> responsePort) : 
                 base(body, responsePort)
         {
-        }
-
-
-    }
-    [DataContract]
-    public class ColorVector
-    {
-        /// <summary>
-        /// Normalized Red Component
-        /// </summary>
-        [Description("Indicates the normalized Red value = Red/(Red+Green+Blue).\n(Range = 0.0-1.0)")]
-        [DataMember]
-        public double Red;
-        /// <summary>
-        /// Normalized Green Component
-        /// </summary>
-        [Description("Indicates the normalized Green value = Green/(Red+Green+Blue).\n(Range = 0.0-1.0)")]
-        [DataMember]
-        public double Green;
-        /// <summary>
-        /// Normalized Blue Component
-        /// </summary>
-        [Description("Indicates the normalized Blue value = Blue/(Red+Green+Blue).\n(Range = 0.0-1.0)")]
-        [DataMember]
-        public double Blue;
-
-        /// <summary>
-        /// Similarity Threshold Value 
-        /// </summary>
-        [Description("Indicates the similarity threshold value; comparing two color vectors.\n(Typical range = 0.9~1.0)")]
-        [DataMember]
-        public double SimilarityMeasure;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public ColorVector()
-        {
-            SimilarityMeasure = 0.995;
-        }
-        /// <summary>
-        /// Constructor with red, green
-        /// </summary>
-        public ColorVector(double red, double green)
-        {
-            Red = red;
-            Green = green;
-            SimilarityMeasure = 0.995;
-        }
-        /// <summary>
-        /// Constructor with red, green, blue
-        /// </summary>
-        public ColorVector(double red, double green, double blue)
-        {
-            Red = red;
-            Green = green;
-            Blue = blue;
-            SimilarityMeasure = 0.995;
-        }
-        /// <summary>
-        /// Constructor with red, green, blue, similarity
-        /// </summary>
-        public ColorVector(double red, double green, double blue, double similarity)
-        {
-            Red = red;
-            Green = green;
-            Blue = blue;
-            SimilarityMeasure = similarity;
-        }
-        /// <summary>
-        /// Return the Magnitude of the vector
-        /// </summary>
-        public double Magnitude()
-        {
-            return Math.Sqrt(Red * Red + Green * Green + Blue * Blue);
-        }
-        /// <summary>
-        /// Return the Dot Product of two Vectors
-        /// </summary>
-        public static double DotProduct(ColorVector cv1, ColorVector cv2)
-        {
-            if (cv1 == null)
-                return 0;
-            if (cv2 == null)
-                return 0;
-
-            return (cv1.Red * cv2.Red) + (cv1.Green * cv2.Green) + (cv1.Blue * cv2.Blue);
-        }
-        /// <summary>
-        /// Calculate the similarity between two color vectors
-        /// </summary>
-        public static double CompareSimilarity(ColorVector cv1, ColorVector cv2)
-        {
-            if (cv1 == null)
-                return 0;
-            if (cv2 == null)
-                return 0;
-
-            double mag = (cv1.Magnitude() * cv2.Magnitude());
-            if (mag != 0)
-                return (DotProduct(cv1, cv2) / mag);
-            return 0;
         }
     }
 }

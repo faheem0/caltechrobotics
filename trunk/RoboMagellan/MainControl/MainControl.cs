@@ -45,7 +45,8 @@ namespace RoboMagellan
 
         private static double CONE_ANGLE_THRESHOLD = 10;
 
-        private static int SPEED = 40;
+        private static int SPEED = 100;
+        private static int CONE_SEARCH_SPEED = 20;
 
         private ControlDataPort CPort = new ControlDataPort();
 
@@ -60,6 +61,7 @@ namespace RoboMagellan
 
         [Partner("Motor", Contract = motor.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private motor.GenericMotorOperations _motorPort = new motor.GenericMotorOperations();
+        private motor.GenericMotorOperations _motorNotify = new motor.GenericMotorOperations();
 
         [Partner("Cone", Contract = cone.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private cone.ConeDetectOperations _conePort = new cone.ConeDetectOperations();
@@ -88,6 +90,7 @@ namespace RoboMagellan
         public MainControlService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
+            //_state._state = MainControlStates.STATE_SCANNING;
             _state._state = MainControlStates.STATE_STOPPED;
         }
         
@@ -109,7 +112,8 @@ namespace RoboMagellan
                     new ExclusiveReceiverGroup(
                        Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler),
                        Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler),
-                       Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler)),
+                       Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler),
+                       Arbiter.Receive<motor.BumperActivated>(true, _motorNotify, NotifyBumperHandler)),
                    new ConcurrentReceiverGroup()));
             PostUpdate();
 
@@ -120,35 +124,68 @@ namespace RoboMagellan
             Console.WriteLine("Main Control subscribed to GPS, standing by");
             _conePort.Subscribe(_coneNotify);
             Console.WriteLine("Main Control subscribed to Cone Detection, standing by");
+            _motorPort.Subscribe(_motorNotify);
+            Console.WriteLine("Main Control subscribed to Bumper detection, standing by");
         }
-
+        public void NotifyBumperHandler(motor.BumperActivated b)
+        {
+            motor.Stop stop = new motor.Stop();
+            _state._state = MainControlStates.STATE_STOPPING;
+            Console.WriteLine("Bumper Activated");
+            PostUpdate();
+            Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
+                delegate(DefaultSubmitResponseType a)
+                {
+                    _state._state = MainControlStates.STATE_STANDBY;
+                    Console.WriteLine("Received stop! Entering Standby Mode");
+                    PostUpdate();
+                }));
+            _motorPort.Post(stop);
+        }
         public void NotifyConeHandler(cone.ConeNotification c)
         {
+            Console.WriteLine("Got Cone Data");
             cone.CamData data = c.Body;
             int angle_requested;
             switch(_state._state){
                 case MainControlStates.STATE_SCANNING:
                     //Check to see if there is a cone in sight. If not, turn and check again.
-                    if (c.Body.Detected)
+                    if (data.Detected)
                     {
                         //Check if the cone is dead ahead, if not, turn to it, if so, drive towards it.
-                        if (Math.Abs(c.Body.Angle) > CONE_ANGLE_THRESHOLD)
+                        Console.WriteLine("Cone Detected");
+                        if (Math.Abs(data.Angle) > CONE_ANGLE_THRESHOLD)
                         {
-                            angle_requested = c.Body.Angle + _state._angle;
+                            Console.WriteLine("Cone is not ahead of robot");
+                            angle_requested = data.Angle + _state._angle;
                             angle_requested %= 360;
                             motor.TurnData td = new motor.TurnData();
                             td.heading = angle_requested;
                             motor.Turn t = new motor.Turn(td);
-
+                            Console.WriteLine("Turning to : " + angle_requested);
                             _state._state = MainControlStates.STATE_CONE_TURN;
                             PostUpdate();
-
+                            
+                            cone.MovementStatus ms1 = new cone.MovementStatus();
+                            ms1._status = true;
+                            _conePort.Post(new cone.Moving(ms1));
+                            
                             Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
                                 delegate(DefaultSubmitResponseType s)
                                 {
-                                    Console.WriteLine("Received turn complete!");
-                                    _state._state = MainControlStates.STATE_SCANNING;
+                                    Console.WriteLine("Received turn complete! Cone should be ahead now. Moving foward!");
+                                    _state._state = MainControlStates.STATE_CONE_DRIVE;
                                     PostUpdate();
+                                    motor.MotorSpeed ms = new motor.MotorSpeed();
+                                    ms.Left = (sbyte)CONE_SEARCH_SPEED;
+                                    ms.Right = (sbyte)CONE_SEARCH_SPEED;
+                                    motor.SetSpeed setspeed = new motor.SetSpeed(ms);
+                                    
+                                    cone.MovementStatus ms2 = new cone.MovementStatus();
+                                    ms2._status = false;
+                                    _conePort.Post(new cone.Moving(ms2));
+                                    
+                                    _motorPort.Post(setspeed);
                                 }));
 
                             _motorPort.Post(t);
@@ -156,11 +193,12 @@ namespace RoboMagellan
                         //Drive towards the cone.
                         else
                         {
+                            Console.WriteLine("Cone is ahead, moving forward");
                             _state._state = MainControlStates.STATE_CONE_DRIVE;
                             PostUpdate();
                             motor.MotorSpeed ms = new motor.MotorSpeed();
-                            ms.Left = 20;
-                            ms.Right = 20;
+                            ms.Left = (sbyte)CONE_SEARCH_SPEED;
+                            ms.Right = (sbyte)CONE_SEARCH_SPEED;
                             motor.SetSpeed setspeed = new motor.SetSpeed(ms);
                             _motorPort.Post(setspeed);
 
@@ -170,6 +208,7 @@ namespace RoboMagellan
                     //There is no cone in sight so turn a bit and check again.
                     else
                     {
+                        Console.WriteLine("Cannot Find Cone");
                         angle_requested = c.Body.Angle + cone.ConeDetectState.MAX_ANGLE;
                         angle_requested %= 360;
                         motor.TurnData td = new motor.TurnData();
@@ -177,17 +216,26 @@ namespace RoboMagellan
                         motor.Turn t = new motor.Turn(td);
 
                         _state._state = MainControlStates.STATE_CONE_TURN;
+                        Console.WriteLine("Turning to : " + angle_requested);
                         PostUpdate();
+                        
+                        cone.MovementStatus ms3 = new cone.MovementStatus();
+                        ms3._status = true;
+                        _conePort.Post(new cone.Moving(ms3));
 
                         Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, t.ResponsePort,
                             delegate(DefaultSubmitResponseType s)
                             {
                                 Console.WriteLine("Received turn complete!");
                                 _state._state = MainControlStates.STATE_SCANNING;
+                                cone.MovementStatus mst = new cone.MovementStatus();
+                                mst._status = false;
+                                _conePort.Post(new cone.Moving(mst));
                                 PostUpdate();
                             }));
 
                         _motorPort.Post(t);
+                        
                     }
                     break;
                 case MainControlStates.STATE_CONE_TURN:
@@ -195,7 +243,20 @@ namespace RoboMagellan
                     break;
                 case MainControlStates.STATE_CONE_DRIVE:
                     //Right now need to manually stop the robot.
-                    return;
+                    if (!data.Detected) // If it can't see it anymore, start scanning again.
+                    {
+                        motor.Stop stop = new motor.Stop();
+                        _state._state = MainControlStates.STATE_STOPPING;
+                        PostUpdate();
+                        Arbiter.Activate(this.TaskQueue, Arbiter.Receive<DefaultSubmitResponseType>(false, stop.ResponsePort,
+                            delegate(DefaultSubmitResponseType a)
+                            {
+                                _state._state = MainControlStates.STATE_SCANNING;
+                                Console.WriteLine("Received stop! Lost sight of Cone so scanning again.");
+                                PostUpdate();
+                            }));
+                        _motorPort.Post(stop);
+                    }
                     break;
             }
 
@@ -240,6 +301,15 @@ namespace RoboMagellan
             Console.WriteLine("Received GPS notification, current state: " + _state._state);
             _state._location = n.Body;
             PostUpdate();
+
+            //Check if the cone state machine is controlling the robot.
+            if (_state._state == MainControlStates.STATE_CONE_DRIVE 
+                    || _state._state == MainControlStates.STATE_SCANNING 
+                    || _state._state == MainControlStates.STATE_CONE_TURN
+                    || _state._state == MainControlStates.STATE_CONE_STOPPING
+                    || _state._state == MainControlStates.STATE_CONE_STOPPED)
+                return;
+                
             if (_state._destination.East == 0 && _state._destination.North == 0)
             {
                 _state._state = MainControlStates.STATE_STANDBY;
@@ -488,7 +558,8 @@ namespace RoboMagellan
                     new ExclusiveReceiverGroup(
                        Arbiter.Receive<gps.UTMNotification>(true, _gpsNotify, NotifyUTMHandler),
                        Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler),
-                       Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler)),
+                       Arbiter.Receive<cone.ConeNotification>(true, _coneNotify, NotifyConeHandler),
+                       Arbiter.Receive<motor.BumperActivated>(true, _motorNotify, NotifyBumperHandler)),
                    new ConcurrentReceiverGroup()));
             PostUpdate();
 
@@ -499,6 +570,8 @@ namespace RoboMagellan
             Console.WriteLine("Main Control subscribed to GPS, standing by");
             _conePort.Subscribe(_coneNotify);
             Console.WriteLine("Main Control subscribed to Cone Detection, standing by");
+            _motorPort.Subscribe(_motorNotify);
+            Console.WriteLine("Main Control subscribed to Bumper detection, standing by");
 
             _state._state = MainControlStates.STATE_STANDBY;
             _state._destination = new RoboMagellan.GenericGPS.Proxy.UTMData();

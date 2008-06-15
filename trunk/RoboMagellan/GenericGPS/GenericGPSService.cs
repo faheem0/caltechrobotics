@@ -29,6 +29,10 @@ namespace RoboMagellan.GenericGPS
         private AC12GPS _gps = null;
         private GpsDataPort _gpsDataPort = new GpsDataPort();
         private bool first_coord = true;
+        private const double FILTER_DIVISOR = 1.5;
+        private const double FILTER_MULTIPLIER = 0.3;
+        private const double FILTER_CAP = 2.0;
+        private const double FILTER_OFFSET = 0.4;
      
        
         [ServicePort("/gps", AllowMultipleInstances = false)]
@@ -130,19 +134,35 @@ namespace RoboMagellan.GenericGPS
 
             /*Implements a simple filter that uses the DOP (Number of Satellites) 
              * information from the measurements to weight the GPS data */
-            /*if (!first_coord)
+            if (!first_coord)
             {
-                float alpha = 2 * (float)d.NumSat / (float)MAX_SAT;
+                /*float alpha = 2 * (float)d.NumSat / (float)MAX_SAT;
                 d.East = (1 - alpha) * _state.Coords.East + d.East;
-                d.North = (1 - alpha) * _state.Coords.North + d.North;*/
-                _state.Coords = d;
-            /*}
+                d.North = (1 - alpha) * _state.Coords.North + d.North;
+                _state.Coords = d;*/
+
+                d = getFilteredData(d);
+            }
             else
             {
                 _state.Coords = d;
                 first_coord = false;
-            }*/
+            }
             SendNotification(_subMgrPort, new UTMNotification(_state.Coords)); 
+        }
+        private UTMData getFilteredData(UTMData n)
+        {
+            double dx = n.East - _state.Coords.East;
+            double dy = n.North - _state.Coords.North;
+            double dist = Math.Sqrt(dx * dx + dy * dy);
+            dist /= FILTER_DIVISOR;
+            if (dist > FILTER_CAP) dist = FILTER_CAP;
+            dist *= FILTER_MULTIPLIER;
+            dist += FILTER_OFFSET;
+            n.North = _state.Coords.North + dist * dy;
+            n.East = _state.Coords.East + dist*dx;
+            _state.Coords = n;
+            return n;
         }
     }
 }
