@@ -23,6 +23,7 @@ using robomagellan = RoboMagellan;
 using gps = RoboMagellan.GenericGPS.Proxy;
 using control = RoboMagellan.Proxy;
 using cone = RoboMagellan.ConeDetect.Proxy;
+using compass = RoboMagellan.GenericCompass.Proxy;
 using System.Windows.Forms;
 using Microsoft.Ccr.Adapters.WinForms;
 
@@ -43,6 +44,10 @@ namespace RoboMagellan.RoboMagellanGUI
         private gps.GenericGPSOperations _gpsPort = new gps.GenericGPSOperations();
         private gps.GenericGPSOperations _gpsNotify = new gps.GenericGPSOperations();
 
+        [Partner("Compass", Contract = compass.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
+        private compass.GenericCompassOperations _compassPort = new compass.GenericCompassOperations();
+        private compass.GenericCompassOperations _compassNotify = new compass.GenericCompassOperations();
+
         [Partner("cone", Contract = cone.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private cone.ConeDetectOperations _conePort = new cone.ConeDetectOperations();
         private cone.ConeDetectOperations _coneNotify = new cone.ConeDetectOperations();
@@ -50,6 +55,8 @@ namespace RoboMagellan.RoboMagellanGUI
         [Partner("maincontrol", Contract = control.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.UseExistingOrCreate)]
         private control.MainControlOperations _controlPort = new control.MainControlOperations();
         private control.MainControlOperations _controlNotify = new control.MainControlOperations();
+
+
 
         private volatile MainForm _form;
         /// <summary>
@@ -87,10 +94,18 @@ namespace RoboMagellan.RoboMagellanGUI
                 }
             ));
             SubscribeToGPS();
+            SubscribeToCompass();
             SubscribeToControl();
             SubscribeToCone();
         }
-
+        public void SubscribeToCompass()
+        {
+            _compassPort.Subscribe(_compassNotify);
+            
+            Activate<ITask>(
+                Arbiter.Receive<compass.CompassNotification>(true, _compassNotify, NotifyCompassHandler)
+                );
+        }
         public void SubscribeToGPS()
         {
             //_form.writeToLog("Subscribing to GPS...\n");
@@ -135,7 +150,12 @@ namespace RoboMagellan.RoboMagellanGUI
 
             //_form.writeToLog("Subscribed to GPS\n");
         }
-        
+
+        public void NotifyCompassHandler(compass.CompassNotification n)
+        {
+            _form.updateCompass(n.Body.angle);
+
+        }
         public void NotifyUTMHandler(gps.UTMNotification n)
         {
             //_form.writeToLog("Received GPS Update\n");
@@ -157,13 +177,13 @@ namespace RoboMagellan.RoboMagellanGUI
                 dataReceived._destinations,
                 dataReceived._state
                 );
-            _form.updateCompass(dataReceived._angle, dataReceived._waypointAngle);
+            _form.updateWaypointAngle(dataReceived._waypointAngle);
 
         }
 
         public void NotifyConeHandler(cone.ConeNotification n)
         {
-            //Console.WriteLine("Got here");
+            Console.WriteLine("Got here");
             cone.CamData data = n.Body;
             if (data.Detected)
             {

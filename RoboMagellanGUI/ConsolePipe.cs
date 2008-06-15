@@ -8,11 +8,12 @@ namespace RoboMagellan.RoboMagellanGUI
 {
     internal sealed class ConsolePipe : TextWriter
     {
-        private RichTextBox _textbox;
+        private TextWriter tw;
 
-        internal ConsolePipe(RichTextBox tb)
+        internal ConsolePipe()
         {
-            _textbox = tb;
+            //_textbox = tb;
+            tw = new StreamWriter("C:\\Documents and Settings\\tonyfwu\\Desktop\\log.txt");
         }
 
         public override Encoding Encoding
@@ -21,12 +22,12 @@ namespace RoboMagellan.RoboMagellanGUI
         }
         public override void Write(string value)
         {
-            _textbox.AppendText(value.Replace("\n", base.NewLine));
+            tw.Write(value.Replace("\n", base.NewLine));
         }
         public override void WriteLine(string value)
         {
-            this.Write(value);
-            _textbox.AppendText(base.NewLine);
+            tw.WriteLine(value.Replace("\n", base.NewLine));
         }
+        
     }
 }
