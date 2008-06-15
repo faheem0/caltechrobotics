@@ -28,14 +28,15 @@ namespace RoboMagellan.RoboMagellanGUI
         private Pen p;
         private Pen green;
         private static int CIRCLE_SIZE = 10;
+        private ConsolePipe cp;
 
         public MainForm(control.MainControlOperations port, cone.ConeDetectOperations port2)
         {
             InitializeComponent();
             ((System.ComponentModel.ISupportInitialize)(this.camPic)).BeginInit();
             quitToolStripMenuItem.Click += quitToolStripMenuItem_Click;
-            //ConsolePipe cp = new ConsolePipe(log);
-            //Console.SetOut(cp);
+            cp = new ConsolePipe();
+            Console.SetOut(cp);
             timer1.Tick += upTimeTextUpdate;
             sec = 0;
             time = new TimeSpan();
@@ -74,10 +75,14 @@ namespace RoboMagellan.RoboMagellanGUI
             green = new Pen(Color.LimeGreen);
             p.Width += 1.5f;
         }
-        public void updateCompass(int angle, int absAngle)
+        public void updateCompass(int angle)
         {
-            compass.Text = "" + angle;
-            abs_angle.Text = "" + absAngle;
+            compass.Text = "" + angle; 
+        }
+
+        public void updateWaypointAngle(int angle)
+        {
+            abs_angle.Text = "" + angle;
         }
 
         public void updateGPS(string sat, string time, string east, string north)
@@ -155,6 +160,8 @@ namespace RoboMagellan.RoboMagellanGUI
         }
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            cp.Close();
+            cp.Dispose();
             System.Environment.Exit(0);
         }
 
@@ -198,16 +205,23 @@ namespace RoboMagellan.RoboMagellanGUI
                 for (int i = 0; i < coords.Length; i++)
                 {
                     buffer = coords[i].Split(delim);
-                    Console.WriteLine(buffer[0] + "," + buffer[1]);
+                    Console.WriteLine(buffer[0] + "," + buffer[1] + "," + buffer[2]);
                     data = new UTMData();
                     data.East = Double.Parse(buffer[0]);
                     data.North = Double.Parse(buffer[1]);
+                    data.NumSat = int.Parse(buffer[2]);
                     enq = new Enqueue(data);
                     _controlPort.Post(enq);
                 }
             }
             catch (Exception) { }
             tr.Close();
+        }
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
+            _controlPort.Post(new control.Reset());
         }
         /*
         private void calibrateCameraToolStripMenuItem_Click(object sender, EventArgs e)
