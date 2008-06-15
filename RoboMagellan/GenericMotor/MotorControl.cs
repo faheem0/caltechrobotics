@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using Microsoft.Ccr.Core;
 using Microsoft.Dss.Core;
 using Microsoft.Dss.ServiceModel.Dssp;
-
+using Microsoft.Dss.ServiceModel.DsspServiceBase;
+using Microsoft.Dss.Core.DsspHttp;
+using Microsoft.Dss.Core.Attributes;
 using RoboMagellan.MotorControl;
 
 
@@ -25,7 +27,8 @@ namespace RoboMagellan.MotorControl
         COMMAND_START = 254,
         COMMAND_STOP = 233,
         HAS_STOPPED = 216,
-        TURN_COMPLETE = 215
+        TURN_COMPLETE = 215,
+        BUMPER_ACTIVE = 214
         //To Be Continued...
     }
 
@@ -51,8 +54,9 @@ namespace RoboMagellan.MotorControl
         private volatile SerialPort myMotors;
 
         private
-            PortSet<SendAck, Stop, Turn, SetSpeed, StopComplete, TurnComplete> motorAckRecieve;
+            PortSet<SendAck, Stop, Turn, SetSpeed, StopComplete, TurnComplete, BumperActivated> motorAckRecieve;
 
+        private GenericMotorService bumper;
         private DispatcherQueue dq;
 
         /// <summary>
@@ -60,15 +64,15 @@ namespace RoboMagellan.MotorControl
         /// </summary>
         /// <param name="portName">The port for communication</param>
         /// <param name="queue">The robotics runtime DispatcherQueue</param>
-        public MotorControl(string portName, DispatcherQueue queue)
+        public MotorControl(string portName, DispatcherQueue queue, GenericMotorService b)
         {
             myMotors = new SerialPort();
             state = 0;
             receive_ack = "";
             dq = queue;
             motorAckRecieve = new
-            PortSet<SendAck, Stop, Turn, SetSpeed, StopComplete, TurnComplete>();
-
+                PortSet<SendAck, Stop, Turn, SetSpeed, StopComplete, TurnComplete, BumperActivated>();
+            bumper = b;
             //Initialize Serial Port Parameters
             myMotors.PortName = portName;
             myMotors.BaudRate = DEFAULT_BAUD_RATE;
@@ -259,6 +263,10 @@ namespace RoboMagellan.MotorControl
                                 receive_ack = "Turn complete in serial handler";
                                 TurnComplete tc = new TurnComplete();
                                 motorAckRecieve.Post(tc);
+                                state = 2;
+                                break;
+                            case (int)MotorCommands.BUMPER_ACTIVE:
+                                bumper.sendBumperNotification();
                                 state = 2;
                                 break;
                             default:

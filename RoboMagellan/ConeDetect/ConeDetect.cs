@@ -58,6 +58,9 @@ namespace RoboMagellan.ConeDetect
         private static int SMALL_DENSITY_BOX = 15;
         private static int CONFIDENCE_THRESHOLD = 75;
         private static int MAX_ANGLE = ConeDetectState.MAX_ANGLE;
+        private const int FRAME_PAUSE = 100;
+
+        private bool moving = false;
         
         /// <summary>
         /// _state
@@ -110,7 +113,7 @@ namespace RoboMagellan.ConeDetect
             webcam.*/
             SIZE.X = DIMENSION_X;
             SIZE.Y = DIMENSION_Y;
-
+            moving = false;
             //Activate(Arbiter.ReceiveWithIterator(false, TimeoutPort(2000), GetFrame));
 
             _rrPort.Subscribe(_rrNotify);
@@ -135,6 +138,7 @@ namespace RoboMagellan.ConeDetect
         }
         public IEnumerator<ITask> GetFrame()
         {
+            Console.WriteLine("New Frame is ready, fetching and calculating angle");
             roborealm.QueryVariablesRequest varReq = new roborealm.QueryVariablesRequest();
             roborealm.QueryFrameRequest frameReq = new roborealm.QueryFrameRequest();
             varReq._names = new List<String>();
@@ -197,7 +201,11 @@ namespace RoboMagellan.ConeDetect
                                d.Angle = calculateAngle(x, width);
                            }
                            //Console.WriteLine(confidence);
-                           SendNotification<ConeNotification>(_subMgrPort, d);
+                           //if (!moving)
+                           //{
+                           //    Console.WriteLine("Not moving, sending notification");
+                               SendNotification<ConeNotification>(_subMgrPort, d);
+                           //}
                        },
                        delegate(Fault f)
                        {
@@ -205,6 +213,8 @@ namespace RoboMagellan.ConeDetect
                        });
 
             }
+
+            //System.Threading.Thread.Sleep(FRAME_PAUSE);
 
         }
         private int calculateAngle(int x, int width)
@@ -235,6 +245,15 @@ namespace RoboMagellan.ConeDetect
 
             yield break;
         }
+        
+        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
+        public IEnumerator<ITask> MovementHandler(Moving s)
+        {
+            if (moving != s.Body._status && !s.Body._status) //If it just stopped moving,
+                System.Threading.Thread.Sleep(FRAME_PAUSE);
+            moving = s.Body._status;
+            yield break;
+        }
         /// <summary>
         /// Get Handler
         /// </summary>
@@ -244,13 +263,6 @@ namespace RoboMagellan.ConeDetect
         public virtual IEnumerator<ITask> GetHandler(Get get)
         {
             get.ResponsePort.Post(_state);
-            yield break;
-        }
-
-        [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
-        public IEnumerator<ITask> CalibrateHandler(Calibrate s)
-        {
-            ConeColor = s.Body.Color;
             yield break;
         }
     }

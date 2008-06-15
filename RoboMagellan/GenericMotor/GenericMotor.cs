@@ -13,13 +13,14 @@ using Microsoft.Dss.Core;
 using Microsoft.Dss.Core.Attributes;
 using Microsoft.Dss.ServiceModel.Dssp;
 using Microsoft.Dss.ServiceModel.DsspServiceBase;
+using Microsoft.Dss.Core.DsspHttp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
 using W3C.Soap;
 using robomagellan = RoboMagellan;
-
+using submgr = Microsoft.Dss.Services.SubscriptionManager;
 
 namespace RoboMagellan.MotorControl
 {
@@ -47,6 +48,9 @@ namespace RoboMagellan.MotorControl
 
         private static string MOTOR_PORT = "COM10";
 
+        [Partner("SubMgr", Contract = submgr.Contract.Identifier, CreationPolicy = PartnerCreationPolicy.CreateAlways)]
+        submgr.SubscriptionManagerPort _subMgrPort = new submgr.SubscriptionManagerPort();
+
         private MotorControl _motor;
 
         /// <summary>
@@ -55,7 +59,8 @@ namespace RoboMagellan.MotorControl
         public GenericMotorService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
-            _motor = new MotorControl(MOTOR_PORT, TaskQueue);
+            _motor = new MotorControl(MOTOR_PORT, TaskQueue, this);
+            
         }
         
         /// <summary>
@@ -85,6 +90,11 @@ namespace RoboMagellan.MotorControl
                 _motor.installReceiveHandler();
             }
 
+        }
+        public void sendBumperNotification()
+        {
+            BumperActivated ba = new BumperActivated();
+            SendNotification<BumperActivated>(_subMgrPort, ba);
         }
 
         [ServiceHandler(ServiceHandlerBehavior.Exclusive)]
@@ -118,6 +128,26 @@ namespace RoboMagellan.MotorControl
             yield break;
         }
 
+        [ServiceHandler(ServiceHandlerBehavior.Concurrent)]
+        public virtual IEnumerator<ITask> SubscribeHandler(Subscribe subscribe)
+        {
+            SubscribeRequestType request = subscribe.Body;
+            Console.WriteLine("Bumper Detection received subscribe request");
+            yield return Arbiter.Choice(
+                SubscribeHelper(_subMgrPort, request, subscribe.ResponsePort),
+                delegate(SuccessResult success)
+                {
+                    Console.WriteLine("Bumper Detection Subscription confirmed");
+                    //SendNotification<BumperActivated>(_subMgrPort, request.Subscriber, new Bu());
+                },
+                delegate(Exception e)
+                {
+                    LogError(null, "Bumper Detection Subscribe failed", e);
+                }
+            );
+
+            yield break;
+        }
         /// <summary>
         /// Get Handler
         /// </summary>

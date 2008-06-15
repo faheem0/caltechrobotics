@@ -47,7 +47,9 @@ namespace RoboMagellan
         STATE_STANDBY,
         STATE_SCANNING,
         STATE_CONE_TURN,
-        STATE_CONE_DRIVE
+        STATE_CONE_DRIVE,
+        STATE_CONE_STOPPING,
+        STATE_CONE_STOPPED
     }
 
     /// <summary>
