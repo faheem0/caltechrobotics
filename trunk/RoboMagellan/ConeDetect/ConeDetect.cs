@@ -58,15 +58,19 @@ namespace RoboMagellan.ConeDetect
         private static int SMALL_DENSITY_BOX = 15;
         private static int CONFIDENCE_THRESHOLD = 75;
         private static int MAX_ANGLE = ConeDetectState.MAX_ANGLE;
+        private const int FRAMES_MAX = 5;
         private const int FRAME_PAUSE = 100;
-
+        private const int CONE_HIT_THRESHOLD = 3;
+        private CamData dataPacket;
         private bool moving = false;
+        private const int NULL = int.MaxValue;
         
         /// <summary>
         /// _state
         /// </summary>
         private ConeDetectState _state = new ConeDetectState();
-        
+        private int cone_hits = 0;
+        private int cam_frames = 0;
         /// <summary>
         /// _main Port
         /// </summary>
@@ -138,7 +142,7 @@ namespace RoboMagellan.ConeDetect
         }
         public IEnumerator<ITask> GetFrame()
         {
-            Console.WriteLine("New Frame is ready, fetching and calculating angle");
+            //Console.WriteLine("New Frame is ready, fetching and calculating angle");
             roborealm.QueryVariablesRequest varReq = new roborealm.QueryVariablesRequest();
             roborealm.QueryFrameRequest frameReq = new roborealm.QueryFrameRequest();
             varReq._names = new List<String>();
@@ -155,7 +159,9 @@ namespace RoboMagellan.ConeDetect
             int width = 0;
             int height = 0;
             int confidence = 0;
-     
+
+            CamData d = new CamData();
+            d.X = NULL;
             if (varReq != null)
             {
                 // send of the request and process the results
@@ -190,7 +196,7 @@ namespace RoboMagellan.ConeDetect
                        _rrPort.QueryFrame(frameReq),
                        delegate(roborealm.QueryFrameResponse fres)
                        {
-                           CamData d = new CamData();
+                           d = new CamData();
                            System.IO.MemoryStream ms = new System.IO.MemoryStream(fres.Frame);
                            d.Image = new Bitmap(ms);
                            d.X = x;
@@ -199,19 +205,34 @@ namespace RoboMagellan.ConeDetect
                            {
                                d.Detected = true;
                                d.Angle = calculateAngle(x, width);
+                               //Console.WriteLine("Cone Detected, " + d.Angle);
+                               cone_hits++;
+                               dataPacket = d;
                            }
+                           cam_frames++;
                            //Console.WriteLine(confidence);
                            //if (!moving)
                            //{
                            //    Console.WriteLine("Not moving, sending notification");
-                               SendNotification<ConeNotification>(_subMgrPort, d);
                            //}
                        },
                        delegate(Fault f)
                        {
                            LogError(LogGroups.Console, "Could not query frame", f);
                        });
-
+                if (cam_frames >= FRAMES_MAX)
+                {
+                    if (cone_hits >= CONE_HIT_THRESHOLD)
+                    {
+                        SendNotification<ConeNotification>(_subMgrPort, dataPacket);
+                    }
+                    else if (d.X != NULL)
+                    {
+                        SendNotification<ConeNotification>(_subMgrPort, d);
+                    }
+                    cone_hits = 0;
+                    cam_frames = 0;
+                }
             }
 
             //System.Threading.Thread.Sleep(FRAME_PAUSE);
