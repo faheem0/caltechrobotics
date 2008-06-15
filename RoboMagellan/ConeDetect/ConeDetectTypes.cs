@@ -39,8 +39,8 @@ namespace RoboMagellan.ConeDetect
         public Rectangle r;
         public bool pass;
     }
-
-    public struct CamData
+    
+    public struct CamData   
     {
         private long _timestamp;
         private bool _detected;

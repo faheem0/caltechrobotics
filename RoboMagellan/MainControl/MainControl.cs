@@ -41,12 +41,13 @@ namespace RoboMagellan
     {
         private static double DISTANCE_THRESHOLD = 3;
 
-        private static double ANGLE_THRESHOLD = 10;
+        private static double ANGLE_THRESHOLD = 20;
 
         private static double CONE_ANGLE_THRESHOLD = 10;
 
         private static int SPEED = 100;
         private static int CONE_SEARCH_SPEED = 20;
+        private bool compassHasData = false;
 
         private ControlDataPort CPort = new ControlDataPort();
 
@@ -90,8 +91,8 @@ namespace RoboMagellan
         public MainControlService(DsspServiceCreationPort creationPort) : 
                 base(creationPort)
         {
-            //_state._state = MainControlStates.STATE_SCANNING;
-            _state._state = MainControlStates.STATE_STOPPED;
+            _state._state = MainControlStates.STATE_SCANNING;
+            //_state._state = MainControlStates.STATE_STOPPED;
         }
         
         /// <summary>
@@ -144,7 +145,8 @@ namespace RoboMagellan
         }
         public void NotifyConeHandler(cone.ConeNotification c)
         {
-            Console.WriteLine("Got Cone Data");
+            //Console.WriteLine("Got Cone Data");
+            if (!compassHasData) return;
             cone.CamData data = c.Body;
             int angle_requested;
             switch(_state._state){
@@ -163,6 +165,7 @@ namespace RoboMagellan
                             td.heading = angle_requested;
                             motor.Turn t = new motor.Turn(td);
                             Console.WriteLine("Turning to : " + angle_requested);
+                            Console.WriteLine("Compass Heading is: " + _state._angle);
                             _state._state = MainControlStates.STATE_CONE_TURN;
                             PostUpdate();
                             
@@ -209,14 +212,15 @@ namespace RoboMagellan
                     else
                     {
                         Console.WriteLine("Cannot Find Cone");
-                        angle_requested = c.Body.Angle + cone.ConeDetectState.MAX_ANGLE;
+                        angle_requested = _state._angle + cone.ConeDetectState.MAX_ANGLE;
                         angle_requested %= 360;
                         motor.TurnData td = new motor.TurnData();
                         td.heading = angle_requested;
                         motor.Turn t = new motor.Turn(td);
 
                         _state._state = MainControlStates.STATE_CONE_TURN;
-                        Console.WriteLine("Turning to : " + angle_requested);
+                        Console.WriteLine("TURNING TO : " + angle_requested);
+                        Console.WriteLine("Compass Heading is: " + _state._angle);
                         PostUpdate();
                         
                         cone.MovementStatus ms3 = new cone.MovementStatus();
@@ -263,18 +267,21 @@ namespace RoboMagellan
         }
         public void NotifyCompassHandler(compass.CompassNotification c)
         {
-            if (_state._state != MainControlStates.STATE_DRIVING) return;
-
+            //if (_state._state != MainControlStates.STATE_DRIVING) return;
+            
             // if the compass bearings arent in the same reference as the gps generated bearings this wont work, should ask EEs about this
 
             double absoluteBearing = GetAbsoluteBearing(_state._location, _state._destination);
             double actualBearing = c.Body.angle;
             Console.WriteLine("Actual Bearing: " + actualBearing);
-            Console.WriteLine("Absolute Bearing: " + absoluteBearing);
+            //Console.WriteLine("Absolute Bearing: " + absoluteBearing);
 
             _state._angle = (int)c.Body.angle;
             _state._waypointAngle = (int)absoluteBearing;
+            SaveState(_state);
             PostUpdate();
+            compassHasData = true;
+            if (_state._state != MainControlStates.STATE_DRIVING) return;
 
             if (Math.Abs(absoluteBearing - actualBearing) > ANGLE_THRESHOLD)
             {
@@ -378,7 +385,8 @@ namespace RoboMagellan
                     return;
                     break;
                 case MainControlStates.STATE_DRIVING:
-                    if (GetDistanceSquared(_state._destination, n.Body) < DISTANCE_THRESHOLD)
+                    //GET DISTANCE SQUARED?
+                    if (GetDistance(_state._destination, n.Body) < DISTANCE_THRESHOLD)
                     {
                         motor.Stop stop = new motor.Stop();
 
