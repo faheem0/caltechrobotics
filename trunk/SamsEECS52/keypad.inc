@@ -16,9 +16,7 @@
 
 
 KeypadAddress   EQU     0080H           ;keypad address
-
 KEYPADDATAMASK  EQU 	000fh           ;only use 4 bits
 
 TouchkeyAddress EQU     0200H			;touchkey address
-
-TOUCHKEYDATAMASK EQU 00fh				;comment here
+TOUCHKEYDATAMASK EQU 00fh				;currently unused

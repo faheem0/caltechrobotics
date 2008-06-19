@@ -6,19 +6,17 @@
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; This file contains the definitions for the DMA functions(dma.ASM).
+; This file contains the definitions for the DMA program (dma.ASM).
 ; 
 ;
 ; Revision History:
 
 ;     5/30/2008 Samuel Yang     
-IDEoffset	  EQU 	  0000H			 ;for samsung IDE
 
+
+IDEoffset	  EQU 	  0000H			 ;no longer needed, must be 0 for compatibility
 
 IDE_BLOCK_SIZE EQU 256               ;words, must NOT change
-
-
-
 
 										;Register addresses, masks, and values
 D0DSTHaddr	  EQU 	  0ffc6H		 ;address of dest address pointer (high)
@@ -82,7 +80,7 @@ IDEaddrStatus   	 EQU    0E000H         ;address of Status register
 DeviceheadValue	    EQU       0e0H    ;set IDEaddrDevicehead to LBA mode
 										;1-1-----  reserved
 										;-1------  LBS addressing mode
-										;---0----  device 0?
+										;---0----  device 0
 										;----0000  LBA bits 27:24
 CylinderHighValue   EQU        00H    ;set LBA bits
 										;00000000  LBA bits 23:16

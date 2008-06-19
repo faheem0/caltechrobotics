@@ -5,7 +5,7 @@ INPUT FILES: BOOTCODE.OBJ, C0SMROM.OBJ, MP3PORT.OBJ, KEYPAD.OBJ,
   DISPLAY.OBJ, LIB188.OBJ
 OUTPUT FILE: LNK1.LNK
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
-DATE:  06/12/:8  TIME:  05:56:34
+DATE:  06/18/:8  TIME:  21:13:41
 
 
 LINK MAP OF MODULE BOOT
@@ -15,7 +15,7 @@ LENGTH ADDRESS ALIGN  SEGMENT         CLASS           OVERLAY
  0000H ------    G    ??SEG                                         
  000CH ------    W    BOOT            BOOT                          
  061AH ------    G    CODE            CODE                          
- 0038H ------    G    DATA            DATA                          
+ 0028H ------    G    DATA            DATA                          
  0280H ------    W    STACK           STACK                         
 
 INPUT MODULES INCLUDED:

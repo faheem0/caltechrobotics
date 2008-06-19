@@ -8,11 +8,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Description:      This program an event handler (interrupt service routine).
-;                   It handles the timer overflow interrupt, keeping track of elapsed time.
+;                   It handles the timer overflow interrupt, keeping track of 
+;					elapsed time for the 80188 mp3 player.
 ;
 ; Input:            None.
 ; Output:           None.
-; User Interface:   Call function elapsed_time()
+; User Interface:   call function: 
+;						elapsed_time()
+;						InitElapsedTimer()
 ; Error Handling:   None.
 ;
 ; Algorithms:       None.
@@ -47,7 +50,7 @@ CODE SEGMENT PUBLIC 'CODE'
 ; Local Variables:   None.
 ; Shared Variables:  msElapsed
 ;
-; Input:            None.
+; Input:             None.
 ; Output:            None.
 ;
 ; Error Handling:    None.
@@ -92,17 +95,16 @@ elapsed_time ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       3 words
+; Stack Depth:       0 words
 ;
 ; Last Modified:     5-30-2008
 
 InitElapsedTimer       PROC    NEAR
 					PUBLIC InitElapsedTimer
 				
-		CALL InstallHandlerT0
-		CALL InitTimer0
-		MOV msElapsed, 0
-	
+		CALL InstallHandlerT0	;initialize event handler
+		CALL InitTimer0			;initialize timer
+		MOV msElapsed, 0		;reset timer	
 
 		RET
 
@@ -137,7 +139,7 @@ InitElapsedTimer ENDP
 
 Timer0EventHandler       PROC    NEAR
 					PUBLIC Timer0EventHandler
-		PUSH AX                         ;save register values
+		PUSH AX                         
 		PUSH DX
 		
 		ADD msElapsed, MS_PER_INT		;update counter
@@ -148,40 +150,24 @@ EndTimerEventHandler:                   ;done taking care of the timer
         MOV     AX, TimerEOI
         OUT     DX, AL
  
-		POP DX							;restore register values
+		POP DX						
 		POP AX
-        IRET                            ;and return (Event Handlers end with IRET not RET)
-
+        IRET                  
 
 Timer0EventHandler       ENDP
 
-
-
-
-
 ; InitTimer0
 ;
-; Description:       Initialize the 80188 Timers.  The timers are initialized
-;                    to generate interrupts every MS_PER_INT milliseconds.
-;                    The interrupt controller is also initialized to allow the
-;                    timer interrupts.  Timer #2 is used to prescale the
-;                    internal clock from 2.304 MHz to 1 KHz.  Timer #0 then
-;                    counts MS_PER_INT timer #2 intervals to generate the
-;                    interrupts.
+; Description:       Initializes timer 0 to interrupt every so often to 
+;				keep track of elapsed time	
 ;
-; Operation:         The appropriate values are written to the timer control
-;                    registers in the PCB.  Also, the timer count registers
-;                    are reset to zero.  Finally, the interrupt controller is
-;                    setup to accept timer interrupts and any pending
-;                    interrupts are cleared by sending a TimerEOI to the
-;                    interrupt controller.
+; Operation:         Sets up timer control registers and resets counter.
 ;
 ; Arguments:         None.
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
 ; Shared Variables:  None.
-; Global Variables:  None.
 ;
 ; Input:             None.
 ; Output:            None.
@@ -194,22 +180,21 @@ Timer0EventHandler       ENDP
 ; Registers Changed: AX, DX
 ; Stack Depth:       0 words
 ;
-; Author:            Glen George
-; Last Modified:     Oct. 29, 1997
+; Author:            Samuel Yang
+; Last Modified:     6-11-2008
 
 InitTimer0       PROC    NEAR
 			PUBLIC InitTimer0
-
-                    ;initialize Timer #0 for MS_PER_INT*COUNTS_PER_MS ms interrupts
-        MOV     DX, Tmr0Count   ;initialize the count register to 0
+			
+        MOV     DX, Tmr0Count  
         XOR     AX, AX
         OUT     DX, AL
 
-        MOV     DX, Tmr0MaxCntA ;setup max count for milliseconds per segment
-        MOV     AX, MS_PER_INT*COUNTS_PER_MS  ;   count so can time the segments
+        MOV     DX, Tmr0MaxCntA ;initialize for MS_PER_INT*COUNTS_PER_MS ms interrupts
+        MOV     AX, MS_PER_INT*COUNTS_PER_MS
         OUT     DX, AL
 
-        MOV     DX, Tmr0Ctrl    ;setup the control register, interrupts on
+        MOV     DX, Tmr0Ctrl    
         MOV     AX, Tmr0CtrlVal
         OUT     DX, AL
 
@@ -222,14 +207,10 @@ InitTimer0       PROC    NEAR
         MOV     AX, TimerEOI
         OUT     DX, AL
 
-
-        RET                     ;done so return
+        RET                  
 
 
 InitTimer0       ENDP
-
-
-
 
 ; InstallHandlerT0
 ;
@@ -269,28 +250,16 @@ InstallHandlerT0  PROC    NEAR
         MOV     ES: WORD PTR (4 * Tmr0Vec), OFFSET(Timer0EventHandler)
         MOV     ES: WORD PTR (4 * Tmr0Vec + 2), SEG(Timer0EventHandler)
 
-
-        RET                     ;all done, return
-
+        RET                   
 
 InstallHandlerT0  ENDP
-
-
-
-
-
 
 CODE ENDS
 
 ;the data segment
 
 DATA    SEGMENT PUBLIC  'DATA'
-msElapsed DW ?
-
+msElapsed DW ?					;ms elapsed since last function call
 
 DATA    ENDS
-
-
-
-
         END     

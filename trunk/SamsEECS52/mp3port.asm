@@ -7,16 +7,23 @@
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Description:      This program an event handler (interrupt service routine).
-;                   It handles sending data to the mp3 board.
+; Description:      This program is an event handler (interrupt service routine).
+;                   It outputs data serially to the mp3 decoder board.
 ;
 ; Input:            None.
 ; Output:           MP3 board
-; User Interface:   None.
+; User Interface:   call functions:
+;						audio_halt()
+;						audio_play(buffAddr, len)
+;						update(buffAddr, len)
+;						InstallHandlerInt1()
+;						InitMP3Port()
 ; Error Handling:   None.
 ;
-; Algorithms:       None.
-; Data Structures:  None.
+; Algorithms:       Double buffers data going out to mp3 decoder board.
+; Data Structures:  mp3buffsegment-stores segments of the two buffers
+;					mp3buffindex-stores the index (offset) of the two buffers
+;					mp3bufflength-stores the length of the two buffers
 ;
 ; Revision History:
 
@@ -44,7 +51,7 @@ CODE SEGMENT PUBLIC 'CODE'
 ;
 ; Description:       Immediately halts audio play
 ;
-; Operation:         Disables mp3 board interrupt
+; Operation:         Disables mp3 decoder board interrupt
 ;
 ; Arguments:         None.
 ; Return Value:      None.
@@ -83,14 +90,14 @@ audio_halt       ENDP
 ;
 ; Description:       Begins playing audio from passed buffer
 ;
-; Operation:         Copies buffer information, enables interrupts
+; Operation:         Copies buffer information, enables interrupt
 ;
 ; Arguments:         None.
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
 ; Shared Variables:  None.
-; Input:            None.
+; Input:             None.
 ; Output:            None.
 ;
 ; Error Handling:    None.
@@ -99,7 +106,7 @@ audio_halt       ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       2 words
+; Stack Depth:       5 words
 ;
 ; Last Modified:     5-9-2008
 
@@ -121,16 +128,16 @@ audio_play       PROC    NEAR
 		MOV mp3bufflength[mp3buff0], BX
 
 
-		MOV bufferRequired, TRUE			;flag buffer1 required
+		MOV bufferRequired, TRUE			;flag new buffer1 required
 		MOV bufferInUse, mp3buff0
 	
 		MOV DX, INT1Ctrlr					;enable mp3 board interrupt
 		MOV AX, INT1CtrlrVal
 		OUT DX, AL
 		
-		MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
-        MOV     AX, Int1Vec					; to kickstart
-        OUT     DX, AL
+		MOV DX, INTCtrlrEOI        			;send the EOI to the interrupt controller
+        MOV AX, Int1Vec						; to kickstart
+        OUT DX, AL
 		
 		POP BX
 		POP AX
@@ -139,16 +146,11 @@ audio_play       PROC    NEAR
 		POP BP
 
 		RET
-		
-		
-		
-	
-
 audio_play       ENDP
 
 ; update
 ;
-; Description:       This procedure updates the mp3 bvffers if necessary.
+; Description:       This procedure updates the mp3 buffers if necessary.
 ;
 ; Operation:         Reads data in, updates status of pressed key.
 ;
@@ -168,10 +170,10 @@ audio_play       ENDP
 ; Error Handling:    None.
 ;
 ; Algorithms:        None.
-; Data Structures:   None.
+; Data Structures:   mp3buffsegment/index/length
 ;
-; Registers Changed: None
-; Stack Depth:       5 words
+; Registers Changed: AX, flagging if a new buffer was used
+; Stack Depth:       4 words
 ;
 ; Last Modified:     5-9-2008
 
@@ -181,14 +183,13 @@ update       PROC    NEAR
 		MOV BP, SP
 		PUSH SI
 		PUSH DI
-		;PUSH AX
 		PUSH BX
 		MOV BX, [BP+8]
 		MOV SI, [BP+4]
 		MOV ES, [BP+6]
 
 		
-		CMP bufferRequired, TRUE
+		CMP bufferRequired, TRUE	;if no update required, jump to end
 		JNE endUpdateFalse
 		
 		MOV bufferRequired, FALSE	;reset bufferRequired flag
@@ -205,14 +206,13 @@ replaceBuff1:
 		MOV mp3buffindex[mp3buff1], SI
 		MOV mp3bufflength[mp3buff1], BX
 		;JMP endUpdateTrue
-endUpdateTrue:	
+endUpdateTrue:						;return TRUE or FALSE
 		MOV AX, TRUE
 		JMP endUpdate
 endUpdateFalse:
 		MOV AX, FALSE
 endUpdate:	
 		POP BX
-		;POP AX
 		POP DI
 		POP SI
 		POP BP
@@ -226,27 +226,28 @@ update       ENDP
 ; Int1EventHandler
 ;
 ; Description:       This procedure is the event handler for the mp3 board
-;						interrupt.
+;				interrupt.  Upon interrupt, it will output data continuously
+;				until the interrupt request is cleared.
 ;
-; Operation:         Outputs data serially, switches source buffers if necessary.
+; Operation:         Outputs data serially until the interrupt request is cleared
+;				or a buffer switch is required.  
 ;
 ; Arguments:         None.
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
-; Shared Variables:  bufferInUse, mp3buffsegment[], mp3buffindex[], bufferRequired
-;						buffInUse
-
-; Input:            From keypad debouncing chip.
-; Output:            None.
+; Shared Variables:  bufferInUse, buffInUse, mp3buffsegment/index/length
+;				
+; Input:             None.
+; Output:            Data outputed serially to mp3 decoder board
 ;
 ; Error Handling:    None.
 ;
 ; Algorithms:        None.
-; Data Structures:   None.
+; Data Structures:   mp3buffsegment/index/length
 ;
 ; Registers Changed: None
-; Stack Depth:       8 words
+; Stack Depth:       7 words
 ;
 ; Last Modified:     6-11-2008
 
@@ -262,15 +263,13 @@ Int1EventHandler       PROC    NEAR
 		MOV BX, bufferInUse				;get word to output
 		MOV ES, mp3buffsegment[BX]
 		MOV SI, mp3buffIndex[BX]
-		MOV CX, mp3bufflength[BX]
-		
-		
+		MOV CX, mp3bufflength[BX]		
 		
 outputWord:	
 		MOV DX, mp3portAddress			;prepare to output to address
 		MOV AX, ES:[SI]
 		
-outputBits:								;unrolled loop, actually outputs data
+outputBits:								;actually outputs data, all 16 bits
 		%REPEAT(8)(
 		ROL AL, 1
 		OUT DX, AL)
@@ -287,8 +286,8 @@ incIndex:
 		JNE checkStillInterrupting
 		;JE switchBuffers
 switchBuffers:		
-		MOV bufferRequired, TRUE				;new buffer required
-		INC bufferInUse							;switches buffers between 0 and 1
+		MOV bufferRequired, TRUE		;new buffer required
+		INC bufferInUse					;switches between buffers 0 and 1
 		INC bufferInUse
 		AND bufferInUse, mp3buffRequiredMask
 		JMP endInt1EventHandler
@@ -310,11 +309,11 @@ endInt1EventHandler:
 		
 		POP SI
 		POP ES
-		POP DX							;restore register values
+		POP DX							
 		POP CX
 		POP BX
 		POP AX
-        IRET                            ;and return (Event Handlers end with IRET not RET)
+        IRET                            
 
 
 Int1EventHandler       ENDP
@@ -345,8 +344,8 @@ Int1EventHandler       ENDP
 ; Last Modified:     6-6-2008
 InitMP3Port   PROC    NEAR
 			PUBLIC InitMP3Port
-		MOV bufferRequired, TRUE
-		MOV bufferInUse, mp3buff0
+		MOV bufferRequired, TRUE		;flag buffer required
+		MOV bufferInUse, mp3buff0		;start off using buffer 0
 		RET
 InitMP3Port   ENDP
 
@@ -396,41 +395,22 @@ InstallHandlerInt1  PROC    NEAR
         MOV     ES: WORD PTR (4 * Int1Vec + 2), SEG(Int1EventHandler)
 		
 		CALL audio_halt
-		;MOV DX, INT1Ctrlr
-	;	MOV AL, INT1CtrlrVal
-;		OUT DX, AL
 		
-		;MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
-        ;MOV     AX, Int1Vec
-        ;OUT     DX, AL
-		;STI ;enable interrupts
-		
-        RET                     ;all done, return
+        RET                    
 
 
 InstallHandlerInt1  ENDP
-
-
-
-
 
 CODE ENDS
 
 ;the data segment
 
 DATA    SEGMENT PUBLIC  'DATA'
-mp3index DW 0
-
-
-mp3buffsegment DW 2 DUP(?)
-mp3buffindex  DW 2 DUP(?) 
-mp3bufflength DW 2 DUP(?)
-bufferRequired DB ?
-bufferInUse    DW ?
+mp3buffsegment DW 2 DUP(?)				;stores segments of the two buffers
+mp3buffindex  DW 2 DUP(?) 				;stores index (offset) of the two buffers
+mp3bufflength DW 2 DUP(?)				;stores length of the two buffers
+bufferRequired DB ?						;flags if a new buffer is required
+bufferInUse    DW ?						;indicates which buffer is in use
 
 DATA    ENDS
-
-
-
-
         END     

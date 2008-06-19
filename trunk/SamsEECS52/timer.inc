@@ -1,22 +1,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
-;                                  timer.INC                                ;
-;                              Timer Event Handler                         ;
+;                                  timer.INC                                 ;
+;                              Timer Definitions	                         ;
 ;                                 Include File                               ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; This file contains the definitions for the Timer Event Handler
-; program (timer.ASM).
+; 	program (timer.ASM).
 ;
 ; Revision History:
 
 ;     5/30/2008 Samuel Yang     copied from EE/CS 51 code
 ;     6/11/2008 Samuel Yang     changed Timer 0 to interrupt every 16ms
-
-
-
-; Timer Definitions
 
 ; Addresses
 Tmr0Ctrl        EQU     0FF56H          ;address of Timer 0 Control Register

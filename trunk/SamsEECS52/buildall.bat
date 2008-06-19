@@ -6,7 +6,7 @@ echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 asm86 timer.asm m1 db ep
 asm86 dma.asm m1 db ep
-asm86 c0smrom.asm m1 db ep
+asm86 start.asm m1 db ep
 asm86 mp3port.asm m1 db ep
 asm86 keypad.asm m1 db ep
 asm86 display.asm m1 db ep
