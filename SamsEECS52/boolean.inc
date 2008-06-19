@@ -6,7 +6,8 @@
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; This file contains the boolean definitions for the 80188 MP3 Player.
+; This file contains the boolean definitions for all of the assembly code for
+;	the 80188 MP3 Player.
 ;
 ; Revision History:
 

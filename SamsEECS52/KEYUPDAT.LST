@@ -1,4 +1,4 @@
-iC-86  COMPILER   KEYUPDAT                                                                   06/12/:8 05:56:34  PAGE   1
+iC-86  COMPILER   KEYUPDAT                                                                   06/18/:8 21:13:41  PAGE   1
 
 
 DOS 5.0 (038-N) iC-86 COMPILER V4.0, COMPILATION OF MODULE KEYUPDAT
@@ -58,7 +58,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE KEYUPDAT.C DEBUG EXTEND MOD186 SMALL O
    49             #include  "mp3defs.h"
    50             #include  "keyproc.h"
    51             #include  "updatfnc.h"
-iC-86  COMPILER   KEYUPDAT                                                                   06/12/:8 05:56:34  PAGE   2
+iC-86  COMPILER   KEYUPDAT                                                                   06/18/:8 21:13:41  PAGE   2
 
 
    52             #include  "trakutil.h"
@@ -118,7 +118,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE KEYUPDAT.C DEBUG EXTEND MOD186 SMALL O
   106                Return Value:     (enum status) - the new status (same as current status).
   107             
   108                Input:            None.
-iC-86  COMPILER   KEYUPDAT                                                                   06/12/:8 05:56:34  PAGE   3
+iC-86  COMPILER   KEYUPDAT                                                                   06/18/:8 21:13:41  PAGE   3
 
 
   109                Output:           The new track information is output.
@@ -178,7 +178,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE KEYUPDAT.C DEBUG EXTEND MOD186 SMALL O
   163             
   164                Input:            None.
   165                Output:           The new track information is output.
-iC-86  COMPILER   KEYUPDAT                                                                   06/12/:8 05:56:34  PAGE   4
+iC-86  COMPILER   KEYUPDAT                                                                   06/18/:8 21:13:41  PAGE   4
 
 
   166             
@@ -238,7 +238,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE KEYUPDAT.C DEBUG EXTEND MOD186 SMALL O
   220                Output:           The new track time (the track length) is output.
   221             
   222                Error Handling:   None.
-iC-86  COMPILER   KEYUPDAT                                                                   06/12/:8 05:56:34  PAGE   5
+iC-86  COMPILER   KEYUPDAT                                                                   06/18/:8 21:13:41  PAGE   5
 
 
   223             
@@ -298,7 +298,7 @@ COMPILER INVOKED BY: C:\ASMSTU~1\IC86.EXE KEYUPDAT.C DEBUG EXTEND MOD186 SMALL O
   277             
   278             */
   279             
-iC-86  COMPILER   KEYUPDAT                                                                   06/12/:8 05:56:34  PAGE   6
+iC-86  COMPILER   KEYUPDAT                                                                   06/18/:8 21:13:41  PAGE   6
 
 
   280             enum status  no_update(enum status cur_status)

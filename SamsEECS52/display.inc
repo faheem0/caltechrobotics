@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
 ;                                  display.INC                               ;
-;                                  Display                                   ;
+;                               Display Definitions                          ;
 ;                                 Include File                               ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,8 +33,7 @@ cursorRight			EQU 14H						;shifts cursor right one
 returnHome			EQU 02H						;return cursor home
 
 
-
-;display format constants
+;display formatting constants
 statusOffset EQU 0
 statusLength EQU 8
 timeOffset EQU 9
@@ -43,9 +42,6 @@ titleOffset EQU 40
 titleLength EQU 40
 artistOffset EQU 18
 artistLength EQU 22
-
-
-
 
 
 
@@ -59,10 +55,10 @@ ASCIIperiod EQU 46
 timeStringBufferMinutesOffset EQU 0
 timeStringBufferSecondsOffset EQU 3
 null EQU 0
-TIME_NONE EQU 65535 ;IS THIS RIGHT????
+TIME_NONE EQU 65535 
 
 
-;other constants
+;other display constants
 CHARSPERROW    EQU 40							;40 character display
 position0 	   EQU 0							;0 position on display
 STRINGNULL 		EQU 0
@@ -72,16 +68,14 @@ statusStringLength EQU 8
 blankSpace EQU 32
 
 ;special character table
-LCDSpecialPlay 	 EQU 01000000b+00001000b
-LCDSpecialFFW  	 EQU 01001000b+00001000b
+LCDSpecialPlay 	 EQU 01000000b+00001000b		;shift each by one since ASCII 0 corresponds
+LCDSpecialFFW  	 EQU 01001000b+00001000b			;with string NULL
 LCDSpecialRWD    EQU 01010000b+00001000b
 LCDSpecialStop   EQU 01011000b+00001000b
 LCDSpecialPause  EQU 01100000b+00001000b
 LCDSpecialStop2 EQU 01101000b+00001000b
-;LCDSpecialUnused1 EQU 01110000b+00001000b
-;LCDSpecialUnused2 EQU 01111000b 
 
-LCDSpecialPlayLine0 EQU 00010000b
+LCDSpecialPlayLine0 EQU 00010000b				;pixel values for "play"
 LCDSpecialPlayLine1 EQU 00011000b
 LCDSpecialPlayLine2 EQU 00010100b
 LCDSpecialPlayLine3 EQU 00010010b
@@ -90,7 +84,7 @@ LCDSpecialPlayLine5 EQU 00010010b
 LCDSpecialPlayLine6 EQU 00010100b
 LCDSpecialPlayLine7 EQU 00011000b
 
-LCDSpecialStopLine0 EQU 00011111b
+LCDSpecialStopLine0 EQU 00011111b				;pixel values for "stop1"
 LCDSpecialStopLine1 EQU 00010000b
 LCDSpecialStopLine2 EQU 00010000b
 LCDSpecialStopLine3 EQU 00010000b
@@ -99,7 +93,7 @@ LCDSpecialStopLine5 EQU 00010000b
 LCDSpecialStopLine6 EQU 00010000b
 LCDSpecialStopLine7 EQU 00011111b
 
-LCDSpecialStop2Line0 EQU 00011111b
+LCDSpecialStop2Line0 EQU 00011111b				;pixel values for "stop2"
 LCDSpecialStop2Line1 EQU 00000001b
 LCDSpecialStop2Line2 EQU 00000001b
 LCDSpecialStop2Line3 EQU 00000001b
@@ -108,7 +102,7 @@ LCDSpecialStop2Line5 EQU 00000001b
 LCDSpecialStop2Line6 EQU 00000001b
 LCDSpecialStop2Line7 EQU 00011111b
 
-LCDSpecialFFWLine0 EQU 00000000b
+LCDSpecialFFWLine0 EQU 00000000b				;pixel values for "FFW"
 LCDSpecialFFWLine1 EQU 00000000b
 LCDSpecialFFWLine2 EQU 00010100b
 LCDSpecialFFWLine3 EQU 00001010b
@@ -117,7 +111,7 @@ LCDSpecialFFWLine5 EQU 00001010b
 LCDSpecialFFWLine6 EQU 00010100b
 LCDSpecialFFWLine7 EQU 00000000b
 
-LCDSpecialRWDLine0 EQU 00000000b
+LCDSpecialRWDLine0 EQU 00000000b				;pixel values for "RWD"
 LCDSpecialRWDLine1 EQU 00000000b
 LCDSpecialRWDLine2 EQU 00000101b
 LCDSpecialRWDLine3 EQU 00001010b
@@ -126,7 +120,7 @@ LCDSpecialRWDLine5 EQU 00001010b
 LCDSpecialRWDLine6 EQU 00000101b
 LCDSpecialRWDLine7 EQU 00000000b
 
-LCDSpecialPauseLine0 EQU 00010001b
+LCDSpecialPauseLine0 EQU 00010001b				;pixel values for "pause"
 LCDSpecialPauseLine1 EQU 00010001b
 LCDSpecialPauseLine2 EQU 00010001b
 LCDSpecialPauseLine3 EQU 00010001b

@@ -7,16 +7,16 @@
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Description:      This program contains the functions to for DMA between
-; 						the IDE and DRAM
-;
-; Input:            data from IDE harddrive
-; Output:           data to DRAMi
+; Description:      This program contains the functions to interface the IDE
+; 				harddrive with the mp3 player by using the 80188's built in 
+;				DMA to transfer data to DRAM.
+; Input:            data read IDE harddrive
+; Output:           data written to DRAM
 ; User Interface:   call functions:
+;				InitDMA()
 ;				get_blocks(startAddr, numBlocks, destAddr)
 ;				
 ; Error Handling:   None.
-;
 ; Algorithms:       None.
 ; Data Structures:  None.
 ;
@@ -33,70 +33,65 @@ $INCLUDE(boolean.INC)
 
 CODE SEGMENT PUBLIC 'CODE'
 
-        ASSUME  CS:CGROUP, DS:DGROUP
-
-
-
+ASSUME  CS:CGROUP, DS:DGROUP
 
 
 ; InitDMA
 ;
-; Description:       This procedure initializes everything for DMA between IDE and DRAM
+; Description:       This procedure initializes everything required for DMA transfer of
+;				data from the IDE to DRAM.
 ;
-; Operation:        
-;
+; Operation:         Initializes variables
 ; Arguments:         None.
-; Return Value:      None.
-;
-; Local Variables:   None.
-; Shared Variables:  None.
-
-; Input:            None.
-; Output:            Initializes DMA.
-;
-; Error Handling:    None.
-;
-; Algorithms:        None.
-; Data Structures:   None.
-;
-; Registers Changed: None
-; Stack Depth:       2 words
-;
-; Last Modified:     5-30-2008
-InitDMA   PROC    NEAR
-			PUBLIC InitDMA
-			PUSH AX
-			PUSH DX
-			
-			;do nothing right now
-			
-			POP DX
-			POP AX
-			RET
-InitDMA   ENDP
-
-
-; get_blocks
-;
-; Description:       This procedure gets data from the IDE into the DRAM
-;
-; Operation:        Uses the 80188's built in DMA transfer.  Sets up IDE registers and
-;				DMA transfer, and blocks until transfer is complete.
-; Arguments:         start address of blocks (2 words) number of blocks (1 word), destination address (2 words)
 ; Return Value:      None.
 ;
 ; Local Variables:   numBlocks, startOfBlocksHigh, startOfBlocksLow
 ; Shared Variables:  None.
 
-; Input:            Data from IDE
-; Output:            Data to DRAM
+; Input:             None.
+; Output:            None.
 ;
 ; Error Handling:    None.
 ;
 ; Algorithms:        None.
 ; Data Structures:   None.
 ;
-; Registers Changed: None
+; Registers Changed: None.
+; Stack Depth:       0
+;
+; Last Modified:     6-6-2008
+InitDMA PROC NEAR
+	PUBLIC InitDMA
+		MOV numBlocks, 0
+		MOV startOfBlocksHigh, 0
+		MOV startOfBlocksLow, 0
+	RET
+InitDMA ENDP
+
+; get_blocks
+;
+; Description:       This procedure gets data from the IDE and moves it into DRAM.
+;
+; Operation:         The 80188's built in DMA transfer is used to transfer one block at
+;				a time.  First, IDE registers are set up and the data read into the IDE buffer;
+;				then the DMA transfer is initiated, repeating until all blocks have been read.
+; Arguments:         start address of blocks (2 words)
+;					 number of blocks (1 word)
+;'					 destination address (2 words)
+; Return Value:      number of blocks read in AX
+;
+; Local Variables:   numBlocks, startOfBlocksHigh, startOfBlocksLow
+; Shared Variables:  None.
+
+; Input:             Data read from IDE
+; Output:            Data written to DRAM
+;
+; Error Handling:    blocks until IDE isn't busy and data is ready
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: AX
 ; Stack Depth:       10 words
 ;
 ; Last Modified:     5-31-2008
@@ -107,7 +102,6 @@ get_blocks   PROC    NEAR
 		MOV BP, SP
 		PUSH SI
 		PUSH DI
-	;	PUSH AX
 		PUSH BX
 		PUSH CX
 		PUSH DX
@@ -115,9 +109,7 @@ get_blocks   PROC    NEAR
 		
 		;get arguments off the stack
 		MOV AX, [BP+10]		;offset of destination address
-		MOV debug, AX
 		MOV BX, [BP+12]		;segment of destination address
-		MOV debug1, BX
 		MOV CX, [BP+8]		;number of blocks to be received
 		MOV numBlocks, CX
 		PUSH numBlocks
@@ -150,9 +142,9 @@ setDMAregs:
 		MOV AX, D0SRCLvalue
 		OUT DX, AX
 				
-		;INIT IDE HERE
+		
 		;write LBA to IDE registers
-		PUSH IDEsegment	;use ES to reference IDE segment
+		PUSH IDEsegment		;use ES to reference IDE segment
 		POP ES
 		
 		;add IDE address offset
@@ -167,37 +159,37 @@ setIDEregs:
 		MOV SI, IDEaddrSectornumber
 		MOV AX, startOfBlocksLow	
 		CALL checkIDEBusy
-flag1:	MOV ES:[SI], AX ;LBA 7:0, don't care about contents in AH, but word write is required
+    	MOV ES:[SI], AX 		;LBA 7:0, don't care about contents in AH, but word write is required
 		
 		MOV SI, IDEaddrCylinderlow
 		MOV AL, AH
 		CALL checkIDEBusy
-flag2:	MOV ES:[SI], AX ;LBA 15:8
+    	MOV ES:[SI], AX 		;LBA 15:8
 		
 		MOV SI, IDEaddrCylinderhigh
 		MOV AX, startOfBlocksHigh
 		CALL checkIDEBusy
-flag3:	MOV ES:[SI], AX	;LBA 23:16
+        MOV ES:[SI], AX			;LBA 23:16
 		
 		MOV SI, IDEaddrDevicehead
 		MOV AL, DeviceheadValue	;get control values
-		AND AH, 0FH			;mask off upper nibble
+		AND AH, 0FH				;mask off upper nibble
 		OR AL, AH				;set LBA 27:24 bits
 		CALL checkIDEBusy
-flag4:	MOV ES:[SI], AX 	;LBA 27:24
+    	MOV ES:[SI], AX 		;LBA 27:24
 		
 		;set IDE sector count
 		MOV SI, IDEaddrSectorcount	
 		MOV AX, numBlocks
 		CALL checkIDEBusy
-flag5:	MOV ES:[SI], AX 	;writes byte only although value is a word
+        MOV ES:[SI], AX 	;writes byte only although value is a word
 
 readSectors:		
 		;command IDE to read sectors
 		MOV SI, IDEaddrCommand
 		MOV AL, IDECommandReadSectors
 		CALL checkIDEBusy
-flag6:	MOV ES:[SI], AX 
+        MOV ES:[SI], AX 
 transferDMA: ;LOOP starts here
 		;reset DMA source 20-bit address (fixed IDE address)
 		MOV DX, D0SRCHaddr
@@ -236,26 +228,23 @@ checkFinishedDMA:
 		CMP AX, 0
 		JNE transferDMA
 endGetBlocks:		
-
 		POP AX
 		POP ES
 		POP DX
 		POP CX
 		POP BX
-	;	POP AX
 		POP DI
 		POP SI
 		POP BP
-		
 		
 		RET
 get_blocks   ENDP
 
 ; checkIDEBusy
 ;
-; Description:       This procedure checks if IDE busy flag is set
+; Description:       This procedure checks if the IDE is busy
 ;
-; Operation:        Blocks until busy flag is clear
+; Operation:         Blocks until busy flag is clear and device ready is set
 ;
 ; Arguments:         None.
 ; Return Value:      None.
@@ -263,7 +252,7 @@ get_blocks   ENDP
 ; Local Variables:   None.
 ; Shared Variables:  None.
 
-; Input:            IDE busy flag
+; Input:             IDE busy, device ready flag
 ; Output:            None.
 ;
 ; Error Handling:    Blocking function
@@ -272,7 +261,7 @@ get_blocks   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       2 words
+; Stack Depth:       5 words
 ;
 ; Last Modified:     5-30-2008
 checkIDEBusy   PROC    NEAR
@@ -300,9 +289,9 @@ checkIDEBusy   ENDP
 
 ; checkIDEDrdy
 ;
-; Description:       This procedure checks if IDE data ready flag is set
+; Description:       This procedure checks if IDE device ready flag is set
 ;
-; Operation:        Blocks until data is ready
+; Operation:         Blocks until device is ready
 ;
 ; Arguments:         None.
 ; Return Value:      None.
@@ -310,7 +299,7 @@ checkIDEBusy   ENDP
 ; Local Variables:   None.
 ; Shared Variables:  None.
 
-; Input:            IDE data ready flag
+; Input:            IDE device ready flag
 ; Output:            None.
 ;
 ; Error Handling:    Blocking function
@@ -319,7 +308,7 @@ checkIDEBusy   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       2 words
+; Stack Depth:       5 words
 ;
 ; Last Modified:     5-30-2008
 checkIDEDrdy PROC    NEAR
@@ -350,11 +339,9 @@ CODE ENDS
 
 
 DATA    SEGMENT PUBLIC  'DATA'
-numBlocks DW ?
-startOfBlocksHigh DW ?
-startOfBlocksLow DW ?
-debug DW ?
-debug1 DW ?
+numBlocks 			DW 	?			;stores number of blocks to read from IDE
+startOfBlocksHigh 	DW 	?			;stores IDE LBA high word
+startOfBlocksLow 	DW 	?			;stores IDE LBA low word
 DATA    ENDS
 
 

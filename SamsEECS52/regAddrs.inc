@@ -1,22 +1,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
 ;                                  regAddrs.INC                              ;
-;                              Register Addresses and Values                 ;
+;                              Register Definitions			                 ;
 ;                                 Include File                               ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; This file contains the definitions for the 801C88 MP3 Player.
-;
+; This file contains the definitions for the interrupt, PACS, MCS registers
+;	for the 80188 mp3 player.
 ;
 ; Revision History:
 
 ;     5/2/2008 Samuel Yang  
 ;	  6/11/2008 Samuel Yang only 1 wait state on PACS   
 ;	  6/11/2008 Samuel Yang touch key support added (INT2, PCS3)
-
-
-
 
 ; Interrupt Vectors
 Int0Vec         EQU     12               ;interrupt vector for INT 0
@@ -43,14 +40,14 @@ INT0CtrlrVal    EQU		00001H			;set to level triggering, priority 2, enable
                                         ;----------0-----  disable cascade mode
 										;-----------0----  edge triggering
                                         ;------------0---  enable interrupt
-                                        ;-------------010  int priority							
-INT2CtrlrVal    EQU		00011H			;set to level triggering, priority 2, enable
+                                        ;-------------010  int priority	2, enable						
+INT2CtrlrVal    EQU		00011H			;set to level triggering, priority 1, enable
                                         ;000000000-------  reserved
                                         ;---------0------  disable fully nested mode
                                         ;----------0-----  disable cascade mode
 										;-----------1----  level triggering
                                         ;------------0---  enable interrupt
-                                        ;-------------010  int priority							
+                                        ;-------------001  int priority	1, enable						
 
 INT1CtrlrVal    EQU		00012H			;set to level triggering, priority 2, enable
                                         ;000000000-------  reserved
@@ -58,7 +55,7 @@ INT1CtrlrVal    EQU		00012H			;set to level triggering, priority 2, enable
                                         ;----------0-----  disable cascade mode
 										;-----------1----  level triggering
                                         ;------------0---  enable interrupt
-                                        ;-------------010  int priority									
+                                        ;-------------010  int priority	2, enable								
 INT1CtrlrValDisable EQU	0001AH			;set to level triggering, priority 2, disable
                                         ;000000000-------  reserved
                                         ;---------0------  disable fully nested mode
@@ -87,17 +84,14 @@ PACSval         EQU     00001H          ;PCS base at 0, 3 wait states
                                         ;0000000000------  starts at address 0
                                         ;----------000---  reserved
                                         ;-------------0--  wait for RDY inputs
-                                        ;--------------11  3 wait states
+                                        ;--------------01  1 wait states
 MPCSval         EQU     04000H          ;copy pasted
                                         ;0---------000---  reserved
                                         ;-1000000--------  MCS is 512KB
                                         ;--------0-------  output PCS5/PCS6
                                         ;---------0------  PCS in I/O space
                                         ;-------------0--  wait for RDY inputs
-                                        ;--------------11  3 wait states
-
-; Timing Definitions
-
+                                        ;--------------00  0 wait states
 
 
 ; General Definitions

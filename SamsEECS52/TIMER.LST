@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
@@ -19,66 +19,65 @@ LOC  OBJ                  LINE     SOURCE
                              8     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                              9     
                             10     ; Description:      This program an event handler (interrupt service routine).
-                            11     ;                   It handles the timer overflow interrupt, keeping track of elapsed
-                                    time.
-                            12     ;
-                            13     ; Input:            None.
-                            14     ; Output:           None.
-                            15     ; User Interface:   Call function elapsed_time()
-                            16     ; Error Handling:   None.
-                            17     ;
-                            18     ; Algorithms:       None.
-                            19     ; Data Structures:  None.
+                            11     ;                   It handles the timer overflow interrupt, keeping track of 
+                            12     ;                                       elapsed time for the 80188 mp3 player.
+                            13     ;
+                            14     ; Input:            None.
+                            15     ; Output:           None.
+                            16     ; User Interface:   call function: 
+                            17     ;                                               elapsed_time()
+                            18     ;                                               InitElapsedTimer()
+                            19     ; Error Handling:   None.
                             20     ;
-                            21     ; Revision History:
-                            22     
-                            23     ;     5/30/08 copied from EE/CS 51 code
-                            24     ;         6/11/08 interrupts only every 10ms
+                            21     ; Algorithms:       None.
+                            22     ; Data Structures:  None.
+                            23     ;
+                            24     ; Revision History:
                             25     
-                            26     ; local include files
-                            27 +1  $INCLUDE(boolean.INC)
-                      =1    28     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      =1    29     ;                                                                            ;
-                      =1    30     ;                                  boolean.INC                               ;
-                      =1    31     ;                             Boolean Definitions                            ;
-                      =1    32     ;                                 Include File                               ;
-                      =1    33     ;                                                                            ;
-                      =1    34     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      =1    35     
-                      =1    36     ; This file contains the boolean definitions for the 80188 MP3 Player.
-                      =1    37     ;
-                      =1    38     ; Revision History:
-                      =1    39     
-                      =1    40     ;     5/2/2008 Samuel Yang     
-                      =1    41     
-                      =1    42     
-  0001                =1    43     TRUE EQU 1h
-  0000                =1    44     FALSE EQU 0h
-                            45 +1  $INCLUDE(timer.INC)
-                      =1    46     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      =1    47     ;                                                                            ;
-                      =1    48     ;                                  timer.INC                                ;
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    2
+                            26     ;     5/30/08 copied from EE/CS 51 code
+                            27     ;         6/11/08 interrupts only every 10ms
+                            28     
+                            29     ; local include files
+                            30 +1  $INCLUDE(boolean.INC)
+                      =1    31     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    32     ;                                                                            ;
+                      =1    33     ;                                  boolean.INC                               ;
+                      =1    34     ;                             Boolean Definitions                            ;
+                      =1    35     ;                                 Include File                               ;
+                      =1    36     ;                                                                            ;
+                      =1    37     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    38     
+                      =1    39     ; This file contains the boolean definitions for all of the assembly code for
+                      =1    40     ;       the 80188 MP3 Player.
+                      =1    41     ;
+                      =1    42     ; Revision History:
+                      =1    43     
+                      =1    44     ;     5/2/2008 Samuel Yang     
+                      =1    45     
+                      =1    46     
+  0001                =1    47     TRUE EQU 1h
+  0000                =1    48     FALSE EQU 0h
+                            49 +1  $INCLUDE(timer.INC)
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                      =1    49     ;                              Timer Event Handler                         ;
-                      =1    50     ;                                 Include File                               ;
+                      =1    50     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       =1    51     ;                                                                            ;
-                      =1    52     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      =1    53     
-                      =1    54     ; This file contains the definitions for the Timer Event Handler
-                      =1    55     ; program (timer.ASM).
-                      =1    56     ;
-                      =1    57     ; Revision History:
-                      =1    58     
-                      =1    59     ;     5/30/2008 Samuel Yang     copied from EE/CS 51 code
-                      =1    60     ;     6/11/2008 Samuel Yang     changed Timer 0 to interrupt every 16ms
-                      =1    61     
+                      =1    52     ;                                  timer.INC                                 ;
+                      =1    53     ;                              Timer Definitions                                 ;
+                      =1    54     ;                                 Include File                               ;
+                      =1    55     ;                                                                            ;
+                      =1    56     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      =1    57     
+                      =1    58     ; This file contains the definitions for the Timer Event Handler
+                      =1    59     ;       program (timer.ASM).
+                      =1    60     ;
+                      =1    61     ; Revision History:
                       =1    62     
-                      =1    63     
-                      =1    64     ; Timer Definitions
+                      =1    63     ;     5/30/2008 Samuel Yang     copied from EE/CS 51 code
+                      =1    64     ;     6/11/2008 Samuel Yang     changed Timer 0 to interrupt every 16ms
                       =1    65     
                       =1    66     ; Addresses
   FF56                =1    67     Tmr0Ctrl        EQU     0FF56H          ;address of Timer 0 Control Register
@@ -118,12 +117,12 @@ LOC  OBJ                  LINE     SOURCE
   0008                =1   101     TimerEOI        EQU     00008H          ;Timer EOI command (same for all timers)
   8000                =1   102     NonSpecEOI      EQU     08000H          ;Non-specific EOI command
                       =1   103     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    3
+                      =1   104     
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                      =1   104     
                       =1   105     ; Timing Definitions
                       =1   106     
   0900                =1   107     COUNTS_PER_MS   EQU     2304            ;number of timer counts per 1 ms (assumes 18.
@@ -153,7 +152,7 @@ LOC  OBJ                  LINE     SOURCE
                            129     ; Local Variables:   None.
                            130     ; Shared Variables:  msElapsed
                            131     ;
-                           132     ; Input:            None.
+                           132     ; Input:             None.
                            133     ; Output:            None.
                            134     ;
                            135     ; Error Handling:    None.
@@ -178,12 +177,12 @@ LOC  OBJ                  LINE     SOURCE
                            154     elapsed_time ENDP
                            155     
                            156     ; InitElapsedTimer
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    4
+                           157     ;
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           157     ;
                            158     ; Description:       This procedure inits everything for keeping track of elapsed tim
                                    e
                            159     ;
@@ -204,229 +203,189 @@ LOC  OBJ                  LINE     SOURCE
                            174     ; Data Structures:   None.
                            175     ;
                            176     ; Registers Changed: None
-                           177     ; Stack Depth:       3 words
+                           177     ; Stack Depth:       0 words
                            178     ;
                            179     ; Last Modified:     5-30-2008
                            180     
 000A                       181     InitElapsedTimer       PROC    NEAR
                            182                                             PUBLIC InitElapsedTimer
                            183                                     
-000A E83E00                184                     CALL InstallHandlerT0
-000D E81800                185                     CALL InitTimer0
-0010 C70600000000   R      186                     MOV msElapsed, 0
-                           187             
-                           188     
-0016 C3                    189                     RET
-                           190     
-                           191     InitElapsedTimer ENDP
-                           192     
-                           193     ; Timer0EventHandler
-                           194     ;
-                           195     ; Description:       This procedure is the event handler for the timer 0
-                           196     ;                    interrupt.   It keeps track of the elapsed time
-                           197     ;
-                           198     ; Operation:         increments msElapsed
-                           199     ;
-                           200     ; Arguments:         None.
-                           201     ; Return Value:      None.
-                           202     ;
-                           203     ; Local Variables:   None.
-                           204     ; Shared Variables:  msElapsed.
-                           205     
-                           206     ; Input:             None.
-                           207     ; Output:            None.
-                           208     ;
-                           209     ; Error Handling:    None.
-                           210     ;
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    5
+000A E83E00                184                     CALL InstallHandlerT0   ;initialize event handler
+000D E81800                185                     CALL InitTimer0                 ;initialize timer
+0010 C70600000000   R      186                     MOV msElapsed, 0                ;reset timer    
+                           187     
+0016 C3                    188                     RET
+                           189     
+                           190     InitElapsedTimer ENDP
+                           191     
+                           192     ; Timer0EventHandler
+                           193     ;
+                           194     ; Description:       This procedure is the event handler for the timer 0
+                           195     ;                    interrupt.   It keeps track of the elapsed time
+                           196     ;
+                           197     ; Operation:         increments msElapsed
+                           198     ;
+                           199     ; Arguments:         None.
+                           200     ; Return Value:      None.
+                           201     ;
+                           202     ; Local Variables:   None.
+                           203     ; Shared Variables:  msElapsed.
+                           204     
+                           205     ; Input:             None.
+                           206     ; Output:            None.
+                           207     ;
+                           208     ; Error Handling:    None.
+                           209     ;
+                           210     ; Algorithms:        None.
+                           211     ; Data Structures:   None.
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           211     ; Algorithms:        None.
-                           212     ; Data Structures:   None.
-                           213     ;
-                           214     ; Registers Changed: None
-                           215     ; Stack Depth:       3 words
-                           216     ;
-                           217     ; Author:            Samuel Yang
-                           218     ; Last Modified:     6-11-2008
-                           219     
-0017                       220     Timer0EventHandler       PROC    NEAR
-                           221                                             PUBLIC Timer0EventHandler
-0017 50                    222                     PUSH AX                         ;save register values
-0018 52                    223                     PUSH DX
-                           224                     
-0019 830600001C     R      225                     ADD msElapsed, MS_PER_INT               ;update counter
-                           226     
-001E                       227     EndTimerEventHandler:                   ;done taking care of the timer
-                           228     
-001E BA22FF                229             MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
-0021 B80800                230             MOV     AX, TimerEOI
-0024 EE                    231             OUT     DX, AL
-                           232      
-0025 5A                    233                     POP DX                                                  ;restore regi
-                                   ster values
-0026 58                    234                     POP AX
-0027 CF                    235             IRET                            ;and return (Event Handlers end with IRET not
-                                    RET)
-                           236     
+                           212     ;
+                           213     ; Registers Changed: None
+                           214     ; Stack Depth:       3 words
+                           215     ;
+                           216     ; Author:            Samuel Yang
+                           217     ; Last Modified:     6-11-2008
+                           218     
+0017                       219     Timer0EventHandler       PROC    NEAR
+                           220                                             PUBLIC Timer0EventHandler
+0017 50                    221                     PUSH AX                         
+0018 52                    222                     PUSH DX
+                           223                     
+0019 830600001C     R      224                     ADD msElapsed, MS_PER_INT               ;update counter
+                           225     
+001E                       226     EndTimerEventHandler:                   ;done taking care of the timer
+                           227     
+001E BA22FF                228             MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
+0021 B80800                229             MOV     AX, TimerEOI
+0024 EE                    230             OUT     DX, AL
+                           231      
+0025 5A                    232                     POP DX                                          
+0026 58                    233                     POP AX
+0027 CF                    234             IRET                  
+                           235     
+                           236     Timer0EventHandler       ENDP
                            237     
-                           238     Timer0EventHandler       ENDP
-                           239     
-                           240     
-                           241     
-                           242     
-                           243     
-                           244     ; InitTimer0
-                           245     ;
-                           246     ; Description:       Initialize the 80188 Timers.  The timers are initialized
-                           247     ;                    to generate interrupts every MS_PER_INT milliseconds.
-                           248     ;                    The interrupt controller is also initialized to allow the
-                           249     ;                    timer interrupts.  Timer #2 is used to prescale the
-                           250     ;                    internal clock from 2.304 MHz to 1 KHz.  Timer #0 then
-                           251     ;                    counts MS_PER_INT timer #2 intervals to generate the
-                           252     ;                    interrupts.
+                           238     ; InitTimer0
+                           239     ;
+                           240     ; Description:       Initializes timer 0 to interrupt every so often to 
+                           241     ;                               keep track of elapsed time      
+                           242     ;
+                           243     ; Operation:         Sets up timer control registers and resets counter.
+                           244     ;
+                           245     ; Arguments:         None.
+                           246     ; Return Value:      None.
+                           247     ;
+                           248     ; Local Variables:   None.
+                           249     ; Shared Variables:  None.
+                           250     ;
+                           251     ; Input:             None.
+                           252     ; Output:            None.
                            253     ;
-                           254     ; Operation:         The appropriate values are written to the timer control
-                           255     ;                    registers in the PCB.  Also, the timer count registers
-                           256     ;                    are reset to zero.  Finally, the interrupt controller is
-                           257     ;                    setup to accept timer interrupts and any pending
-                           258     ;                    interrupts are cleared by sending a TimerEOI to the
-                           259     ;                    interrupt controller.
-                           260     ;
-                           261     ; Arguments:         None.
-                           262     ; Return Value:      None.
-                           263     ;
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    6
+                           254     ; Error Handling:    None.
+                           255     ;
+                           256     ; Algorithms:        None.
+                           257     ; Data Structures:   None.
+                           258     ;
+                           259     ; Registers Changed: AX, DX
+                           260     ; Stack Depth:       0 words
+                           261     ;
+                           262     ; Author:            Samuel Yang
+                           263     ; Last Modified:     6-11-2008
+                           264     
+0028                       265     InitTimer0       PROC    NEAR
+                           266                             PUBLIC InitTimer0
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           264     ; Local Variables:   None.
-                           265     ; Shared Variables:  None.
-                           266     ; Global Variables:  None.
-                           267     ;
-                           268     ; Input:             None.
-                           269     ; Output:            None.
-                           270     ;
-                           271     ; Error Handling:    None.
-                           272     ;
-                           273     ; Algorithms:        None.
-                           274     ; Data Structures:   None.
-                           275     ;
-                           276     ; Registers Changed: AX, DX
-                           277     ; Stack Depth:       0 words
-                           278     ;
-                           279     ; Author:            Glen George
-                           280     ; Last Modified:     Oct. 29, 1997
-                           281     
-0028                       282     InitTimer0       PROC    NEAR
-                           283                             PUBLIC InitTimer0
+                           267                             
+0028 BA50FF                268             MOV     DX, Tmr0Count  
+002B 33C0                  269             XOR     AX, AX
+002D EE                    270             OUT     DX, AL
+                           271     
+002E BA52FF                272             MOV     DX, Tmr0MaxCntA ;initialize for MS_PER_INT*COUNTS_PER_MS ms interrupt
+                                   s
+0031 B800FC                273             MOV     AX, MS_PER_INT*COUNTS_PER_MS
+0034 EE                    274             OUT     DX, AL
+                           275     
+0035 BA56FF                276             MOV     DX, Tmr0Ctrl    
+0038 B801E0                277             MOV     AX, Tmr0CtrlVal
+003B EE                    278             OUT     DX, AL
+                           279     
+                           280                                     ;initialize interrupt controller for timers
+003C BA32FF                281             MOV     DX, INTCtrlrCtrl;setup the interrupt control register
+003F B80100                282             MOV     AX, INTCtrlrCVal
+0042 EE                    283             OUT     DX, AL
                            284     
-                           285                         ;initialize Timer #0 for MS_PER_INT*COUNTS_PER_MS ms interrupts
-0028 BA50FF                286             MOV     DX, Tmr0Count   ;initialize the count register to 0
-002B 33C0                  287             XOR     AX, AX
-002D EE                    288             OUT     DX, AL
-                           289     
-002E BA52FF                290             MOV     DX, Tmr0MaxCntA ;setup max count for milliseconds per segment
-0031 B800FC                291             MOV     AX, MS_PER_INT*COUNTS_PER_MS  ;   count so can time the segments
-0034 EE                    292             OUT     DX, AL
+0043 BA22FF                285             MOV     DX, INTCtrlrEOI ;send a timer EOI (to clear out controller)
+0046 B80800                286             MOV     AX, TimerEOI
+0049 EE                    287             OUT     DX, AL
+                           288     
+004A C3                    289             RET                  
+                           290     
+                           291     
+                           292     InitTimer0       ENDP
                            293     
-0035 BA56FF                294             MOV     DX, Tmr0Ctrl    ;setup the control register, interrupts on
-0038 B801E0                295             MOV     AX, Tmr0CtrlVal
-003B EE                    296             OUT     DX, AL
-                           297     
-                           298                                     ;initialize interrupt controller for timers
-003C BA32FF                299             MOV     DX, INTCtrlrCtrl;setup the interrupt control register
-003F B80100                300             MOV     AX, INTCtrlrCVal
-0042 EE                    301             OUT     DX, AL
-                           302     
-0043 BA22FF                303             MOV     DX, INTCtrlrEOI ;send a timer EOI (to clear out controller)
-0046 B80800                304             MOV     AX, TimerEOI
-0049 EE                    305             OUT     DX, AL
-                           306     
-                           307     
-004A C3                    308             RET                     ;done so return
-                           309     
-                           310     
-                           311     InitTimer0       ENDP
-                           312     
-                           313     
-                           314     
-                           315     
-                           316     ; InstallHandlerT0
-                           317     ;
-                           318     ; Description:       Install the event handler for the timer interrupt.
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    7
+                           294     ; InstallHandlerT0
+                           295     ;
+                           296     ; Description:       Install the event handler for the timer interrupt.
+                           297     ;
+                           298     ; Operation:         Writes the address of the timer event handler to the
+                           299     ;                    appropriate interrupt vector.
+                           300     ;
+                           301     ; Arguments:         None.
+                           302     ; Return Value:      None.
+                           303     ;
+                           304     ; Local Variables:   None.
+                           305     ; Shared Variables:  None.
+                           306     ; Global Variables:  None.
+                           307     ;
+                           308     ; Input:             None.
+                           309     ; Output:            None.
+                           310     ;
+                           311     ; Error Handling:    None.
+                           312     ;
+                           313     ; Algorithms:        None.
+                           314     ; Data Structures:   None.
+                           315     ;
+                           316     ; Registers Changed: flags, AX, ES
+                           317     ; Stack Depth:       0 words
+                           318     ;
+                           319     ; Author:            Glen George
+                           320     ; Last Modified:     Jan. 28, 2002
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:13:40  06/18/:8  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           319     ;
-                           320     ; Operation:         Writes the address of the timer event handler to the
-                           321     ;                    appropriate interrupt vector.
-                           322     ;
-                           323     ; Arguments:         None.
-                           324     ; Return Value:      None.
-                           325     ;
-                           326     ; Local Variables:   None.
-                           327     ; Shared Variables:  None.
-                           328     ; Global Variables:  None.
-                           329     ;
-                           330     ; Input:             None.
-                           331     ; Output:            None.
-                           332     ;
-                           333     ; Error Handling:    None.
-                           334     ;
-                           335     ; Algorithms:        None.
-                           336     ; Data Structures:   None.
-                           337     ;
-                           338     ; Registers Changed: flags, AX, ES
-                           339     ; Stack Depth:       0 words
-                           340     ;
-                           341     ; Author:            Glen George
-                           342     ; Last Modified:     Jan. 28, 2002
-                           343     
-004B                       344     InstallHandlerT0  PROC    NEAR
-                           345                             PUBLIC InstallHandlerT0
-                           346     
-                           347     
-004B 33C0                  348             XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
-004D 8EC0                  349             MOV     ES, AX
-                           350                                     ;store the vector
-004F 26C70620001700 R      351             MOV     ES: WORD PTR (4 * Tmr0Vec), OFFSET(Timer0EventHandler)
-0056 26C7062200---- R      352             MOV     ES: WORD PTR (4 * Tmr0Vec + 2), SEG(Timer0EventHandler)
-                           353     
-                           354     
-005D C3                    355             RET                     ;all done, return
-                           356     
-                           357     
-                           358     InstallHandlerT0  ENDP
-                           359     
-                           360     
-                           361     
-                           362     
-                           363     
-                           364     
-----                       365     CODE ENDS
-                           366     
-                           367     ;the data segment
-                           368     
-----                       369     DATA    SEGMENT PUBLIC  'DATA'
-0000 ????                  370     msElapsed DW ?
-                           371     
-                           372     
-----                       373     DATA    ENDS
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:56:34  06/12/:8  PAGE    8
-
-
-LOC  OBJ                  LINE     SOURCE
-
-                           374     
-                           375     
-                           376     
-                           377     
-                           378             END     
+                           321     
+004B                       322     InstallHandlerT0  PROC    NEAR
+                           323                             PUBLIC InstallHandlerT0
+                           324     
+                           325     
+004B 33C0                  326             XOR     AX, AX          ;clear ES (interrupt vectors are in segment 0)
+004D 8EC0                  327             MOV     ES, AX
+                           328                                     ;store the vector
+004F 26C70620001700 R      329             MOV     ES: WORD PTR (4 * Tmr0Vec), OFFSET(Timer0EventHandler)
+0056 26C7062200---- R      330             MOV     ES: WORD PTR (4 * Tmr0Vec + 2), SEG(Timer0EventHandler)
+                           331     
+005D C3                    332             RET                   
+                           333     
+                           334     InstallHandlerT0  ENDP
+                           335     
+----                       336     CODE ENDS
+                           337     
+                           338     ;the data segment
+                           339     
+----                       340     DATA    SEGMENT PUBLIC  'DATA'
+0000 ????                  341     msElapsed DW ?                                  ;ms elapsed since last function call
+                           342     
+----                       343     DATA    ENDS
+                           344             END     
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND

@@ -2,17 +2,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
-;                                    keypad                                ;
+;                                  keypad                                    ;
 ;                           Keypad Event Handler                             ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Description:      This program an event handler (interrupt service routine).
-;                   It reads from the keypad.
+; Description:      This program is an event handler (interrupt service routine).
+;                   It reads from the keypad, dynamically updating key statuses.
 ;
 ; Input:            Keypad
 ; Output:           None.
-; User Interface:   call functions getkey() , key_available()
+; User Interface:   call functions:
+;						getkey()
+;						key_available()
 ; Error Handling:   None.
 ;
 ; Algorithms:       None.
@@ -21,7 +23,7 @@
 ; Revision History:
 
 ;     5/2/08  Samuel Yang     
-;	  6/11/08 Samuel Yang touch key support added (INT2, PCS3)
+;	  6/11/08 Samuel Yang touchkey support added (INT2, PCS3)
 
 
 ; local include files
@@ -35,16 +37,14 @@ DGROUP GROUP DATA
 
 CODE SEGMENT PUBLIC 'CODE'
 
-        ASSUME  CS:CGROUP, DS:DGROUP
-
-
+ASSUME  CS:CGROUP, DS:DGROUP
 
 ; Int0EventHandler
 ;
-; Description:       This procedure is the event handler for when the
-;                       keypad debouncing chip signals a pressed key.
+; Description:       This procedure is the event handler for handling
+;				interrupts from the keypad debouncer.
 ;
-; Operation:         Reads data in, updates status of pressed key.
+; Operation:         Data is read in, and the appropriate key's status is updated.
 ;
 ; Arguments:         None.
 ; Return Value:      None.
@@ -52,7 +52,7 @@ CODE SEGMENT PUBLIC 'CODE'
 ; Local Variables:   None.
 ; Shared Variables:  keyCode, keyReady
 
-; Input:            From keypad debouncing chip.
+; Input:             From keypad debouncing IC.
 ; Output:            None.
 ;
 ; Error Handling:    None.
@@ -61,7 +61,7 @@ CODE SEGMENT PUBLIC 'CODE'
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       3 words
+; Stack Depth:       2 words
 ;
 ; Last Modified:     5-2-2008
 
@@ -69,12 +69,12 @@ Int0EventHandler       PROC    NEAR
 					PUBLIC Int0EventHandler
 		PUSH AX                         ;save register values
 		PUSH DX
-		XOR AX, AX
-		XOR DX, DX
-		MOV DX, keypadAddress
+		
+		MOV DX, keypadAddress			;read keypad data, mask excess bits
 		IN AL, DX
 		AND AX, KEYPADDATAMASK
-		MOV keyCode, AX
+		
+		MOV keyCode, AX					;flag a pressed key, store its keycode
 		MOV keyReady, TRUE
 		
 		
@@ -85,25 +85,27 @@ Int0EventHandler       PROC    NEAR
 		
 		POP DX							;restore register values
 		POP AX
-        IRET                            ;and return (Event Handlers end with IRET not RET)
+        IRET                            
 
 
 Int0EventHandler       ENDP
 
 ; Int2EventHandler
 ;
-; Description:       This procedure is the event handler for when the
-;                       keypad debouncing chip signals a pressed key.
+; Description:       This procedure is the event handler for handling
+;				interrupts from the switch debouncer.  This interrupt is currently
+;				disabled, but this function provides the ability of supporting it
+;				in the future.
 ;
-; Operation:         Reads data in, updates status of pressed key.
+; Operation:         None.
 ;
 ; Arguments:         None.
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
-; Shared Variables:  keyCode, keyReady
+; Shared Variables:  None.
 
-; Input:            From keypad debouncing chip.
+; Input:            From switch debouncing IC.
 ; Output:            None.
 ;
 ; Error Handling:    None.
@@ -112,7 +114,7 @@ Int0EventHandler       ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       3 words
+; Stack Depth:       2 words
 ;
 ; Last Modified:     6-11-2008
 
@@ -120,13 +122,11 @@ Int2EventHandler       PROC    NEAR
 					PUBLIC Int2EventHandler
 		PUSH AX                         ;save register values
 		PUSH DX
-		XOR AX, AX
-		XOR DX, DX
+		
 		MOV DX, touchkeyAddress
 		IN AL, DX
 		AND AX, TOUCHKEYDATAMASK
-		;MOV keyCode, AX
-		;MOV keyReady, TRUE
+		
 		;DO STUFF HERE
         MOV     DX, INTCtrlrEOI         ;send the EOI to the interrupt controller
         MOV     AX, Int2Vec
@@ -135,7 +135,7 @@ Int2EventHandler       PROC    NEAR
 		
 		POP DX							;restore register values
 		POP AX
-        IRET                            ;and return (Event Handlers end with IRET not RET)
+        IRET                           
 
 
 Int2EventHandler       ENDP
@@ -143,7 +143,7 @@ Int2EventHandler       ENDP
 
 ; InitKeypad
 ;
-; Description:       This procedure initializes everything for keypad
+; Description:       This procedure initializes everything for keypad operation.
 ;
 ; Operation:        Initializes shared variables
 ;
@@ -162,7 +162,7 @@ Int2EventHandler       ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       1 words
+; Stack Depth:       0 words
 ;
 ; Last Modified:     5-2-2008
 InitKeypad   PROC    NEAR
@@ -194,7 +194,7 @@ InitKeypad   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: AL
-; Stack Depth:       1 words
+; Stack Depth:       0 words
 ;
 ; Last Modified:     5-2-2008
 key_available   PROC    NEAR
@@ -224,7 +224,7 @@ key_available   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: AX
-; Stack Depth:       1 words
+; Stack Depth:       0 words
 ;
 ; Last Modified:     5-2-2008
 getkey   PROC    NEAR
@@ -259,27 +259,25 @@ getkey   ENDP
 ; Registers Changed: AX, DX
 ; Stack Depth:       0 words
 ;
-; Author:            Glen George
-; Last Modified:     Oct. 29, 1997
+; Author:            Samuel Yang
+; Last Modified:     6-11-2008
 
 InitCS  PROC    NEAR
-		PUBLIC InitCS
-
+		PUBLIC InitCS		
 		
-		
-        MOV     DX, PACSreg     ;setup to write to PACS register
+        MOV     DX, PACSreg     ;write to PACS register
         MOV     AX, PACSval
-        OUT     DX, AL          ;write PACSval to PACS (base at 0, 3 wait states)
+        OUT     DX, AL          
 
-        MOV     DX, MPCSreg     ;setup to write to MPCS register
+        MOV     DX, MPCSreg     ;write to MPCS register
         MOV     AX, MPCSval
-        OUT     DX, AL          ;write MPCSval to MPCS (I/O space, 3 wait states)
+        OUT     DX, AL          
 
-		MOV DX, MMCSaddr	;init MMCS
+		MOV DX, MMCSaddr		;write to MMCS register
 		MOV AX, MMCSvalue
 		OUT DX, AX
 		
-        RET                     ;done so return
+        RET                
 
 
 InitCS  ENDP
@@ -293,7 +291,7 @@ InitCS  ENDP
 
 ; InstallHandlerInt0
 ;
-; Description:       Install the event handler for the int0 interrupt.
+; Description:       Install the event handler for the int0 interrupt, and enables interrupts.
 ;
 ; Operation:         Writes the address of the int 0 event handler to the
 ;                    appropriate interrupt vector.
@@ -380,7 +378,6 @@ InstallHandlerInt2  PROC    NEAR
 		MOV DX, INT2Ctrlr
 		MOV AL, INT2CtrlrVal
 		OUT DX, AL
-		;STI ;enable interrupts
 		
         RET                     ;all done, return
 
@@ -433,7 +430,7 @@ InitClrVectorLoop:              ;setup to store the same handler 256 times
 
 
 ClrVectorLoop:                  ;loop clearing each vector
-				;check if should store the vector
+					;check if should store the vector
 	CMP     SI, 4 * FIRST_RESERVED_VEC
 	JB	DoStore		;if before start of reserved field - store it
 	CMP	SI, 4 * LAST_RESERVED_VEC
@@ -451,7 +448,7 @@ DoneStore:			;done storing the vector
     
 
 
-EndClrIRQVectors:               ;all done, return
+EndClrIRQVectors:            
         RET
 
 
@@ -490,19 +487,17 @@ ClrIRQVectors   ENDP
 
 IllegalEventHandler     PROC    NEAR
 
-        NOP                             ;do nothing (can set breakpoint here)
-
-        PUSH    AX                      ;save the registers
+        PUSH    AX                    
         PUSH    DX
 
         MOV     DX, INTCtrlrEOI         ;send a non-sepecific EOI to the
         MOV     AX, NonSpecEOI          ;   interrupt controller to clear out
         OUT     DX, AL                  ;   the interrupt that got us here
 
-        POP     DX                      ;restore the registers
+        POP     DX                     
         POP     AX
 
-        IRET                            ;and return
+        IRET                            
 
 
 IllegalEventHandler     ENDP
@@ -513,8 +508,8 @@ CODE ENDS
 ;the data segment
 
 DATA    SEGMENT PUBLIC  'DATA'
-keyCode  DW ?
-keyReady DB ?
+keyCode  DW ?							;stores code of last pressed key
+keyReady DB ?							;flags if a key has been pressed
 DATA    ENDS
 
 

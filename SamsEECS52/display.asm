@@ -2,30 +2,32 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                                                            ;
-;                                    Display                           	     ;
+;                                Display	                           	     ;
 ;                           Display Functions                        		 ;
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Description:      This program contains the functions to
-; 			display 
+; Description:      This program contains the functions for displaying information
+; 				to the 2x40 character LCD, as well as manipulating contrast.
 ;
 ; Input:            None.
-; Output:           40 Character LCD
+; Output:           2x40 character LCD
 ; User Interface:   call functions:
 ;				display_time(word)
 ;				display_status(word)
 ;				display_title(byte)
 ;				display_artist(byte)
+;				contrast_up()
+;				contrast_up()
 ; Error Handling:   None.
 ;
 ; Algorithms:       None.
 ; Data Structures:  None.
 ;
 ; Revision History:
-;     5/2/08  Samuel Yang     file started
+;     5/2/08  Samuel Yang   file started
 ;     5/3/08  Samuel Yang	functions tested, working, comments updated
-;	  6/11/2008 Samuel Yang special characters added
+;	  6/11/08 Samuel Yang   special characters, contrast control added
 CGROUP GROUP CODE
 DGROUP GROUP DATA
 
@@ -44,7 +46,7 @@ CODE SEGMENT PUBLIC 'CODE'
 
 ; InitDisplay
 ;
-; Description:       This procedure initializes everything for display
+; Description:       This procedure initializes everything for display,  including special characters
 ;
 ; Operation:        Sends initialization bytes to LCD
 ;
@@ -298,7 +300,7 @@ InitDisplay   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       7 words
+; Stack Depth:       5 words
 ;
 ; Last Modified:     5-2-2008
 display_title   PROC    NEAR
@@ -348,7 +350,7 @@ display_title   ENDP
 ; Data Structures:   None.
 ;
 ; Registers Changed: None
-; Stack Depth:       7 words
+; Stack Depth:       5 words
 ;
 ; Last Modified:     5-3-2008
 display_artist   PROC    NEAR
@@ -382,15 +384,15 @@ display_artist   ENDP
 ;
 ; Description:       This procedure displays status in the dedicated spot on the LCD
 ;
-; Operation:       Looks up predefined status strings from "statuses" table 	
-;			Uses DisplayStr to display the looked up status string.
+; Operation:       Looks up predefined status strings from "statuses" table.  Uses 
+;				DisplayStr to display the looked up status string.
 ; Arguments:   Status code (byte) from stack, stored in CX   
 ; Return Value:      None.
 ;
 ; Local Variables:   None.
 ; Shared Variables:  None.
 
-; Input:            None.
+; Input:             None.
 ; Output:            Displays status on LCD.
 ;
 ; Error Handling:    None.
@@ -418,7 +420,7 @@ display_status   PROC    NEAR
 		MOV AL, statusStringLength  ;calculate the offset of the desired predefined status message
 		MUL CL
 		
-		PUSH SEG(statuses)	;Use ES:[SI] to point to the predefined status message
+		PUSH SEG(statuses)			;Use ES:[SI] to point to the predefined status message
 		POP ES
 		MOV BX, OFFSET(statuses)
 		ADD BX, AX
@@ -680,6 +682,30 @@ checkBusy:
 		RET
 readBusyFlag   ENDP
 
+; contrast_up
+;
+; Description:       This procedure increases the contrast of the LCD.
+;
+; Operation:        Increments the counter on the digital potentiometer.
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
+
+; Input:            None.
+; Output:           increases LCD contrast
+;
+; Error Handling:    Blocking function.
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       3 words
+;
+; Last Modified:     6-11-2008
 contrast_up   PROC    NEAR
 			PUBLIC contrast_up
 		
@@ -690,7 +716,7 @@ contrast_up   PROC    NEAR
 		MOV CX, numContrastSteps
 		MOV DX, digipotAddressUp
 upContrastLoop:				
-		OUT DX, AL					;doesn't matter what's outputted
+		OUT DX, AL					;doesn't matter what's outputed
 		LOOP upContrastLoop
 				
 		POP DX
@@ -700,6 +726,30 @@ upContrastLoop:
 		RET
 contrast_up   ENDP
 
+; contrast_down
+;
+; Description:       This procedure decreases the contrast of the LCD.
+;
+; Operation:        Decrements the counter on the digital potentiometer.
+;
+; Arguments:         None.
+; Return Value:      None.
+;
+; Local Variables:   None.
+; Shared Variables:  None.
+
+; Input:            None.
+; Output:           decreases LCD contrast
+;
+; Error Handling:    Blocking function.
+;
+; Algorithms:        None.
+; Data Structures:   None.
+;
+; Registers Changed: None
+; Stack Depth:       3 words
+;
+; Last Modified:     6-11-2008
 contrast_down   PROC    NEAR
 			PUBLIC contrast_down
 		
@@ -710,7 +760,7 @@ contrast_down   PROC    NEAR
 		MOV CX, numContrastSteps
 		MOV DX, digipotAddressDown
 downContrastLoop:				
-		OUT DX, AL					;doesn't matter what's outputted
+		OUT DX, AL					;doesn't matter what's outputed
 		LOOP downContrastLoop
 				
 		POP DX
@@ -720,20 +770,20 @@ downContrastLoop:
 		RET
 contrast_down   ENDP
 
-;array of status strings (predefined constants)
+;array of status strings (predefined constants printed from display_status()
 statuses  LABEL BYTE
 		
-		DB '   ',1,'   ',0 ;play
-		DB '   ',2,'   ',0 ;FFWD
-		DB '   ',3,'   ',0 ;RWD
+		DB '   ',1,'   ',0  ;play
+		DB '   ',2,'   ',0  ;FFWD
+		DB '   ',3,'   ',0  ;RWD
 		DB '   ',4,6,'  ',0 ;IDLE/STOP
-		DB '   ',5,'   ',0 ;PAUSE
+		DB '   ',5,'   ',0  ;PAUSE
 		DB 'ILLEGAL',0
 CODE ENDS
 
 
 DATA    SEGMENT PUBLIC  'DATA'
-timeStringBuffer DB timeLength DUP(?)
+timeStringBuffer DB timeLength DUP(?)	;reserves memory to store the time (converted to string)
 DATA    ENDS
 
 

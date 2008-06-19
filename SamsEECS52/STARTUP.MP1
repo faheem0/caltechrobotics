@@ -5,7 +5,7 @@ INPUT FILES: LNK2.LNK, MAINLOOP.OBJ, PLAYMP3.OBJ, KEYUPDAT.OBJ,
   TRAKUTIL.OBJ
 OUTPUT FILE: STARTUP.LNK
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
-DATE:  06/12/:8  TIME:  05:56:34
+DATE:  06/18/:8  TIME:  21:13:41
 
 
 LINK MAP OF MODULE BOOT
@@ -15,7 +15,7 @@ LENGTH ADDRESS ALIGN  SEGMENT         CLASS           OVERLAY
  0000H ------    G    ??SEG                                         
  000CH ------    W    BOOT            BOOT                          
  22B7H ------    G    CODE            CODE                          
- 0A63H ------    G    DATA            DATA                          
+ 0A4FH ------    G    DATA            DATA                          
  0512H ------    W    STACK           STACK                         
 
 INPUT MODULES INCLUDED:

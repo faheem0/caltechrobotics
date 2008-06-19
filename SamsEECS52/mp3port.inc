@@ -6,8 +6,7 @@
 ;                                                                            ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; This file contains the definitions for the MP3Port Event Handler
-; program (mp3port.ASM).
+; This file contains the definitions for the mp3port program (mp3port.ASM).
 ;
 ; Revision History:
 
@@ -15,13 +14,11 @@
 ;	  6/11/2008 Samuel Yang added reading of IntREQST
 
 
-mp3Loc   EQU     00000H           ;location of mp3 file
-mp3testbufflength EQU 8192
-mp3portAddress EQU 0000H    	  ;location of mp3 port, uses PCS0
+mp3portAddress EQU 0000H    	  	;location of mp3 port, uses PCS0
 
-mp3buff0 EQU 0
-mp3buff1 EQU 2
-mp3buffRequiredMask EQU 02h
+mp3buff0 EQU 0						;first buffer is at index 0
+mp3buff1 EQU 2						;second buffer is at index 2
+mp3buffRequiredMask EQU 02h			;used for wrapping buffer index
 lengthZero EQU 0
 
 IntREQSTAddr	 EQU 0ff2Eh			;address of Interrupt Request register
