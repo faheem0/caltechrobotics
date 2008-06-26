@@ -1,0 +1,303 @@
+MODULE      latticecode
+TITLE      '80188 MP3 Lattice CPLD Code'
+
+
+" 80188Code     DEVICE  'GAL16V8'
+
+
+" Description:  This CPLD (Lattice 1016EA) implements several state machines
+"				and other functions for the 80188 mp3 player.  In particular,
+"				it drives the LCD wait state machine, the DRAM refresh as well
+"				as read/write state machines and address muxing, the IDE interface
+"				control signals, and the mp3 decoder board's clock.  Detailed
+"				descriptions:
+"				
+"				LCD wait state machine: written in equation form, activates SRDY for 
+"					enough clocks for the LCD.  This still requires 1 wait state to 
+"					be set in PACS.
+"
+"				DRAM refresh state machine: written in equation form, activates RAS
+"					and CAS accordingly to generate refresh cycles during ROM or SRAM
+"					access.
+"
+"				DRAM read/write state machine: written in equation form, activates RAS
+"					and CAS as well as the address mux (to map 18 address bits to row
+"					and column 9-bit addresses).  This requires 1 wait state to be set
+"					on the MCS.
+"
+"				IDE interface: generates the control signals for latching data during
+"					word reads/writes from/to the IDE.
+"
+"				MP3 clock: generates the clock signal for the mp3 decoder board.
+"				
+"
+"
+" Revision History:
+" 04/18/01   Created from 4/18/01 version of lcdintf.pds
+" 04/16/02   Updated comments
+" 04/18/03   Updated comments
+" 04/12/06   Updated comments
+" 04/26/08  Modified for Samuel Yang's EE/CS 52 MP3 Player
+" 05/2/08   MP3 State machine added
+" 05/10/08  IDE control logic added
+" 05/12/08  IDE programmed, untested
+" 05/16/08  IDE debugging...
+" 05/18/08  IDE CLKBA1 added, DRAM pins designated
+" 05/23/08  DRAM statemachine started
+" 05/27/08  more DRAM pins added
+" 05/27/08  DRAM testing
+" 06/6/08	delay added on both OE's to IDE
+" 06/8/08	fixed LCD, removed MP3 state machine
+" 06/11/08  commenting updated
+
+"GND   pin   1,23                supply  power ground
+"GOE   pin   2                   input   connect to VCC (pull up)
+RD     pin   3;                 "input   read (active low, from 80C188)
+WR     pin   4;                 "input   write (active low, from 80C188)
+RESET  pin   5;                 "input   reset (active high, from 80C188)
+PCS    pin   6;                 "input   peripheral chip select from 80C188 for LCD
+
+E      pin   10  ISTYPE 'com';  "output  enable to LCD
+Clock  pin   11;                 "input   Clock (CLKOUT from 80C188)
+"VCC   pin   12,34               supply  power Vcc
+"ispEN pin   13;                 connect to VCC (pull up)
+
+St1    node      ISTYPE 'reg';  "output  state bit 1
+St2    node      ISTYPE 'reg';  "output  state bit 2
+SRDY   pin 17    ISTYPE 'reg';  "output  synchronous ready to 80C188
+St0    node      ISTYPE 'reg';  "output  state bit 0
+
+"for mp3port
+PCS0   pin    37;
+MP3CLKOUT pin 30 ISTYPE 'com';
+
+"for IDE control logic
+MCS0   pin   42;
+AB0    pin   43;
+ 
+IDECS  pin   44  ISTYPE 'com';
+DIOR   pin   8   ISTYPE 'com';
+DIOW   pin   9   ISTYPE 'com';
+CLKBA1 pin   7   ISTYPE 'com';
+DIR    pin   26  ISTYPE 'com';
+OE2    node  ISTYPE 'com'; 
+OE1    node ISTYPE 'com';
+newOE2    pin   27  ISTYPE 'com';
+newOE1    pin   25  ISTYPE 'com';
+delay1 node ISTYPE 'reg';
+delay2 node ISTYPE 'reg';
+
+"for DRAM
+MUXAB  pin   39  ISTYPE 'reg';
+CAS    pin   40  ISTYPE 'com';
+RAS    pin   41  ISTYPE 'com';
+
+DRAMSt0    pin   7  ISTYPE 'reg';
+DRAMSt1    pin   19  ISTYPE 'reg';
+DRAMSt2    pin   32 ISTYPE 'reg';
+DRAMrefreshSt0    pin   22  ISTYPE 'reg';
+DRAMrefreshSt1    pin   28  ISTYPE 'reg';
+
+UCS pin 20;
+LCS pin 21;
+
+MCS1 pin 29;
+MCS2 pin 31;
+
+"free pins: 
+"38, 15, 16, 18
+
+"shorthand for LCD state machine states
+Idle    =   SRDY & !St2 & !St1 & !St0;      " idle state
+StCyc   =   SRDY & !St2 & !St1 &  St0;      " start of access cycle
+Wait0   =  !SRDY & !St2 & !St1 & !St0;      " wait state 0
+Wait1   =  !SRDY & !St2 & !St1 &  St0;      " wait state 1
+Wait2   =  !SRDY & !St2 &  St1 & !St0;      " wait state 2
+Wait3   =  !SRDY & !St2 &  St1 &  St0;      " wait state 3
+Wait4   =  !SRDY &  St2 &  St1 &  St0;      " wait state 4 (needed for > 18.8 MHz)
+EndCyc  =   SRDY & !St2 &  St1 & !St0;      " end of cycle
+NoSt1   =   SRDY & !St2 &  St1 &  St0;      " unused state
+NoSt2   =  !SRDY &  St2 & !St1 & !St0;      " unused state
+NoSt3   =  !SRDY &  St2 & !St1 &  St0;      " unused state
+NoSt4   =  !SRDY &  St2 &  St1 & !St0;      " unused state
+NoSt5   =   SRDY &  St2 & !St1 & !St0;      " unused state
+NoSt6   =   SRDY &  St2 & !St1 &  St0;      " unused state
+NoSt7   =   SRDY &  St2 &  St1 & !St0;      " unused state
+NoSt8   =   SRDY &  St2 &  St1 &  St0;      " unused state
+
+"shorthand for DRAM refresh machine states
+DRAMrefreshidle   		 = !DRAMrefreshSt1 & !DRAMrefreshSt0;
+DRAMrefreshCASlow 		 = !DRAMrefreshSt1 &  DRAMrefreshSt0;
+DRAMrefreshCASandRASlow  =  DRAMrefreshSt1 & !DRAMrefreshSt0;
+DRAMrefreshEndCyc 		 =  DRAMrefreshSt1 &  DRAMrefreshSt0;
+
+"shorthand for DRAM read/write state machine states
+DRAMidle 		  = !DRAMSt2 & !DRAMSt1 & !DRAMSt0;
+DRAMRASlow 	      = !DRAMSt2 & !DRAMSt1 &  DRAMSt0;
+DRAMRASandCASlow  = !DRAMSt2 &  DRAMSt1 & !DRAMSt0;
+DRAMhold 	      = !DRAMSt2 &  DRAMSt1 &  DRAMSt0;
+DRAMEndCyc 	      =  DRAMSt2 &  DRAMSt1 & !DRAMSt0;
+
+" shorthand for start of a cycle (state machine access condition)
+Access  =  !PCS & (!RD # !WR) ;           			"accessing the LCD
+DRAMAccess = (!MCS1 # !MCS2);						"accessing DRAM
+DRAMrefreshAccess = (!UCS  # !LCS) & (!RD # !WR); 	"accessing DRAM refresh
+
+EQUATIONS
+MP3CLKOUT = (!PCS0 &  !WR); 						"generate MP3 clock
+
+IDECS = (AB0 # MCS0 # RD) & (!AB0 # MCS0 # WR) ;	"generate IDE control signals
+DIOR = AB0 # MCS0 # RD;
+DIOW = !AB0 # MCS0 # WR;
+DIR = !RD;
+OE1 = ((RD # AB0) & (WR # !AB0) # MCS0);
+OE2 = ((RD # !AB0) & (WR # !AB0) # MCS0);
+CLKBA1 = MCS0 # WR # AB0;
+
+" output enables - enable the used outputs (registered outputs enabled by OE pin)
+E.OE  =  1;
+IDECS.OE = 1;
+DIOR.OE = 1;
+DIOW.OE = 1;
+DIR.OE = 1;
+CLKBA1.OE = 1;
+newOE1.OE = 1;
+newOE2.OE = 1;
+MUXAB.OE = 1;
+CAS.OE = 1;
+RAS.OE = 1;
+
+" clocks for the registered outputs (state bits, among other signals)
+SRDY.CLK  =  Clock;                     " use the global clock pin
+St0.CLK   =  Clock;                     " use the global clock pin
+St1.CLK   =  Clock;                     " use the global clock pin
+St2.CLK   =  Clock;                     " use the global clock pin
+
+MUXAB.CLK = Clock;						" use the global clock pin
+DRAMSt0.CLK = !Clock;					" use the !global clock pin
+DRAMSt1.CLK = !Clock;					" use the !global clock pin
+DRAMSt2.CLK = !Clock;					" use the !global clock pin
+DRAMrefreshSt0.CLK = !Clock;			" use the !global clock pin
+DRAMrefreshSt1.CLK = !Clock;			" use the !global clock pin
+
+delay1.CLK = !Clock;					" use the !global clock pin
+delay2.CLK = !Clock;					" use the !global clock pin
+
+"for adding delay on IDE OE signals
+delay1=OE1;
+newOE1=delay1 # OE1;
+delay2=OE2;
+newOE2=delay2 # OE2;
+
+"now implement the state machines with equations for the state bits and outputs
+MUXAB = WR & RD;						"generate the DRAM address MUX signal
+CAS = !(DRAMrefreshCASlow # DRAMrefreshCASandRASlow 	"generate CAS and RAS
+		# DRAMRASandCASlow # DRAMhold);
+RAS = !(DRAMrefreshCASandRASlow  
+		# DRAMRASlow # DRAMRASandCASlow # DRAMhold);
+
+E     =  (!PCS &!SRDY # (EndCyc & Access));     " enable to LCD
+
+"LCD state machine (equation form)
+St0   =  ( (Idle & Access) #            " states leading to states with bit 0 set
+           Wait0 #
+           Wait2 #
+           Wait3             ) & !RESET;
+
+St1   =  ( Wait1 #                      " states leading to states with bit 1 set
+           Wait2 #
+           Wait3 #
+           Wait4 #
+           (EndCyc & Access) ) & !RESET;
+
+St2   =  Wait3;                         " states leading to states with bit 2 set
+
+SRDY  =  RESET #                        " SRDY to CPU (states leading to
+         Idle #                         "   states with SRDY set)
+         Wait4 #
+         EndCyc;
+
+"DRAM read/write state machine (equation form)
+DRAMSt0   =  ( (DRAMidle & DRAMAccess) #            		   " states leading to states with bit 0 set
+           DRAMRASandCASlow #
+			(DRAMEndCyc & DRAMAccess) ) & !RESET;
+DRAMSt1   =  ( DRAMRASlow #           						   " states leading to states with bit 1 set
+           DRAMRASandCASlow#
+			(DRAMEndCyc & DRAMAccess) ) & !RESET;
+DRAMSt2   =  ( DRAMhold #          							   " states leading to states with bit 2 set
+           (DRAMEndCyc & DRAMAccess) ) & !RESET;
+
+"DRAM refresh state machine	(equation form)	    
+DRAMrefreshSt0   =  ( (DRAMrefreshidle & DRAMrefreshAccess) #  " states leading to states with bit 0 set
+           DRAMrefreshCASandRASlow  #
+			(DRAMrefreshEndCyc & DRAMrefreshAccess)) & !RESET;		   
+DRAMrefreshSt1   =  ( DRAMrefreshCASlow #           		   " states leading to states with bit 1 set
+           DRAMrefreshCASandRASlow #
+			(DRAMrefreshEndCyc & DRAMrefreshAccess)) & !RESET;
+			
+TEST_VECTORS
+
+( [ Clock, RESET, PCS, RD, WR ] -> [   E, SRDY, St2, St1, St0 ] )
+
+  [     0,     0,   0,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+
+" reset the system
+  [   .C.,     1,   0,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     1,   0,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     1,   0,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+
+" remove reset and no access
+  [   .C.,     0,   1,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];   " no PCS
+  [   .C.,     0,   1,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  0,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " PCS, but no RD or WR
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+
+" access the LCD (read)
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " nothing yet
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " start the read
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " end the read
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+
+" access the LCD (write)
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " no access yet
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " no access - PCS only
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];   " start of write
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  1,  0 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " end of write cycle
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+
+" access the LCD (long read cycle)
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " no access yet
+  [   .C.,     0,   0,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " still no access, PCS w/o RD
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " start the read cycle
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   0,  0,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];   " end of the read cycle
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+  [   .C.,     0,   1,  1,  1 ] -> [ .X.,  .X., .X., .X., .X. ];
+
+
+
+END  lcdintf

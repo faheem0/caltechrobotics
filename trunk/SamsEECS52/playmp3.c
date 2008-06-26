@@ -95,6 +95,7 @@
       6/6/06   Glen George       Added a temporary variable to fix a possible
 	                         compiler issue with gcc.
       6/6/06   Glen George       Updated comments.
+	  6/9/08   Samuel YAng		 Added pause, contrast functions
 */
 
 
@@ -468,7 +469,30 @@ enum status  stop_Play(enum status cur_status)
 
 }
 
+/*
+   pause_Play
 
+   Description:      This function handles the <Pause> key when playing.  It
+                     halts the audio system and changes the current status to pause.
+
+   Arguments:        cur_status (enum status) - the current system status (not
+                                                used).
+   Return Value:     (enum status) - the new status (STAT_PAUS).
+
+   Input:            None.
+   Output:           The new track time (the track length) is output.
+
+   Error Handling:   None.
+
+   Algorithms:       None.
+   Data Structures:  None.
+
+   Shared Variables: None.
+
+   Author:           Samuel Yang
+   Last Modified:    June 9, 2008
+
+*/
 enum status  pause_Play(enum status cur_status)
 {
     /* variables */
@@ -498,6 +522,29 @@ enum status  pause_Play(enum status cur_status)
 
 }
 
+/*
+   step_contrast_up
+
+   Description:      This function handles increasing the LCD contrast
+
+   Arguments:        cur_status (enum status) - the current system status (not
+                                                used).
+   Return Value:     (enum status) - the new status (STAT_PAUS).
+
+   Input:            None.
+   Output:           The contrast is increased.
+
+   Error Handling:   None.
+
+   Algorithms:       None.
+   Data Structures:  None.
+
+   Shared Variables: None.
+
+   Author:           Samuel Yang
+   Last Modified:    June 9, 2008
+
+*/
 enum status  step_contrast_up(enum status cur_status)
 {
     
@@ -507,6 +554,30 @@ enum status  step_contrast_up(enum status cur_status)
     return  STAT_PAUS;
 
 }
+
+/*
+   step_contrast_down
+
+   Description:      This function handles decreasing the LCD contrast
+
+   Arguments:        cur_status (enum status) - the current system status (not
+                                                used).
+   Return Value:     (enum status) - the new status (STAT_PAUS).
+
+   Input:            None.
+   Output:           The contrast is decreased.
+
+   Error Handling:   None.
+
+   Algorithms:       None.
+   Data Structures:  None.
+
+   Shared Variables: None.
+
+   Author:           Samuel Yang
+   Last Modified:    June 9, 2008
+
+*/
 enum status  step_contrast_down(enum status cur_status)
 {
     
