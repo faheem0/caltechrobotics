@@ -6,10 +6,10 @@
 #include <termios.h>
 #include <boost/regex.hpp>
 
-public class GPS {
+class GPS {
 
 public:
-  GPS() : coords(), gpsSignal(), active(true), gps_regex() {   
+  GPS() : coords(0,0,0,0), gpsSignal(), active(true), gps_regex() {   
     gps_regex.assign(REGEX_STRING);
   }
   ~GPS();
@@ -28,6 +28,7 @@ private:
 
   int fd_serial;
   struct termios oldtty;
+  struct termios tty;
   char serial_buffer[256];
   boost::regex gps_regex;
   boost::cmatch gps_matches;
@@ -46,11 +47,15 @@ private:
                                                                                
   // ^\$PASHR,UTM,([0-9]+.?[0-9]*),([0-9]+[NS]),([-]?[0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),([12]),([0-9]{1,2}),([0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),(M),([-]?[0-9]+.?[0-9]*),(M),([0-9]{1,3}),([0-9a-zA-Z]{4})\*([0-9a-zA-Z]*)$
 
-  static std::string REGEX_STRING = "^\\$PASHR,UTM,([0-9]+.?[0-9]*),([0-9]+[NS]),([-]?[0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),([12]),([0-9]{1,2}),([0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),(M),([-]?[0-9]+.?[0-9]*),(M),([0-9]{1,3}),([0-9a-zA-Z]{4})\\*([0-9a-zA-Z]*)$";
-  static int BAUD_RATE = B4800;
-  static int DATA_BITS = 8;
-  static int DEFAULT_TIMEOUT = 500;
-  static std::string SERIALPORT = "/dev/ttyS0";
-}
+  static const std::string REGEX_STRING;
+  static const int BAUD_RATE = B4800;
+  static const int DATA_BITS = 8;
+  static const int DEFAULT_TIMEOUT = 500;
+  static const std::string SERIALPORT;
+};
+
+const std::string GPS::SERIALPORT("/dev/ttyS0");
+const std::string GPS::REGEX_STRING("^\\$PASHR,UTM,([0-9]+.?[0-9]*),([0-9]+[NS]),([-]?[0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),([12]),([0-9]{1,2}),([0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),(M),([-]?[0-9]+.?[0-9]*),(M),([0-9]{1,3}),([0-9a-zA-Z]{4})\\*([0-9a-zA-Z]*)$");
 
 #endif // __gps_hh__
+

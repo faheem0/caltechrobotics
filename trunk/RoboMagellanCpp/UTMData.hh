@@ -10,6 +10,8 @@ public:
   double northing;
   int numSat;
   double timestamp;
-}
+};
+
 
 #endif // __UTMData_hh__
+
