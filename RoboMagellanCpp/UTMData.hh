@@ -3,7 +3,7 @@
 
 class UTMData {
 public:
-  UTMData(double e, double n, int n, double t) : easting(e), northing(n), numSat(n), timestamp(t) {    
+  UTMData(double e, double n, int num, double t) : easting(e), northing(n), numSat(num), timestamp(t) {    
   }
 
   double easting;
