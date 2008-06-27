@@ -4,11 +4,15 @@
 #include "UTMData.hh"
 #include <boost/signal.hpp>
 #include <termios.h>
+#include <boost/regex.hpp>
 
 public class GPS {
 
 public:
-  GPS() : coords(), gpsSignal() {}
+  GPS() : coords(), gpsSignal(), active(true), gps_regex() {   
+    gps_regex.assign(REGEX_STRING);
+  }
+  ~GPS();
 
   void subscribe(boost::function<void (const UTMData&)> f) {
     gpsSignal.connect(f);
@@ -16,30 +20,37 @@ public:
 
   void run();
 
+
+
 private:
   UTMData coords;
   boost::signal<void (const UTMData&)> gpsSignal;
 
-  int serial_fd;
+  int fd_serial;
   struct termios oldtty;
   char serial_buffer[256];
-  char last_buffer[256];
-  int serial_index;
-
+  boost::regex gps_regex;
+  boost::cmatch gps_matches;
 
   void onDataReceived(const UTMData& d) {
     coords = d;
     gpsSignal(coords);
   }
 
-  bool initializePort();
-  void startListening();
-  void parseInputString(string s);
+  void initializePort();
+  void listen();
+  void parseInputString(const std::string& s);
+  void sendCommand(const std::string& cmd);
+  bool active;
 
-  static int BAUD_RATE = 4800;
+                                                                               
+  // ^\$PASHR,UTM,([0-9]+.?[0-9]*),([0-9]+[NS]),([-]?[0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),([12]),([0-9]{1,2}),([0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),(M),([-]?[0-9]+.?[0-9]*),(M),([0-9]{1,3}),([0-9a-zA-Z]{4})\*([0-9a-zA-Z]*)$
+
+  static std::string REGEX_STRING = "^\\$PASHR,UTM,([0-9]+.?[0-9]*),([0-9]+[NS]),([-]?[0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),([12]),([0-9]{1,2}),([0-9]+.?[0-9]*),([-]?[0-9]+.?[0-9]*),(M),([-]?[0-9]+.?[0-9]*),(M),([0-9]{1,3}),([0-9a-zA-Z]{4})\\*([0-9a-zA-Z]*)$";
+  static int BAUD_RATE = B4800;
   static int DATA_BITS = 8;
   static int DEFAULT_TIMEOUT = 500;
-  
+  static std::string SERIALPORT = "/dev/ttyS0";
 }
 
 #endif // __gps_hh__

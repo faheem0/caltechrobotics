@@ -2,7 +2,7 @@
 #define __MainControl_hh__
 
 #include "UTMData.hh"
-#include <list>
+#include <list.h>
 
 
 typedef enum {
