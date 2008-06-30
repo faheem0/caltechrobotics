@@ -15,6 +15,7 @@ typedef enum {
   STATE_SCANNING
 } MainControlState;
 
+
 class MainControl {
 public:
   MainControl() : state(STATE_STANDBY), location(NULL), destination(NULL), destinations(new list<UTMData*>()) {  }
