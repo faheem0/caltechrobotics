@@ -9,6 +9,7 @@
 #include "UTMData.hh"
 #include <stdio.h>
 #include <boost/regex.hpp>
+#include <boost/signal.hpp>
 #include <stdlib.h>
 #include <iostream>
 
@@ -106,7 +107,7 @@ void print_gps(const UTMData& gpsdata) {
 int main() {
   cout << "GPS service initializing" << endl;
   GPS gps;
-  gps.subscribe(&print_gps);
+  boost::signals::connection conn = gps.subscribe(&print_gps);
   gps.run();
   return 0;
 }

@@ -14,8 +14,8 @@ public:
   }
   ~GPS();
 
-  void subscribe(boost::function<void (const UTMData&)> f) {
-    gpsSignal.connect(f);
+  boost::signals::connection subscribe(boost::function<void (const UTMData&)> f) {
+    return gpsSignal.connect(f);
   }
 
   void run();
