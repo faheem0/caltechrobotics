@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: com.lowagie.text
-OpenIDE-Module-Localizing-Bundle: com/lowagie/text/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
