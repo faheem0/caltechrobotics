@@ -40,7 +40,7 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>robot.control.application.jfreechart</code-name-base>
+                    <code-name-base>robot.control.jfreechart</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
@@ -48,7 +48,9 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>robot.control.serialplot</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
