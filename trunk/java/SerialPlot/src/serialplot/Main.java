@@ -102,7 +102,7 @@ public class Main {
 			int colorIndex = 0;
 
 			public void serialEvent(SerialPortEvent arg0) {
-				if (arg0.equals(SerialPortEvent.DATA_AVAILABLE)) {
+				if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 					try {
 						int byte_read = in.read();
 
