@@ -9,8 +9,10 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.ITrace2D;
+import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.traces.Trace2DReplacing;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
+import info.monitorenter.util.Range;
 import javax.swing.*;
 import java.awt.Color;
 import java.io.*;
@@ -28,12 +30,12 @@ public class Main {
 	public static final int PLOT_WIDTH = 600;
 	public static final int PLOT_HEIGHT = 600;
 	public static final int NEXT_TIME_BYTE = 254; //defined in protocol w/MCU
-	public static final Color[] pointColor = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA, Color.ORANGE};
-
+	public static final Color[] pointColor = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA, Color.ORANGE, Color.CYAN, Color.BLACK, Color.GRAY, Color.PINK, Color.YELLOW, Color.LIGHT_GRAY};
+        public static String str = "";
 	public static void main(String[] args) {
 
 
-		JFrame f = new JFrame("SEGWAY!!!");
+		JFrame f = new JFrame("SerialPlot™");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		Chart2D chart = new Chart2D();
@@ -43,8 +45,10 @@ public class Main {
 			trace[i].setColor(pointColor[i]);
 			chart.addTrace(trace[i]);
 		}
+                chart.getAxisX().setRangePolicy(new RangePolicyFixedViewport(new Range(0, PLOT_WIDTH)));
 		f.getContentPane().add(chart);
 		f.setSize(400, 300);
+                //trace[0].addPoint(PLOT_WIDTH-1, 0);
 		//Plot a function
 		//y = x^2;
 
@@ -59,7 +63,7 @@ public class Main {
 
 		//Connect to Robot
 		Robot r;
-		Scanner s = new Scanner(System.in);
+		/*Scanner s = new Scanner(System.in);
 		int baud, stop, parity, data;
 		String port;
 		System.out.print("Port: ");
@@ -93,7 +97,8 @@ public class Main {
 			stop = SerialPort.STOPBITS_1;
 		}
 		parity = SerialPort.PARITY_NONE;
-		r = new Robot(port, baud, data, stop, parity);
+		r = new Robot(port, baud, data, stop, parity);*/
+                r = new Robot("COM14", 9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE); //quick n dirty!
 		final InputStream in = r.getInputStream();
 
 		r.setHandler(new SerialPortEventListener() {
@@ -102,14 +107,38 @@ public class Main {
 			int colorIndex = 0;
 
 			public void serialEvent(SerialPortEvent arg0) {
+                                
 				if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 					try {
+                                                //begin arm7 project specific stuff
 						int byte_read = in.read();
-
-						if (byte_read == -1) {
+                                                char c = ((char) byte_read);
+                                                
+                                                if (byte_read == -1) {
 							return;
-						}
-						if (byte_read == NEXT_TIME_BYTE) {
+						}                                                
+                                                
+                                                if(c == '\n') {
+                                                    time = (time + 1) % PLOT_WIDTH;
+                                                    colorIndex = 0;  //reset color index
+                                                    System.out.print(c);
+                                                }
+                                                if(Character.isDigit(c) || c == '.' || c == '-')
+                                                    str+=c;
+                                                else if(!str.equals("")) {  //str now contains a decimal number
+                                                    double numToGraph = Double.parseDouble(str);
+                                                    System.out.print("|"+numToGraph);
+                                                    trace[colorIndex].addPoint(time, (int) numToGraph);
+                                                    if ((colorIndex + 1) < pointColor.length) 
+							colorIndex++;
+                                                    str="";
+                                                }
+                                                else
+                                                    str="";
+                                                //end arm7 project specific stuff
+						
+						/*//begin RM project specific stuff
+                                                 if (byte_read == NEXT_TIME_BYTE) {
 							time = (time + 1) % PLOT_WIDTH;
 							colorIndex = 0;  //reset color index
 						} else {
@@ -120,6 +149,8 @@ public class Main {
 								colorIndex++;
 							}
 						}
+                                                //end RM project specific stuff 
+                                                 */
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
