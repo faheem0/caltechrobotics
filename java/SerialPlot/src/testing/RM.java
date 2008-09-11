@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package serialplot;
+package testing;
 
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
@@ -23,11 +23,12 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
+import serialplot.Robot;
 /**
  *
  * @author tonyfwu
  */
-public class Main {
+public class RM{
 
     /**
      * @param args the command line arguments
@@ -44,41 +45,6 @@ public class Main {
     public static String spreadsheetFileName;
 
     public static void main(String[] args) {
-        wb = new HSSFWorkbook();
-        sheet = wb.createSheet();
-        spreadsheetFileName = "SerialPlotLog_" + (new SimpleDateFormat("yyyy.MM.dd.hh.mm.ss")).format( Calendar.getInstance().getTime()) + ".xls";
-        //while(1 == 1);
-        /*row     = sheet.createRow((short)0); 
-        HSSFCell cell   = row.createCell((short)0); 
-        cell.setCellValue(1); 
-        row.createCell((short)1).setCellValue(1.2); 
-        row.createCell((short)2).setCellValue("This is a string");
-        row.createCell((short)3).setCellValue(true);
-        rowCounter = 3;
-        row = sheet.createRow((short) rowCounter);
-        row.createCell((short) (row.getLastCellNum()+1)).setCellValue(3.14);
-        row.createCell((short) (row.getLastCellNum()+1)).setCellValue(3.15);
-
-        try {
-            FileOutputStream fileOut = new FileOutputStream("workbook.xls");
-            try {
-                wb.write(fileOut);
-                fileOut.close();
-            } catch (IOException e) {}
-
-        } catch (FileNotFoundException f) {}
-
-        row.createCell((short) (row.getLastCellNum()+1)).setCellValue(3.16);
-        try {
-            FileOutputStream fileOut = new FileOutputStream("workbook.xls");
-            try {
-                wb.write(fileOut);
-                fileOut.close();
-            } catch (IOException e) {}
-
-        } catch (FileNotFoundException f) {}*/
-
-        /////////////////////////////////////////////////////////
         JFrame f = new JFrame("SerialPlot™");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -107,7 +73,7 @@ public class Main {
 
         //Connect to Robot
         Robot r;
-        /*Scanner s = new Scanner(System.in);
+        Scanner s = new Scanner(System.in);
         int baud, stop, parity, data;
         String port;
         System.out.print("Port: ");
@@ -141,8 +107,7 @@ public class Main {
                 stop = SerialPort.STOPBITS_1;
         }
         parity = SerialPort.PARITY_NONE;
-        r = new Robot(port, baud, data, stop, parity);*/
-        r = new Robot("COM14", 115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE); //quick n dirty!
+        r = new Robot(port, baud, data, stop, parity);
         final InputStream in = r.getInputStream();
 
         r.setHandler(new SerialPortEventListener() {
@@ -154,45 +119,11 @@ public class Main {
 
                 if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
                     try {
-                        //begin arm7 project specific stuff
                         int byte_read = in.read();
-                        char c = ((char) byte_read);
-
                         if (byte_read == -1) {
                                 return;
                         }                                                
 
-                        if(c == '\n') { //next line indicates next time frame
-                            time = (time + 1) % PLOT_WIDTH;
-                            colorIndex = 0;  //reset color index
-                            System.out.print('\n');
-                            rowCounter ++;  //next row in spreadsheet
-                            row = sheet.createRow((short) rowCounter);
-                            try {    //now actually write to spreadsheet
-                                FileOutputStream fileOut = new FileOutputStream(spreadsheetFileName);
-                                try {
-                                    wb.write(fileOut);
-                                    fileOut.close();
-                                } catch (IOException e) {}
-
-                            } catch (FileNotFoundException f) {}
-                        }
-                        if(Character.isDigit(c) || c == '.' || c == '-') //filter out letters
-                            str+=c;
-                        else if(!str.equals("")) {  //str now contains a decimal number
-                            double numToGraph = Double.parseDouble(str);
-                            System.out.print("|"+numToGraph);
-                            trace[colorIndex].addPoint(time, (int) numToGraph);
-                            if ((colorIndex + 1) < pointColor.length) 
-                                colorIndex++;
-                            str=""; //reset string                                                    
-                            row.createCell((short) (row.getLastCellNum()+1)).setCellValue(numToGraph);
-                        }
-                        else
-                            str="";
-                        //end arm7 project specific stuff
-
-                        /*//begin RM project specific stuff
                          if (byte_read == NEXT_TIME_BYTE) {
                                 time = (time + 1) % PLOT_WIDTH;
                                 colorIndex = 0;  //reset color index
@@ -205,7 +136,6 @@ public class Main {
                                 }
                         }
                         //end RM project specific stuff 
-                         */
                     } catch (IOException e) {
                             e.printStackTrace();
                     }
