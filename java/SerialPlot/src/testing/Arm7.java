@@ -48,7 +48,8 @@ public class Arm7{
     public static HSSFRow row;
     public static HSSFSheet sheet;   
     public static String spreadsheetFileName;
-
+    public static boolean inLoop = false;
+    
     public static void main(String[] args) {
         wb = new HSSFWorkbook();
         sheet = wb.createSheet();
@@ -171,7 +172,8 @@ public class Arm7{
 					Logger.getLogger(Arm7.class.getName()).log(Level.SEVERE, null, ex);
 				}
 				try {
-					wb.write(fileOut);
+					inLoop = false;
+					Arm7.helper(2, 0, fileOut);
 					fileOut.close();
 				} catch (IOException ex) {
 					Logger.getLogger(Arm7.class.getName()).log(Level.SEVERE, null, ex);
@@ -193,13 +195,13 @@ public class Arm7{
 			}
 
 			public void mouseExited(MouseEvent e) {
-				//throw new UnsupportedOperationException("Not supported yet.");
+//				throw new UnsupportedOperationException("Not supported yet.");
 			}
 		});
 	
 	frame.setVisible(true);
-	
-	while(true){
+
+	while(inLoop){
 			try {
 				int bytesRead = in.read(buffer);
 				for (int i = 0; i < bytesRead; i++) {
@@ -211,17 +213,7 @@ public class Arm7{
 						colorIndex = 0; //reset color index
 						System.out.print('\n');
 						rowCounter++; //next row in spreadsheet
-						row = sheet.createRow((short) rowCounter);
-//						try {
-							//now actually write to spreadsheet
-//							FileOutputStream fileOut = new FileOutputStream(spreadsheetFileName);
-//							try {
-//								wb.write(fileOut);
-//								fileOut.close();
-//							} catch (IOException e) {
-//							}
-//						} catch (FileNotFoundException e) {
-						//}
+						Arm7.helper(0, 0, null);
 					}
 					if (Character.isDigit(c) || c == '.' || c == '-') {
 						//filter out letters
@@ -235,7 +227,7 @@ public class Arm7{
 							colorIndex++;
 						}
 						str = ""; //reset string
-						row.createCell((short) (row.getLastCellNum()+1)).setCellValue(numToGraph);
+						Arm7.helper(1, numToGraph, null);
 					} else {
 						str = "";
 					}
@@ -327,5 +319,29 @@ public class Arm7{
                     return -1 * (256 - num);
             }
             return num;
+    }
+    /**
+     * Quick and dirty way to solve concurrency problems
+     * @param choice code to execute
+     * @param num number to write, if any
+     * @param o OutputStream to write to, if any
+     */
+    public static synchronized void helper(int choice , double num, OutputStream o){
+	    switch(choice){
+		    case 0:
+			row = sheet.createRow((short) rowCounter);
+			break;
+		    case 1:
+			row.createCell((short) (row.getLastCellNum()+1)).setCellValue(num);
+			break;
+		    case 2:
+		    default:
+		try {
+			wb.write(o);
+		} catch (IOException ex) {
+			Logger.getLogger(Arm7.class.getName()).log(Level.SEVERE, null, ex);
+		}
+			break;
+	    }
     }
 }
