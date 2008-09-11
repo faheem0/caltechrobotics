@@ -52,6 +52,7 @@ public class Arm7{
     public static void main(String[] args) {
         wb = new HSSFWorkbook();
         sheet = wb.createSheet();
+        row = sheet.createRow((short) rowCounter);
         spreadsheetFileName = "SerialPlotLog_" + (new SimpleDateFormat("yyyy.MM.dd.hh.mm.ss")).format( Calendar.getInstance().getTime()) + ".xls";
         //while(1 == 1);
         /*row     = sheet.createRow((short)0); 
@@ -192,7 +193,7 @@ public class Arm7{
 			}
 
 			public void mouseExited(MouseEvent e) {
-				throw new UnsupportedOperationException("Not supported yet.");
+				//throw new UnsupportedOperationException("Not supported yet.");
 			}
 		});
 	
