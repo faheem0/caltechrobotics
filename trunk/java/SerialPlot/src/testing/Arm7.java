@@ -13,10 +13,15 @@ import info.monitorenter.gui.chart.rangepolicies.RangePolicyFixedViewport;
 import info.monitorenter.gui.chart.traces.Trace2DReplacing;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 import info.monitorenter.util.Range;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.Color;
+import java.awt.event.MouseListener;
 import java.io.*;
-import java.util.Scanner;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -146,74 +151,169 @@ public class Arm7{
         r = new Robot("COM14", 115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE); //quick n dirty!
         final InputStream in = r.getInputStream();
 
-        r.setHandler(new SerialPortEventListener() {
+	// Let's do Polling...
+	byte[] buffer = new byte[8];
+	int time = 0;
+        int colorIndex = 0;
+	f.setVisible(true);
+	
+	JFrame frame = new JFrame("Kill Me");
+	JButton but = new JButton("Push to Close");
+	frame.getContentPane().add(but);
+	frame.pack();
+	but.addMouseListener(new MouseListener(){
+			public void mouseClicked(MouseEvent e) {
+				FileOutputStream fileOut = null;
+				try {
+					fileOut = new FileOutputStream(spreadsheetFileName);
+				} catch (FileNotFoundException ex) {
+					Logger.getLogger(Arm7.class.getName()).log(Level.SEVERE, null, ex);
+				}
+				try {
+					wb.write(fileOut);
+					fileOut.close();
+				} catch (IOException ex) {
+					Logger.getLogger(Arm7.class.getName()).log(Level.SEVERE, null, ex);
+				}
+				System.exit(0);
+					
+			}
 
-            int time = 0;
-            int colorIndex = 0;
+			public void mousePressed(MouseEvent e) {
+//				throw new UnsupportedOperationException("Not supported yet.");
+			}
 
-            public void serialEvent(SerialPortEvent arg0) {
+			public void mouseReleased(MouseEvent e) {
+//				throw new UnsupportedOperationException("Not supported yet.");
+			}
 
-                if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-                    try {
-                        //begin arm7 project specific stuff
-                        int byte_read = in.read();
-                        char c = ((char) byte_read);
+			public void mouseEntered(MouseEvent e) {
+//				throw new UnsupportedOperationException("Not supported yet.");
+			}
 
-                        if (byte_read == -1) {
-                                return;
-                        }                                                
+			public void mouseExited(MouseEvent e) {
+				throw new UnsupportedOperationException("Not supported yet.");
+			}
+		});
+	
+	frame.setVisible(true);
+	
+	while(true){
+			try {
+				int bytesRead = in.read(buffer);
+				for (int i = 0; i < bytesRead; i++) {
+					char c = (char) buffer[i];
 
-                        if(c == '\n') { //next line indicates next time frame
-                            time = (time + 1) % PLOT_WIDTH;
-                            colorIndex = 0;  //reset color index
-                            System.out.print('\n');
-                            rowCounter ++;  //next row in spreadsheet
-                            row = sheet.createRow((short) rowCounter);
-                            try {    //now actually write to spreadsheet
-                                FileOutputStream fileOut = new FileOutputStream(spreadsheetFileName);
-                                try {
-                                    wb.write(fileOut);
-                                    fileOut.close();
-                                } catch (IOException e) {}
+					if (c == '\n') {
+						//next line indicates next time frame
+						time = (time + 1) % PLOT_WIDTH;
+						colorIndex = 0; //reset color index
+						System.out.print('\n');
+						rowCounter++; //next row in spreadsheet
+						row = sheet.createRow((short) rowCounter);
+//						try {
+							//now actually write to spreadsheet
+//							FileOutputStream fileOut = new FileOutputStream(spreadsheetFileName);
+//							try {
+//								wb.write(fileOut);
+//								fileOut.close();
+//							} catch (IOException e) {
+//							}
+//						} catch (FileNotFoundException e) {
+						//}
+					}
+					if (Character.isDigit(c) || c == '.' || c == '-') {
+						//filter out letters
+						str += c;
+					} else if (!str.equals("")) {
+						//str now contains a decimal number
+						double numToGraph = Double.parseDouble(str);
+						System.out.print("|" + numToGraph);
+						trace[colorIndex].addPoint(time, (int) numToGraph);
+						if ((colorIndex + 1) < pointColor.length) {
+							colorIndex++;
+						}
+						str = ""; //reset string
+						row.createCell((short) (row.getLastCellNum()+1)).setCellValue(numToGraph);
+					} else {
+						str = "";
+					}
+				}
+			} catch (IOException ex) {
+				Logger.getLogger(Arm7.class.getName()).log(Level.SEVERE, null, ex);
+			}
+	}
+	// End Polling
 
-                            } catch (FileNotFoundException f) {}
-                        }
-                        if(Character.isDigit(c) || c == '.' || c == '-') //filter out letters
-                            str+=c;
-                        else if(!str.equals("")) {  //str now contains a decimal number
-                            double numToGraph = Double.parseDouble(str);
-                            System.out.print("|"+numToGraph);
-                            trace[colorIndex].addPoint(time, (int) numToGraph);
-                            if ((colorIndex + 1) < pointColor.length) 
-                                colorIndex++;
-                            str=""; //reset string                                                    
-                            row.createCell((short) (row.getLastCellNum()+1)).setCellValue(numToGraph);
-                        }
-                        else
-                            str="";
-                        //end arm7 project specific stuff
-
-                        /*//begin RM project specific stuff
-                         if (byte_read == NEXT_TIME_BYTE) {
-                                time = (time + 1) % PLOT_WIDTH;
-                                colorIndex = 0;  //reset color index
-                        } else {
-                                byte_read = convertTwosComplement(byte_read);
-                                System.out.println("Time: " + time + "\t" + "Byte read: " + byte_read);
-                                trace[colorIndex].addPoint(time, byte_read);
-                                if ((colorIndex + 1) < pointColor.length) {
-                                        colorIndex++;
-                                }
-                        }
-                        //end RM project specific stuff 
-                         */
-                    } catch (IOException e) {
-                            e.printStackTrace();
-                    }
-                }
-            }
-        });
-        f.setVisible(true);
+	// Interrupt Driven
+//        r.setHandler(new SerialPortEventListener() {
+//
+//            int time = 0;
+//            int colorIndex = 0;
+//	    
+//            public void serialEvent(SerialPortEvent arg0) {
+//
+//                if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+//                    try {
+//                        //begin arm7 project specific stuff
+//                        int byte_read = in.read();
+//                        char c = ((char) byte_read);
+//
+//                        if (byte_read == -1) {
+//                                return;
+//                        }                                                
+//
+//                        if(c == '\n') { //next line indicates next time frame
+//                            time = (time + 1) % PLOT_WIDTH;
+//                            colorIndex = 0;  //reset color index
+//                            System.out.print('\n');
+//                            rowCounter ++;  //next row in spreadsheet
+//                            row = sheet.createRow((short) rowCounter);
+//                            try {    //now actually write to spreadsheet
+//                                FileOutputStream fileOut = new FileOutputStream(spreadsheetFileName);
+//                                try {
+//                                    wb.write(fileOut);
+//                                    fileOut.close();
+//                                } catch (IOException e) {}
+//
+//                            } catch (FileNotFoundException f) {}
+//                        }
+//                        if(Character.isDigit(c) || c == '.' || c == '-') //filter out letters
+//                            str+=c;
+//                        else if(!str.equals("")) {  //str now contains a decimal number
+//                            double numToGraph = Double.parseDouble(str);
+//                            System.out.print("|"+numToGraph);
+//                            trace[colorIndex].addPoint(time, (int) numToGraph);
+//                            if ((colorIndex + 1) < pointColor.length) 
+//                                colorIndex++;
+//                            str=""; //reset string                                                    
+//                            row.createCell((short) (row.getLastCellNum()+1)).setCellValue(numToGraph);
+//                        }
+//                        else
+//                            str="";
+//                        //end arm7 project specific stuff
+//
+//                        /*//begin RM project specific stuff
+//                         if (byte_read == NEXT_TIME_BYTE) {
+//                                time = (time + 1) % PLOT_WIDTH;
+//                                colorIndex = 0;  //reset color index
+//                        } else {
+//                                byte_read = convertTwosComplement(byte_read);
+//                                System.out.println("Time: " + time + "\t" + "Byte read: " + byte_read);
+//                                trace[colorIndex].addPoint(time, byte_read);
+//                                if ((colorIndex + 1) < pointColor.length) {
+//                                        colorIndex++;
+//                                }
+//                        }
+//                        //end RM project specific stuff 
+//                         */
+//                    } catch (IOException e) {
+//                            e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//        f.setVisible(true);
     }
 
     /**
