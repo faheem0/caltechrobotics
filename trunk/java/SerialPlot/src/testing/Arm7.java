@@ -48,7 +48,7 @@ public class Arm7{
     public static HSSFRow row;
     public static HSSFSheet sheet;   
     public static String spreadsheetFileName;
-    public static boolean inLoop = false;
+    public static boolean inLoop = true;
     
     public static void main(String[] args) {
         wb = new HSSFWorkbook();
@@ -213,6 +213,10 @@ public class Arm7{
 						colorIndex = 0; //reset color index
 						System.out.print('\n');
 						rowCounter++; //next row in spreadsheet
+                                                if(rowCounter > 32767) {
+                                                    rowCounter = 0;
+                                                    sheet = wb.createSheet();
+                                                }
 						Arm7.helper(0, 0, null);
 					}
 					if (Character.isDigit(c) || c == '.' || c == '-') {
