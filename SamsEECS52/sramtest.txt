@@ -1,5 +1,0 @@
-port 0ffa4h 03h
-o 0ffa8h 4000h
-o 0ffa6h 8001h
-fill 0000:1000h 100 5Ah 04h 3Eh 04h 00h 00h 10h 00h 0A8h 93h 58h 02h 3Fh 00h 0FFh 0FFh 00h 00h 00h 00h 53h 53h 30h 39h 30h 64h 30h 30h 30h 33h 66h 66h
-dump 0000:1000h 100
