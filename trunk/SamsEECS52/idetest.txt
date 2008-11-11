@@ -1,6 +1,0 @@
-port 0ffa4h 03h
-o 0ffa8h 4000h
-o 0ffa6h 8001h
-ww 8000:0e000h 0ech
-dump 8000:0000h 512 
-  
