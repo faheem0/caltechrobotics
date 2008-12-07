@@ -46,7 +46,7 @@ public class CristaIMU {
         try {
             in = port.getInputStream();
         } catch (IOException ex) {
-            Logger.getLogger(CristaIMU.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CristaIMU.class.getName()).log(Level.SEVERE, "Could not get InputStream", ex);
         }
     }
     public synchronized void addIMUDataListener(IMUDataListener m) throws TooManyListenersException{
@@ -158,7 +158,7 @@ public class CristaIMU {
                             }
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(CristaIMU.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(CristaIMU.class.getName()).log(Level.SEVERE, "Could not read from InputStream", ex);
                     }
                 }
             }
@@ -175,7 +175,7 @@ public class CristaIMU {
             if (helper != null)
                 helper.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(CristaIMU.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CristaIMU.class.getName()).log(Level.SEVERE, "Interrupted while waiting for helper thread to stop", ex);
         }
         port.close();
     }
