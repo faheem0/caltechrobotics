@@ -55,7 +55,7 @@ public class AC12GPS {
             cmd = cmd + "$PASHS,NME,UTM,A,ON\r\n";
             out.write(cmd.getBytes("ASCII"));
         } catch (IOException ex) {
-            Logger.getLogger(AC12GPS.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AC12GPS.class.getName()).log(Level.SEVERE, "COuld not get OutputStream or InputStream or could not write to OutputStream", ex);
         }
 
     }
@@ -91,7 +91,7 @@ public class AC12GPS {
 
                         //listener.processEvent(null);
                     } catch (IOException ex) {
-                        Logger.getLogger(AC12GPS.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(AC12GPS.class.getName()).log(Level.SEVERE, "Could not read from InputStream", ex);
                     }
                 }
             }
