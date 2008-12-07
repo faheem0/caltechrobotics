@@ -58,7 +58,7 @@ public class ConeRecon {
                             updateInfo(new ConeInfo(false, 0, 0, buffer));
                         }
                     }
-                    Logger.getLogger("Webcam Capture Thread", null);
+                    Logger.getLogger("Webcam Capture Thread Stopped", null);
                 }
 
             };
@@ -73,9 +73,10 @@ public class ConeRecon {
     public synchronized void stop(){
         stopHelper = true;
         try {
-            helperThread.join();
+            if (helperThread != null)
+                helperThread.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(ConeRecon.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ConeRecon.class.getName()).log(Level.SEVERE, "Interrupted while waiting for helper thread to stop", ex);
         }
         updateInfo(new ConeInfo());
 
