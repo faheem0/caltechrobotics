@@ -46,11 +46,11 @@ public class SerialPortFactory {
             System.out.println("Stop Bits is: " + port.getStopBits());
             System.out.println("Parity Bits is: " + port.getParity());
         } catch (UnsupportedCommOperationException ex) {
-            Logger.getLogger(SerialPortFactory.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SerialPortFactory.class.getName()).log(Level.SEVERE, "Could not Set a Serial Port Parameter for " + portName, ex);
         } catch (gnu.io.NoSuchPortException e1) {
-            //System.exit(2);
+            Logger.getLogger(SerialPortFactory.class.getName()).log(Level.SEVERE, "Port " + portName + " does not exist", e1);
         } catch (gnu.io.PortInUseException e2) {
-            System.err.println("Port Already in Use!");
+             Logger.getLogger(SerialPortFactory.class.getName()).log(Level.SEVERE, "Port " + portName + " is already in use!", e2);
             //System.exit(3);
         }
         return port;
