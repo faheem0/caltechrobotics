@@ -22,20 +22,16 @@ import robomagellan.helpers.SerialPortFactory;
  */
 public class Motors {
 
-    public static final int FRONT_LEFT = 0;
-    public static final int FRONT_RIGHT = 1;
-    public static final int BACK_RIGHT = 2;
-    public static final int BACK_LEFT = 3;
-    public static final int FORWARD = 0;
-    public static final int BACKWARD = 1;
+    public static final int LEFT = 1;
+    public static final int RIGHT = 2;
     public static final char START_BYTE = '<';
-    public static final int BAUD_RATE = 4800;
+    public static final int BAUD_RATE = 115200;
     public static final int PARITY = SerialPort.PARITY_NONE;
     public static final int DATA_BITS = SerialPort.DATABITS_8;
     public static final int STOP_BITS = SerialPort.STOPBITS_1;
     public static final int PACKET_RATE = 100;
 
-    public static final int NUM_MOTORS = 4;
+    public static final int NUM_MOTORS = 2;
     public static final int BUFFER_SIZE = 32;
 
     private SerialPort port;
@@ -46,12 +42,15 @@ public class Motors {
     private boolean hasListener;
     private EncoderDataListener listener;
     private OutputStream out;
+    private volatile String cmd;
 
     public Motors(String portName){
-        commands = new ArrayList<String>();
+        cmd = "<0000";
         hasListener = false;
+        commands = new ArrayList<String>();
+        commands.add(START_BYTE + "");
         for (int i = 0; i < NUM_MOTORS; i++)
-            commands.add("<" + i + "00");
+            commands.add("00");
         port = SerialPortFactory.openPort(portName, BAUD_RATE, DATA_BITS, STOP_BITS, PARITY);
         stopHelper = false;
         try {
@@ -61,17 +60,12 @@ public class Motors {
         }
         Runnable helper = new Runnable(){
             public void run() {
-                String cmd = "" ;
                 while(!stopHelper){
-
-                    for (int i = 0; i < commands.size(); i++)
-                        cmd = cmd.concat(commands.get(i));
                     try {
                         out.write(cmd.getBytes("ASCII"));
                     } catch (IOException ex) {
                         Logger.getLogger(Motors.class.getName()).log(Level.SEVERE, "Could not write to OutputStream", ex);
                     }
-                    cmd = "";
                     try {
                         Thread.sleep(PACKET_RATE);
                     } catch (InterruptedException ex) {
@@ -117,11 +111,15 @@ public class Motors {
         hasListener = true;
     }
 
-    public synchronized void setSpeed(int motor, int direction, int speed){
-        if (speed > 9) speed = 9;
+    public synchronized void setSpeed(int motor, int speed){
+        if (speed > 10) speed = 10;
         if (speed < 0) speed = 0;
-        String cmd = START_BYTE + "" +  motor + "" + direction + "" +speed;
-        commands.set(motor, cmd);
+        if (speed == 10) commands.set(motor, speed + "");
+        else commands.set(motor, "0" + speed);
+        String newCmd = "";
+        for (int i = 0; i < commands.size(); i++)
+            newCmd = newCmd.concat(commands.get(i));
+        this.cmd = newCmd;
     }
     public synchronized void stop(){
         stopHelper = true;

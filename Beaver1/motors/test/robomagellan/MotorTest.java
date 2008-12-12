@@ -38,11 +38,7 @@ public class MotorTest {
 
     @Before
     public void setUp() {
-        try {
-            motors = new Motors(port);
-        } catch (IOException ex) {
-            Assert.fail("Failed Attempt to connect to motors (IOException)");
-        }
+        motors = new Motors(port);
         Assert.assertNotNull("Sucessfully Connected to "  + port, motors);
     }
 
@@ -59,9 +55,10 @@ public class MotorTest {
 
     @Test
     public void testSetSpeed(){
-        motors.setSpeed(0, 0, 8);
+        motors.setSpeed(Motors.LEFT, 8);
+        motors.setSpeed(Motors.RIGHT, 9);
         try {
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } catch (InterruptedException ex) {
             Logger.getLogger(MotorTest.class.getName()).log(Level.SEVERE, null, ex);
         }
