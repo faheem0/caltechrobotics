@@ -28,4 +28,10 @@ CompassLogger cl = new CompassLogger();
 myCompass.addCompassDataListener(cl);
 }}}
 
-You may only call `compassDataListener` once. Otherwise it will throw a `TooManyListenersException`
+You may only call `addCompassDataListener` once. Otherwise it will throw a `TooManyListenersException`
+
+To shutdown the `Compass` port:
+
+{{{
+myCompass.stop();
+}}}
