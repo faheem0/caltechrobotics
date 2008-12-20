@@ -1,9 +1,4 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-Add your content here.
-
+#summary How to use the Compass classes for Robomagellan.
 
 = Details =
 
@@ -12,16 +7,25 @@ In the header, put this:
 import robomagellan.compass.*;
 }}}
 
-To instantiate a Compass object:
+To instantiate a `Compass` object:
 {{{
 Compass myCompass = new Compass("/dev/ttyUSB0");
 }}}
 
-To get Compass data:
+To get `Compass` data:
 {{{
 myCompass.addCompassDataListener(new CompassDataListener() {
    public void processEvent(CompassPacket p){
       //Do your thing with CompassPacket p
    }
-}
+});
 }}}
+
+Alternatively, you can create a class elsewhere that implements interface `CompassDataListener` and feed it the object. For instance, if your new class is called `CompassLogger`, you can do this:
+
+{{{
+CompassLogger cl = new CompassLogger();
+myCompass.addCompassDataListener(cl);
+}}}
+
+You may only call `compassDataListener` once. Otherwise it will throw a `TooManyListenersException`
