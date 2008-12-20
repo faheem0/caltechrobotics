@@ -1,0 +1,45 @@
+#summary How to use the Motor classes for Robomagellan.
+
+= Details =
+
+In the header, put this:
+{{{
+import robomagellan.motors.*;
+}}}
+
+To instantiate a `Motors` object:
+{{{
+Motors myMotors = new Motors("/dev/ttyUSB0");
+}}}
+
+To get `Motors` data:
+{{{
+myMotors.addEncoderDataListener(new EncoderDataListener() {
+   public void processEvent(EncoderPacket p){
+      //Do your thing with EncoderPacket p
+   }
+});
+}}}
+
+Alternatively, you can create a class elsewhere that implements interface `EncoderDataListener` and feed it the object. For instance, if your new class is called `MotorsLogger`, you can do this:
+
+{{{
+MotorsLogger ml = new MotorsLogger();
+myMotors.addEncoderDataListener(ml);
+}}}
+
+You may only call `addEncoderDataListener` once. Otherwise it will throw a `TooManyListenersException`
+
+To set the speed of a motor, do:
+
+{{{
+myMotors.setSpeed(Motors.LEFT, 10);
+// or
+myMotors.setSpeed(Motors.RIGHT, 10);
+// where the second parameter can be any integer between 0 and 10, inclusive.
+}}}
+
+To shutdown the `Motors` port:
+{{{
+myMotors.stop();
+}}}
