@@ -13,14 +13,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * A convenience class for connecting to a serial port.
  * @author robomagellan
  */
 public class SerialPortFactory {
 
     private static Enumeration portList;
     private static CommPortIdentifier commID;
-
+    
+    /**
+     * Opens a serial port for reading with the specified parameters.
+     * @param portName the port name (ie. "COM1" or "/dev/ttyUSB0")
+     * @param baud The baud rate to be used
+     * @param data The number of data bits to be used. This should be a standard baud rate.
+     * @param stop The number of stop bits to be used. This should be a standard stop bit number.
+     * @param parity The number of parity bits to be used. This should be a standard parity bit number.
+     * @return an open serial port, ready to be read from or sent data.
+     */
     public static SerialPort openPort(String portName, int baud, int data, int stop, int parity) {
         SerialPort port = null;
         boolean foundPort = false;
