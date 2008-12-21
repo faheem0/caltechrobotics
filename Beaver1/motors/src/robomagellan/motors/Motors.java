@@ -17,21 +17,52 @@ import java.util.logging.Logger;
 import robomagellan.helpers.SerialPortFactory;
 
 /**
- *
+ * A class to communicate with the Robomagellan motors.
  * @author robomagellan
  */
 public class Motors {
 
+	/**
+	 * Indicator for left motor.
+	 */
     public static final int LEFT = 1;
+	/**
+	 * Indicator for right motor.
+	 */
     public static final int RIGHT = 2;
+    /**
+     * Start byte for parsing data
+     */
     public static final char START_BYTE = '<';
+    /**
+     * Baud rate of serial port
+     */
     public static final int BAUD_RATE = 115200;
+    /**
+     * Parity bits of serial port
+     */
     public static final int PARITY = SerialPort.PARITY_NONE;
+    /**
+     * Data bits of serial port
+     */
     public static final int DATA_BITS = SerialPort.DATABITS_8;
+    /**
+     * Stop bits of serial port
+     */
     public static final int STOP_BITS = SerialPort.STOPBITS_1;
+    /**
+     * Time in milliseconds to wait everytime speed information is sent to motors
+     */
     public static final int PACKET_RATE = 100;
 
+    /**
+     * Number of motors
+     */
     public static final int NUM_MOTORS = 2;
+    /**
+     * Buffer size for receiving encoder data.
+     * The event handler will try to read this many bytes each time.
+     */
     public static final int BUFFER_SIZE = 32;
 
     private SerialPort port;
@@ -43,7 +74,11 @@ public class Motors {
     private EncoderDataListener listener;
     private OutputStream out;
     private volatile String cmd;
-
+    
+    /**
+     * Starts a connection to the motors given the selected serial port. Does not open for reading yet, but can be written to.
+     * @param portName serial port (ie. "COM1" or "/dev/ttyUSB0")
+     */
     public Motors(String portName){
         cmd = "<0000";
         hasListener = false;
@@ -83,6 +118,11 @@ public class Motors {
         }
     }
     
+    /**
+     * Starts reading from serial port and feeds encoder data to the specified EncoderDataListener
+     * @param d the object the encoder data will be fed to. (Note: does not actually do it right now. It is not implemented)
+     * @throws java.util.TooManyListenersException
+     */
     public synchronized void addEncoderDataListener(EncoderDataListener d) throws TooManyListenersException{
         if(hasListener) throw new TooManyListenersException("There's already a listener on " + port.getName());
         listener = d;
@@ -97,7 +137,7 @@ public class Motors {
                     try {
                         bytesRead = in.read(buffer);
                         str = new String(buffer, 0, bytesRead, "ASCII");
-
+			// Not yet implemented.
                         System.out.print(str);
 
                         //listener.processEvent(null);
@@ -110,7 +150,11 @@ public class Motors {
 
         hasListener = true;
     }
-
+    /**
+     * Sets the speed of a given motor
+     * @param motor Motor number, Motors.LEFT or Motors.RIGHT
+     * @param speed A speed ranging from 0 to 10, 0 being stop.
+     */
     public synchronized void setSpeed(int motor, int speed){
         if (speed > 10) speed = 10;
         if (speed < 0) speed = 0;
@@ -121,6 +165,11 @@ public class Motors {
             newCmd = newCmd.concat(commands.get(i));
         this.cmd = newCmd;
     }
+    /**
+     * Shutsdown the serial port connection to the motors.
+     * It cannot be opened up again in the same object.
+     * A new instance of this class must be created.
+     */
     public synchronized void stop(){
         stopHelper = true;
         try {
