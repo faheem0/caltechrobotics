@@ -1,17 +1,25 @@
 #summary How to use the Compass classes for Robomagellan.
+= Table of Contents =
+<wiki:toc maxdepth="1">
+
+= API =
+For the API: [http://robomagellan.caltech.edu/api/compass/javadoc/ Click Here]
 
 = Details =
 
+== Header ==
 In the header, put this:
 {{{
 import robomagellan.compass.*;
 }}}
 
+== Constructor ==
 To instantiate a `Compass` object:
 {{{
 Compass myCompass = new Compass("/dev/ttyUSB0");
 }}}
 
+== Getting Compass Data ==
 To get `Compass` data:
 {{{
 myCompass.addCompassDataListener(new CompassDataListener() {
@@ -30,6 +38,7 @@ myCompass.addCompassDataListener(cl);
 
 You may only call `addCompassDataListener` once. Otherwise it will throw a `TooManyListenersException`
 
+== Shutting Down ==
 To shutdown the `Compass` port:
 
 {{{
