@@ -6,7 +6,7 @@
 package robomagellan.motors;
 
 /**
- *
+ * An encoder packet.
  * @author robomagellan
  */
 public class EncoderPacket {
