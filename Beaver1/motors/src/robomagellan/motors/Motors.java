@@ -77,6 +77,10 @@ public class Motors {
      * ASCII zero for parsing
      */
     public static final int ASCII_ZERO = 48;
+    /**
+     * ASCII Negative sign for parsing
+     */
+    public static final int ASCII_NEG = 45;
 
     private SerialPort port;
     private volatile ArrayList<String> commands;
@@ -146,7 +150,7 @@ public class Motors {
             int bytesRead;
             int state = 0;
             int byteCnt = 0;
-	    int sign = 1;
+	    //int sign = 1;
             EncoderPacket packet = new EncoderPacket();
 
             public void serialEvent(SerialPortEvent arg0) {
@@ -157,7 +161,7 @@ public class Motors {
 				switch (state) {
 					case 0:
 						if (readBuffer[i] == START_BYTE) {
-                            packet = new EncoderPacket();
+							packet = new EncoderPacket();
 							state = 1;
 							byteCnt = 0;
 							data[0] = 0;
@@ -167,9 +171,10 @@ public class Motors {
 						}
 						break;
 					case 1:
-						if ((char) readBuffer[i] == '-') {
+						/*
+						if (readBuffer[i] == ASCII_NEG) {
 							sign = -1;
-						}
+						}*/
 						if (byteCnt != 0) {
 							data[0] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 						}
@@ -177,14 +182,14 @@ public class Motors {
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 2;
 							//data[0] *= sign;
-							sign = 1;
+							//sign = 1;
 							byteCnt = 0;
 						}
 						break;
 					case 2:
-						if ((char) readBuffer[i] == '-') {
+						/*if (readBuffer[i] == ASCII_NEG) {
 							sign = -1;
-						}
+						}*/
 						if (byteCnt != 0) {
 							data[1] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 						}
@@ -192,14 +197,14 @@ public class Motors {
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 3;
 							//data[1] *= sign;
-							sign = 1;
+							//sign = 1;
 							byteCnt = 0;
 						}
 						break;
 					case 3:
-						if ((char) readBuffer[i] == '-') {
+						/*if (readBuffer[i] == ASCII_NEG) {
                             sign = -1;
-						}
+						}*/
 						if (byteCnt != 0) {
 							data[2] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 						}
@@ -209,26 +214,26 @@ public class Motors {
                            // System.out.println("sign: "+sign+" d2: "+data[2]);
 							//data[2] *= sign;
                             //System.out.println(data[2]);
-							sign = 1;
+							//sign = 1;
 							byteCnt = 0;
 						}
 						break;
 					case 4:
-						if ((char) readBuffer[i] == '-') {
+						/*if (readBuffer[i] == ASCII_NEG) {
 							sign = -1;
-						}
+						}*/
 						if (byteCnt != 0) {
-                            data[3] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
+							data[3] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 						}
 						byteCnt++;
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 0;
 							//data[3] *= sign;
-							sign = 1;
+							//sign = 1;
 							byteCnt = 0;
 							packet.velLeft = data[2];
 							packet.velRight = data[3];
-                            listener.processEvent(packet);
+							listener.processEvent(packet);
 						}
 						break;
 					default:
