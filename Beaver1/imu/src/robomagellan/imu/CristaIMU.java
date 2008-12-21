@@ -6,14 +6,11 @@
 package robomagellan.imu;
 
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import robomagellan.helpers.SerialPortFactory;
 
 /**
@@ -64,6 +61,7 @@ public class CristaIMU {
                     try {
                         while (in.available() != 0) {
                             in.read(buf);
+			    //TODO: Optimize this
                             if (stop) break;
                             /*if (buf[0] < 0) {
                                 break;
