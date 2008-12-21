@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package robomagellan.motors;
 
 /**
@@ -10,6 +9,13 @@ package robomagellan.motors;
  * @author robomagellan
  */
 public class EncoderPacket {
-    public double velLeft = 0;
-    public double velRight = 0;
+
+	/**
+	 * Velocity of left motor
+	 */
+	public double velLeft = 0;
+	/**
+	 * Velocity of right motor
+	 */
+	public double velRight = 0;
 }
