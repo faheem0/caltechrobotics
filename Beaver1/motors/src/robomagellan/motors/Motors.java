@@ -216,7 +216,7 @@ public class Motors {
 							sign = -1;
 						}
 						if (byteCnt != 0) {
-							data[3] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
+                            data[3] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 						}
 						byteCnt++;
 						if (byteCnt >= BYTES_PER_SEGMENT) {
@@ -226,7 +226,7 @@ public class Motors {
 							byteCnt = 0;
 							packet.velLeft = data[2];
 							packet.velRight = data[3];
-							listener.processEvent(packet);
+                            listener.processEvent(packet);
 						}
 						break;
 					default:
