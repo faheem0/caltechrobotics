@@ -157,7 +157,7 @@ public class Motors {
 				switch (state) {
 					case 0:
 						if (readBuffer[i] == START_BYTE) {
-							packet = new EncoderPacket();
+                            packet = new EncoderPacket();
 							state = 1;
 							byteCnt = 0;
 							data[0] = 0;
@@ -176,7 +176,7 @@ public class Motors {
 						byteCnt++;
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 2;
-							data[0] *= sign;
+							//data[0] *= sign;
 							sign = 1;
 							byteCnt = 0;
 						}
@@ -191,14 +191,14 @@ public class Motors {
 						byteCnt++;
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 3;
-							data[1] *= sign;
+							//data[1] *= sign;
 							sign = 1;
 							byteCnt = 0;
 						}
 						break;
 					case 3:
 						if ((char) readBuffer[i] == '-') {
-							sign = -1;
+                            sign = -1;
 						}
 						if (byteCnt != 0) {
 							data[2] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
@@ -206,7 +206,9 @@ public class Motors {
 						byteCnt++;
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 4;
-							data[2] *= sign;
+                           // System.out.println("sign: "+sign+" d2: "+data[2]);
+							//data[2] *= sign;
+                            //System.out.println(data[2]);
 							sign = 1;
 							byteCnt = 0;
 						}
@@ -221,7 +223,7 @@ public class Motors {
 						byteCnt++;
 						if (byteCnt >= BYTES_PER_SEGMENT) {
 							state = 0;
-							data[3] *= sign;
+							//data[3] *= sign;
 							sign = 1;
 							byteCnt = 0;
 							packet.velLeft = data[2];
