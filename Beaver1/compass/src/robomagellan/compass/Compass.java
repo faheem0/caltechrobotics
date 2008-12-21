@@ -16,16 +16,38 @@ import java.util.logging.Logger;
 import robomagellan.helpers.SerialPortFactory;
 
 /**
- *
+ * The primary class in the robomagellan.compass package.
+ * Use this class to listen on a serial port for compass data.
  * @author robomagellan
  */
 public class Compass {
+	/**
+	 * The Serial Port Baud Rate.
+	 */
     public static final int BAUD_RATE = 115200;
+	/**
+	 * 8 Data Bits
+	 */
     public static final int DATA_BITS = SerialPort.DATABITS_8;
+	 /**
+	  * No Parity
+	  */ 
     public static final int PARITY = SerialPort.PARITY_NONE;
+	/**
+	 * 1 Stop Bit
+	 */
     public static final int STOP_BITS = SerialPort.STOPBITS_1;
+	/**
+	 * The event handler will try to read this many bytes every interrupt.
+	 */
     public static final int BUFFER_SIZE = 32;
+	/**
+	 * Constant for parsing data
+	 */
     public static final int ASCII_ZERO = 48;
+	/**
+	 * The start byte of each packet received.
+	 */
     public static final int START_BYTE = 0x3c;
 
     private SerialPort port;
@@ -33,6 +55,10 @@ public class Compass {
     private CompassDataListener listener;
     private InputStream in;
 
+    /**
+     * Opens a serial port for the compass. Does not start reading yet.
+     * @param portName a String containing the port name (ie. "COM1" or "/dev/ttyUSB0")
+     */
     public Compass(String portName){
         hasListener = false;
         port = SerialPortFactory.openPort(portName, BAUD_RATE, DATA_BITS, STOP_BITS, PARITY);
@@ -42,7 +68,11 @@ public class Compass {
             Logger.getLogger(Compass.class.getName()).log(Level.SEVERE, "Could not get InputStream", ex);
         }
     }
-
+    /**
+     * Starts reading from the serial port.
+     * @param c every CompassPacket received will be fed to the processEvent method of this object.
+     * @throws java.util.TooManyListenersException
+     */
      public synchronized void addCompassDataListener(CompassDataListener c) throws TooManyListenersException{
         if(hasListener) throw new TooManyListenersException("There's already a listener on " + port.getName());
         listener = c;
@@ -93,7 +123,11 @@ public class Compass {
 
         hasListener = true;
     }
-
+    /**
+     * Stop reading from the serial port and close the port. Once this is called,
+     * the port will not be able to be opened from this object again. Another instance of this class
+     * will have to be instantiated.
+     */
     public void stop(){
         port.close();
     }
