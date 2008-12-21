@@ -51,15 +51,32 @@ public class Motors {
      * Time in milliseconds to wait everytime speed information is sent to motors
      */
     public static final int PACKET_RATE = 100;
-
+    
+    /**
+     * Amount of usefull data in each packet
+     */
     public static final int NUM_ENCODER_DATA = 4;
-    public static final int ENC_LEFT_POS = 0;
+    /*public static final int ENC_LEFT_POS = 0;
     public static final int ENC_RIGHT_POS = 1;
     public static final int ENC_LEFT_VEL = 2;
-    public static final int ENC_RIGHT_VEL = 3;
+    public static final int ENC_RIGHT_VEL = 3;*/
 
+    /**
+     * Number of motors
+     */
     public static final int NUM_MOTORS = 2;
+    /**
+     * Bytes per segment of the packet
+     */
     public static final int BYTES_PER_SEGMENT = 6;
+    /**
+     * Max number of bytes that is read each time an interrupt occurs
+     */
+    public static final int BUFFER_SIZE = 128;
+    /**
+     * ASCII zero for parsing
+     */
+    public static final int ASCII_ZERO = 48;
 
     private SerialPort port;
     private volatile ArrayList<String> commands;
@@ -116,7 +133,7 @@ public class Motors {
     
     /**
      * Starts reading from serial port and feeds encoder data to the specified EncoderDataListener
-     * @param d the object the encoder data will be fed to. (Note: does not actually do it right now. It is not implemented)
+     * @param d the object the encoder data will be fed to. 
      * @throws java.util.TooManyListenersException
      */
     public synchronized void addEncoderDataListener(EncoderDataListener d) throws TooManyListenersException{
@@ -124,76 +141,98 @@ public class Motors {
         listener = d;
         port.notifyOnDataAvailable(true);
         port.addEventListener(new SerialPortEventListener(){
-            String[] str = new String[NUM_ENCODER_DATA];
-            byte[] buffer = new byte[BYTES_PER_SEGMENT];
-            byte[] readBuffer = new byte[1];
+            int[] data = new int[NUM_ENCODER_DATA];
+            byte[] readBuffer = new byte[BUFFER_SIZE];
             int bytesRead;
             int state = 0;
-            int bufferIndex = 0;
+            int byteCnt = 0;
+	    int sign = 1;
             EncoderPacket packet = new EncoderPacket();
 
             public void serialEvent(SerialPortEvent arg0) {
                 if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE){
                     try {
                         bytesRead = in.read(readBuffer);
-                        switch(state){
-                            case 0:
-                                if (readBuffer[0] == START_BYTE){
-                                    packet = new EncoderPacket();
-                                    bufferIndex = 0;
-                                    state = 1;
-                                }
-                                break;
-                            case 1:
-                                if (bufferIndex < BYTES_PER_SEGMENT){
-                                    buffer[bufferIndex] = readBuffer[0];
-                                    bufferIndex++;
-                                } else {
-                                    //Left Position
-                                    str[ENC_LEFT_POS] = new String(buffer, 0, readBuffer.length, "ASCII");
-                                    bufferIndex = 0;
-                                    state = 2;
-                                }
-                                break;
-                           case 2:
-                                if (bufferIndex < BYTES_PER_SEGMENT){
-                                    buffer[bufferIndex] = readBuffer[0];
-                                    bufferIndex++;
-                                } else {
-                                    //Right Position
-                                    str[ENC_RIGHT_POS] = new String(buffer, 0, buffer.length, "ASCII");
-                                    bufferIndex = 0;
-                                    state = 3;
-                                }
-                                break;
-                           case 3:
-                                if (bufferIndex < BYTES_PER_SEGMENT){
-                                    buffer[bufferIndex] = readBuffer[0];
-                                    bufferIndex++;
-                                } else {
-                                    //Left Velocity
-                                    str[ENC_LEFT_VEL] = new String(buffer, 0, buffer.length, "ASCII");
-                                    bufferIndex = 0;
-                                    state = 4;
-                                }
-                                break;
-                           case 4:
-                                if (bufferIndex < BYTES_PER_SEGMENT){
-                                    buffer[bufferIndex] = readBuffer[0];
-                                    bufferIndex++;
-                                } else {
-                                    //Right Velocity
-                                    str[ENC_RIGHT_VEL] = new String(buffer, 0, buffer.length, "ASCII");
-                                    bufferIndex = 0;
-                                    packet.velLeft = Double.parseDouble(str[2]);
-                                    packet.velRight = Double.parseDouble(str[3]);
-                                    listener.processEvent(packet);
-                                    state = 0;
-                                }
-                            break;
-                            default:
-                                break;
-                        }
+			for (int i = 0; i < bytesRead; i++){
+				switch (state) {
+					case 0:
+						if (readBuffer[i] == START_BYTE) {
+							packet = new EncoderPacket();
+							state = 1;
+							byteCnt = 0;
+							data[0] = 0;
+							data[1] = 0;
+							data[2] = 0;
+							data[3] = 0;
+						}
+						break;
+					case 1:
+						if ((char) readBuffer[i] == '-') {
+							sign = -1;
+						}
+						if (byteCnt != 0) {
+							data[0] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
+						}
+						byteCnt++;
+						if (byteCnt >= BYTES_PER_SEGMENT) {
+							state = 2;
+							data[0] *= sign;
+							sign = 1;
+							byteCnt = 0;
+						}
+						break;
+					case 2:
+						if ((char) readBuffer[i] == '-') {
+							sign = -1;
+						}
+						if (byteCnt != 0) {
+							data[1] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
+						}
+						byteCnt++;
+						if (byteCnt >= BYTES_PER_SEGMENT) {
+							state = 3;
+							data[1] *= sign;
+							sign = 1;
+							byteCnt = 0;
+						}
+						break;
+					case 3:
+						if ((char) readBuffer[i] == '-') {
+							sign = -1;
+						}
+						if (byteCnt != 0) {
+							data[2] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
+						}
+						byteCnt++;
+						if (byteCnt >= BYTES_PER_SEGMENT) {
+							state = 4;
+							data[2] *= sign;
+							sign = 1;
+							byteCnt = 0;
+						}
+						break;
+					case 4:
+						if ((char) readBuffer[i] == '-') {
+							sign = -1;
+						}
+						if (byteCnt != 0) {
+							data[3] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
+						}
+						byteCnt++;
+						if (byteCnt >= BYTES_PER_SEGMENT) {
+							state = 0;
+							data[3] *= sign;
+							sign = 1;
+							byteCnt = 0;
+							packet.velLeft = data[2];
+							packet.velRight = data[3];
+							listener.processEvent(packet);
+						}
+						break;
+					default:
+						break;
+				}
+			}
                         //listener.processEvent(null);
                     } catch (IOException ex) {
                         Logger.getLogger(Motors.class.getName()).log(Level.SEVERE, "Could not read from InputStream", ex);
