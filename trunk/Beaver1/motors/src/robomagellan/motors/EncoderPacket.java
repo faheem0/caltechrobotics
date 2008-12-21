@@ -10,5 +10,6 @@ package robomagellan.motors;
  * @author robomagellan
  */
 public class EncoderPacket {
-
+    public double velLeft = 0;
+    public double velRight = 0;
 }

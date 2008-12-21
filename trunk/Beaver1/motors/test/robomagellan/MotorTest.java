@@ -6,6 +6,7 @@
 package robomagellan;
 
 import java.io.IOException;
+import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -14,6 +15,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import robomagellan.motors.EncoderDataListener;
+import robomagellan.motors.EncoderPacket;
 import robomagellan.motors.Motors;
 import static org.junit.Assert.*;
 
@@ -63,6 +66,20 @@ public class MotorTest {
             Logger.getLogger(MotorTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void testEncoder(){
+        try {
+            motors.addEncoderDataListener(new EncoderDataListener() {
+
+                public void processEvent(EncoderPacket p) {
+                    System.out.println(p.velLeft + "\t" + p.velRight );
+                }
+            });
+        } catch (TooManyListenersException ex) {
+            Logger.getLogger(MotorTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
