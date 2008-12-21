@@ -48,37 +48,41 @@ public class Compass {
         listener = c;
         port.notifyOnDataAvailable(true);
         port.addEventListener(new SerialPortEventListener(){
-            int byteRead;
+            int bytesRead;
             int heading;
             int state = 0;
+	    byte[] buffer = new byte[BUFFER_SIZE];
 
             public void serialEvent(SerialPortEvent arg0) {
                 if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE){
                     try {
-                        byteRead = in.read();
-                        switch(state){
-                            case 0:
-                                if (byteRead == START_BYTE)
-                                    state = 1;
-                                break;
-                            case 1:
-                                heading = (byteRead - ASCII_ZERO) * 100;
-                                state = 2;
-                                break;
-                            case 2:
-                                heading += (byteRead - ASCII_ZERO) * 10;
-                                state = 3;
-                                break;
-                            case 3:
-                                heading += byteRead - ASCII_ZERO;
-                                state = 0;
-                                CompassPacket packet = new CompassPacket();
-                                packet.heading = heading;
-                                listener.processEvent(packet);
-                                break;
-                            default:
-                                break;
-                        }
+			    bytesRead = in.read(buffer);
+			    for (int i = 0; i < bytesRead; i++) {
+				    switch (state) {
+					    case 0:
+						    if (buffer[i] == START_BYTE) {
+							    state = 1;
+						    }
+						    break;
+					    case 1:
+						    heading = (buffer[i] - ASCII_ZERO) * 100;
+						    state = 2;
+						    break;
+					    case 2:
+						    heading += (buffer[i] - ASCII_ZERO) * 10;
+						    state = 3;
+						    break;
+					    case 3:
+						    heading += buffer[i] - ASCII_ZERO;
+						    state = 0;
+						    CompassPacket packet = new CompassPacket();
+						    packet.heading = heading;
+						    listener.processEvent(packet);
+						    break;
+					    default:
+						    break;
+				    }
+			    }
                         //listener.processEvent(null);
                     } catch (IOException ex) {
                         Logger.getLogger(Compass.class.getName()).log(Level.SEVERE, "Could not read from InputStream", ex);
