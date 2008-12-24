@@ -34,7 +34,7 @@ CON
     #4,LSBFIRST,MSBFIRST
 
 VAR
-  long compassStack[50], heading, tempHeading
+  long compassStack[50], heading, tempHeading, truncHeading , origHeading
   byte flagIn, frameIn, countIn, termIn
   byte headingVal[4], headingIn, exponent 
  
@@ -58,6 +58,10 @@ cognew(compass_cog, @compassStack) ' Start compass cog
 }}
 PUB getHeading
    return heading
+PUB gettruncHeading
+   return truncHeading
+PUB getOrigHeading
+   return origHeading
 PUB compass_cog
   ' Set up pins
   dira[ssnot] := 1   ' Make sure that SPI is closed
@@ -98,9 +102,10 @@ PUB compass_cog
     ' Take the float heading and convert to integer. Note that
     ' a temp variable is used for calculations. This is to make sure
     ' that the variable contains valid data when read by other cogs.
-    tempHeading := fMath.FRound( (HeadingVal[0]<<24)+(HeadingVal[1]<<16)+(HeadingVal[3]<<8)+(HeadingVal[4]) )
+    truncHeading:=fMath.FTrunc ((HeadingVal[0]<<24)+(HeadingVal[1]<<16)+(HeadingVal[3]<<8)+(HeadingVal[4])) 
+    heading := fMath.FRound( (HeadingVal[0]<<24)+(HeadingVal[1]<<16)+(HeadingVal[3]<<8)+(HeadingVal[4]) )
     
-    {{headingVal[0] := headingVal[0] * 2    'there is a bug with this float to integer conversion
+    headingVal[0] := headingVal[0] * 2    'there is a bug with this float to integer conversion
     if headingVal[1] => 128                        'that causes the value to jump around the following
       headingVal[0] := headingVal[0] + 1           'values: 143, 191, 271, 319, 335
     exponent := headingVal[0]
@@ -111,13 +116,13 @@ PUB compass_cog
     repeat until exponent == 127
       tempheading := tempheading * 2
       headingVal[1] := headingVal[1] * 2
-      if headingVal[1] > 128
+      if headingVal[1] => 128
         tempheading := tempheading + 1
-      if headingVal[2] > 128
+      if headingVal[2] => 128
         headingVal[1] := headingVal[1] + 1
       headingVal[2] := headingVal[2] * 2
       exponent := exponent - 1
    ' Here we take the temp variable and
    ' and put it into heading. Heading now
-   ' contains the compass heading.  }} 
-    heading := tempHeading              
+   ' contains the compass heading.   
+    origHeading := tempHeading              
