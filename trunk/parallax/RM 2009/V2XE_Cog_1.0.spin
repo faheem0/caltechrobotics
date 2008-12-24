@@ -42,6 +42,7 @@ OBJ
     BS2         : "BS2_Functions"
     btSerial    : "FullDuplexSerial"
     spi         : "SPI Engine"
+    fMath       : "FloatMath"
     
 pub init
 
@@ -97,9 +98,11 @@ PUB compass_cog
     ' Take the float heading and convert to integer. Note that
     ' a temp variable is used for calculations. This is to make sure
     ' that the variable contains valid data when read by other cogs.
-    headingVal[0] := headingVal[0] * 2
-    if headingVal[1] => 128
-      headingVal[0] := headingVal[0] + 1
+    tempHeading := fMath.FRound( (HeadingVal[0]<<24)+(HeadingVal[1]<<16)+(HeadingVal[3]<<8)+(HeadingVal[4]) )
+    
+    {{headingVal[0] := headingVal[0] * 2    'there is a bug with this float to integer conversion
+    if headingVal[1] => 128                        'that causes the value to jump around the following
+      headingVal[0] := headingVal[0] + 1           'values: 143, 191, 271, 319, 335
     exponent := headingVal[0]
     tempheading := 1
     if exponent =< 126
@@ -116,5 +119,5 @@ PUB compass_cog
       exponent := exponent - 1
    ' Here we take the temp variable and
    ' and put it into heading. Heading now
-   ' contains the compass heading.   
-    heading := tempHeading 
+   ' contains the compass heading.  }} 
+    heading := tempHeading              
