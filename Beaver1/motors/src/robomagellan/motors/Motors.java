@@ -30,7 +30,7 @@ public class Motors {
 	 * Indicator for right motor.
 	 */
 	public static final int RIGHT = 2;
-	public static final byte START_BYTE = 60;
+	public static final char START_BYTE = '<';
 	/**
 	 * Baud rate of serial port
 	 */
@@ -79,6 +79,11 @@ public class Motors {
 	 * ASCII Negative sign for parsing
 	 */
 	public static final int ASCII_NEG = 45;
+    /**
+     * Maximum Motor Speed
+     */
+    public static final int MAX_MOTOR_SPEED = 10;
+
 	private SerialPort port;
 	private volatile ArrayList<String> commands;
 	private Thread helperThread;
@@ -255,17 +260,18 @@ public class Motors {
 
 	/**
 	 * Sets the speed of a given motor
-	 * @param motor Motor number, Motors.LEFT or Motors.RIGHT
-	 * @param speed A speed ranging from 0 to 10, 0 being stop.
+	 * @param motor Motor number, `Motors.LEFT` or `Motors.RIGHT`
+	 * @param speed A speed ranging from 0 to `Motors.MAX_MOTOR_SPEED`, 0 being stop.
 	 */
 	public synchronized void setSpeed(int motor, int speed) {
-		if (speed > 10) {
-			speed = 10;
+		if (speed > MAX_MOTOR_SPEED) {
+			speed = MAX_MOTOR_SPEED;
 		}
-		if (speed < 0) {
-			speed = 0;
+        else if (speed < -1*MAX_MOTOR_SPEED) {
+			speed = -1 * MAX_MOTOR_SPEED;
 		}
-		if (speed == 10) {
+        speed += MAX_MOTOR_SPEED;
+		if (speed >= MAX_MOTOR_SPEED) {
 			commands.set(motor, speed + "");
 		} else {
 			commands.set(motor, "0" + speed);
@@ -275,6 +281,7 @@ public class Motors {
 			newCmd = newCmd.concat(commands.get(i));
 		}
 		this.cmd = newCmd;
+        //System.out.println(this.cmd);
 	}
 
 	/**
