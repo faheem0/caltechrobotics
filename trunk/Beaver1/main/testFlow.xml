@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : testFlow.xml
+    Created on : January 6, 2009, 4:26 PM
+    Author     : robomagellan
+    Description:
+        Purpose of the document follows.
+-->
+
+<root>
+    <node head="1">
+        <name>obstacle_detection</name>
+        <class>robomagellan.main.flowNodes.ObstacleDetectionFlowNode</class>
+        <true>alternate_route</true>
+        <false>statistics</false>
+    </node>
+    <node>
+        <name>statistics</name>
+        <class>robomagellan.main.flowNodes.KalmanFlowNode</class>
+    </node>
+    <node>
+        <name>alternate_route</name>
+        <class>robomagellan.main.flowNodes.AlternateRouteFlowNode</class>
+        <true>kalman</true>
+        <false>kalman</false>
+    </node>
+</root>

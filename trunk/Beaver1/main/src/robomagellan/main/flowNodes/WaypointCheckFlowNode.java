@@ -1,0 +1,48 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package robomagellan.main.flowNodes;
+
+import robomagellan.flow.FlowNode;
+import robomagellan.gps.GPSPacket;
+import robomagellan.main.MainApp;
+import robomagellan.main.MainView;
+import robomagellan.main.Waypoint;
+
+/**
+ * This flow node checks to see if the current waypoint is of normal type and
+ * if the robot is at the waypoint.
+ * @author robomagellan
+ */
+public class WaypointCheckFlowNode extends FlowNode{
+
+    private static final double DIST_THRESHOLD = 2.0;
+    
+    @Override
+    public boolean test() {
+        if (MainApp.currentWpt != null && MainApp.currentWpt.type == Waypoint.TYPE_NORM){
+            if (getDistanceFromWpt(MainApp.currentWpt.coord, MainApp.filter.getCoordinates()) < DIST_THRESHOLD)
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void actionTrue() {
+        MainView.log(getName() + ": True");
+    }
+
+    @Override
+    public void actionFalse() {
+        MainView.log(getName() + ": False");
+    }
+
+    private static double getDistanceFromWpt(GPSPacket a, GPSPacket b){
+        double x = a.utmEast - b.utmEast;
+        double y = a.utmNorth - b.utmNorth;
+        return Math.sqrt(x*x + y*y);
+    }
+
+}
