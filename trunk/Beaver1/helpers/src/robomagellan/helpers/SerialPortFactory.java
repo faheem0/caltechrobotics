@@ -8,7 +8,9 @@ package robomagellan.helpers;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,7 +22,19 @@ public class SerialPortFactory {
 
     private static Enumeration portList;
     private static CommPortIdentifier commID;
-    
+
+    /**
+     * Retrieves a list of the available serial ports
+     * @return list of serial port names available
+     */
+    public static List<String> getPortList(){
+        portList = CommPortIdentifier.getPortIdentifiers();
+        List<String> list = new ArrayList<String>();
+        while(portList.hasMoreElements()){
+            list.add(((CommPortIdentifier)portList.nextElement()).getName());
+        }
+        return list;
+    }
     /**
      * Opens a serial port for reading with the specified parameters.
      * @param portName the port name (ie. "COM1" or "/dev/ttyUSB0")
