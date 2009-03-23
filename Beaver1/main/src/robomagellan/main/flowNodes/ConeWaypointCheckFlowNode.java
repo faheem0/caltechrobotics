@@ -32,12 +32,12 @@ public class ConeWaypointCheckFlowNode extends FlowNode{
 
     @Override
     public void actionTrue() {
-        MainView.log(getName() + ": True");
+        MainView.log(getName() + ": True, No Action");
     }
 
     @Override
     public void actionFalse() {
-        MainView.log(getName() + ": False");
+        MainView.log(getName() + ": False, No Action");
     }
 
     private static double getDistanceFromWpt(GPSPacket a, GPSPacket b){

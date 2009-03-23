@@ -10,8 +10,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jToolBar1" alignment="0" pref="589" max="32767" attributes="0"/>
-              <Component id="jTabbedPane1" alignment="1" pref="589" max="32767" attributes="0"/>
+              <Component id="jToolBar1" alignment="0" pref="683" max="32767" attributes="0"/>
+              <Component id="jTabbedPane1" alignment="1" pref="683" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -19,7 +19,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <Component id="jToolBar1" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jTabbedPane1" pref="228" max="32767" attributes="0"/>
+                  <Component id="jTabbedPane1" pref="225" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -47,15 +47,12 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane2" alignment="0" pref="584" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" alignment="0" pref="678" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="jScrollPane2" min="-2" pref="204" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
+                      <Component id="jScrollPane2" alignment="0" pref="198" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -75,7 +72,7 @@
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                           <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;        {null, null, null, null, null},&#xa;        {null, null, null, null, null},&#xa;        {null, null, null, null, null},&#xa;        {null, null, null, null, null},&#xa;        {null, null, null, null, null}&#xa;    },&#xa;    new String [] {&#xa;        &quot;Sensor&quot;, &quot;Device&quot;, &quot;Reading X&quot;, &quot;Reading Y&quot;, &quot;Reading Z&quot;&#xa;    }&#xa;) {&#xa;    Class[] types = new Class [] {&#xa;        java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Double.class, java.lang.Double.class&#xa;    };&#xa;    boolean[] canEdit = new boolean [] {&#xa;        false, false, false, false, false&#xa;    };&#xa;&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return types [columnIndex];&#xa;    }&#xa;&#xa;    public boolean isCellEditable(int rowIndex, int columnIndex) {&#xa;        return canEdit [columnIndex];&#xa;    }&#xa;}" type="code"/>
                         </Property>
-                        <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                        <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor" postCode="initStatTable();">
                           <TableColumnModel selectionModel="0"/>
                         </Property>
                         <Property name="name" type="java.lang.String" value="statTable" noResource="true"/>
@@ -83,6 +80,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <AuxValues>
+                        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="66"/>
+                      </AuxValues>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -103,12 +103,12 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="584" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="678" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="201" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="198" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -128,15 +128,22 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="584" max="32767" attributes="0"/>
+                      <Component id="jXMapKit1" alignment="0" pref="678" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="201" max="32767" attributes="0"/>
+                      <Component id="jXMapKit1" alignment="0" pref="198" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
+              <SubComponents>
+                <Component class="org.jdesktop.swingx.JXMapKit" name="jXMapKit1">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="jXMapKit1" noResource="true" preCode="//jXMapKit1.setDefaultProvider(org.jdesktop.swingx.JXMapKit.DefaultProviders.OpenStreetMaps);&#xa;jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());&#xa;//jXMapKit1.setDataProviderCreditShown(true);" postCode="jXMapKit1.setAddressLocation(new GeoPosition(34.138577, -118.125494));"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel4">
               <Properties>
@@ -153,12 +160,12 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane1" alignment="0" pref="584" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" alignment="0" pref="678" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane1" alignment="0" pref="201" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" alignment="0" pref="198" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -200,12 +207,12 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane3" alignment="0" pref="584" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" alignment="0" pref="678" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane3" alignment="0" pref="201" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" alignment="0" pref="198" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -310,6 +317,11 @@
                 <Property name="verticalTextPosition" type="int" value="3"/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JToolBar$Separator" name="jSeparator2">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jSeparator2" noResource="true"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>
@@ -376,6 +388,42 @@
                 <Property name="name" type="java.lang.String" value="jMenuItem1" noResource="true"/>
               </Properties>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="mapMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="mapMenu.text"/>
+                <Property name="name" type="java.lang.String" value="mapMenu" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="satRadioButton">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="robomagellan.main.MainView" id="satMapSelected" methodName="satMapSelected"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="satRadioButton.text"/>
+                    <Property name="name" type="java.lang.String" value="satRadioButton" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="terRadioButton">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="robomagellan.main.MainView" id="terMapSelected" methodName="terMapSelected"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="text" type="java.lang.String" resourceKey="terRadioButton.text"/>
+                    <Property name="name" type="java.lang.String" value="terRadioButton" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="streetRadioButton">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="robomagellan.main.MainView" id="streetMapSelected" methodName="streetMapSelected"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="streetRadioButton.text"/>
+                    <Property name="name" type="java.lang.String" value="streetRadioButton" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
@@ -412,11 +460,11 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="statusPanelSeparator" alignment="0" pref="589" max="32767" attributes="0"/>
+              <Component id="statusPanelSeparator" alignment="0" pref="683" max="32767" attributes="0"/>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusMessageLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="405" max="32767" attributes="0"/>
+                  <EmptySpace pref="499" max="32767" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusAnimationLabel" min="-2" max="-2" attributes="0"/>
@@ -469,8 +517,16 @@
     </Container>
     <Component class="javax.swing.JFileChooser" name="openFlowChooser">
       <Properties>
+        <Property name="fileFilter" type="javax.swing.filechooser.FileFilter" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new ExtensionFileFilter(&quot;XML Files&quot;, new String[] { &quot;xml&quot; })" type="code"/>
+        </Property>
         <Property name="name" type="java.lang.String" value="openFlowChooser" noResource="true"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="mapGroup">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="mapGroup.add(satRadioButton);&#xa;mapGroup.add(terRadioButton);&#xa;mapGroup.add(streetRadioButton);"/>
+      </AuxValues>
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -494,6 +550,6 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,42,0,0,2,77"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,46,0,0,2,-85"/>
   </AuxValues>
 </Form>

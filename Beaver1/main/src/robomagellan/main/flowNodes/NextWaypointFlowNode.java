@@ -15,7 +15,7 @@ import robomagellan.main.MainView;
  * when there is not.
  * @author robomagellan
  */
-public class WaypointFlowNode extends FlowNode{
+public class NextWaypointFlowNode extends FlowNode{
 
     @Override
     public boolean test() {
@@ -30,12 +30,12 @@ public class WaypointFlowNode extends FlowNode{
     @Override
     public void actionTrue() {
         MainApp.currentWpt = MainApp.wpts.poll();
-        MainView.log("New Waypoint Acquired");
+        MainView.log(getName() + ": True, New Waypoint Acquired");
     }
 
     @Override
     public void actionFalse() {
-        MainView.log("No Waypoints Left");
+        MainView.log(getName() + ": False, No Waypoints Left");
     }
 
 }
