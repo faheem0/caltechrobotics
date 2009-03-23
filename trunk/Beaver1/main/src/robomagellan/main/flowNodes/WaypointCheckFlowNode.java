@@ -12,8 +12,7 @@ import robomagellan.main.MainView;
 import robomagellan.main.Waypoint;
 
 /**
- * This flow node checks to see if the current waypoint is of normal type and
- * if the robot is at the waypoint.
+ * This flow node checks to see if the robot is at the current waypoint.
  * @author robomagellan
  */
 public class WaypointCheckFlowNode extends FlowNode{
@@ -22,7 +21,7 @@ public class WaypointCheckFlowNode extends FlowNode{
     
     @Override
     public boolean test() {
-        if (MainApp.currentWpt != null && MainApp.currentWpt.type == Waypoint.TYPE_NORM){
+        if (MainApp.currentWpt != null){
             if (getDistanceFromWpt(MainApp.currentWpt.coord, MainApp.filter.getCoordinates()) < DIST_THRESHOLD)
                 return true;
         }
