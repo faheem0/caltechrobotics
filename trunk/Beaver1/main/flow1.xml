@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : flow1.xml
+    Created on : January 6, 2009, 4:26 PM
+    Author     : robomagellan
+    Description:
+        Purpose of the document follows.
+
+        Prototype Flow for Robomagellan 2009
+-->
+
+<root>
+    <node head="1">
+        <name>obstacle_detection</name>
+        <class>robomagellan.main.flowNodes.ObstacleDetectionFlowNode</class>
+        <true>alternate_route</true>
+        <false>waypoint_check</false>
+    </node>
+    <node>
+        <name>waypoint_check</name>
+        <class>robomagellan.main.flowNodes.WaypointCheckFlowNode</class>
+        <true>next_waypoint</true>
+        <false>cone_waypoint_check</false>
+    </node>
+    <node>
+        <name>alternate_route</name>
+        <class>robomagellan.main.flowNodes.AlternateRouteFlowNode</class>
+        <true>waypoint_check</true>
+        <false>waypoint_check</false>
+    </node>
+    <node>
+        <name>cone_waypoint_check</name>
+        <class>robomagellan.main.flowNodes.ConeWaypointCheckFlowNode</class>
+        <true>cone_detect</true>
+        <false>cone_touch</false>
+    </node>
+    <node>
+        <name>next_waypoint</name>
+        <class>robomagellan.main.flowNodes.NextWaypointFlowNode</class>
+        <true>obstacle_detection</true>
+    </node>
+    <node>
+        <name>cone_touch</name>
+        <class>robomagellan.main.flowNodes.ConeTouchFlowNode</class>
+        <true>next_waypoint</true>
+        <false>cone_detect</false>
+    </node>
+    <node>
+        <name>cone_detect</name>
+        <class>robomagellan.main.flowNodes.ConeDetectFlowNode</class>
+        <true>cone_touch</true>
+        <false>cone_touch</false>
+    </node>
+</root>

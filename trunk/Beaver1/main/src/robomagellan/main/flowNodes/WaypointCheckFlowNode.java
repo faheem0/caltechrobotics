@@ -31,11 +31,18 @@ public class WaypointCheckFlowNode extends FlowNode{
 
     @Override
     public void actionTrue() {
-        MainView.log(getName() + ": True");
+        GPSPacket here = MainApp.filter.getCoordinates();
+        MainView.log(getName() + ": True, At Waypoint,\n\tWaypoint ("
+                + MainApp.currentWpt.coord.utmEast + "," + MainApp.currentWpt.coord.utmNorth
+                + ")\n\tCurrent Location (" + here.utmEast + "," + here.utmNorth + ")");
     }
 
     @Override
     public void actionFalse() {
+        GPSPacket here = MainApp.filter.getCoordinates();
+        double bearing = MainApp.filter.getBearing();
+        //double bearing_i = //Figure out how to turn
+
         MainView.log(getName() + ": False");
     }
 

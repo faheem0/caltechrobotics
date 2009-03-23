@@ -11,22 +11,21 @@ import robomagellan.flow.FlowNode;
  *
  * @author robomagellan
  */
-public class ObstacleDetectionFlowNode extends FlowNode{
+public class ConeTouchFlowNode extends FlowNode{
 
     @Override
     public boolean test() {
-        return false;
-        //TODO: Implement
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void actionTrue() {
-        System.out.println(getName() + ": True, Obstacle Detected");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void actionFalse() {
-        System.out.println(getName() + ": False, No Obstacle");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

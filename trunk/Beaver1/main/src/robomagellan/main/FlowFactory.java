@@ -35,6 +35,7 @@ public class FlowFactory {
 
     public static Flow buildFlow(File xmlFile){
 
+        MainView.log("Flow Build Started");
         FlowNode head = null;
         try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -89,7 +90,7 @@ public class FlowFactory {
                         FlowNode myFlowNode = fns.class_Name.newInstance();
                         myFlowNode.setName(fns.name);
                         mapOfNodes.put(fns.name, myFlowNode);
-
+                        MainView.log("Created Node: " + myFlowNode.getName());
                         if (fns.head){
                             head = myFlowNode;
                         }
@@ -106,9 +107,11 @@ public class FlowFactory {
                 FlowNode myFlowNode = mapOfNodes.get(flowNodes.get(i).name);
                 if (flowNodes.get(i).trueNode != null) {
                     myFlowNode.setTrueNode(mapOfNodes.get(flowNodes.get(i).trueNode));
+                    MainView.log("Linked Node: " + myFlowNode.getName() + "->true->" + flowNodes.get(i).trueNode);
                 }
                 if (flowNodes.get(i).falseNode != null) {
                     myFlowNode.setFalseNode(mapOfNodes.get(flowNodes.get(i).falseNode));
+                    MainView.log("Linked Node: " + myFlowNode.getName() + "->false->" + flowNodes.get(i).falseNode);
                 }
             }
         } catch (SAXException ex) {
@@ -119,6 +122,8 @@ public class FlowFactory {
             Logger.getLogger(FlowFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        MainView.log("Head Node is: " + head.getName());
+        MainView.log("Flow Build Done");
         return new Flow(head);
 
     }

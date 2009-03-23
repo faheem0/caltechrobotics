@@ -15,6 +15,7 @@ import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -28,6 +29,8 @@ import robomagellan.gps.AC12GPS;
 import robomagellan.helpers.SerialPortFactory;
 import robomagellan.imu.CristaIMU;
 import robomagellan.motors.Motors;
+import org.jdesktop.swingx.mapviewer.GeoPosition;
+import javax.swing.filechooser.FileFilter;
 
 /**
  * The application's main frame.
@@ -96,7 +99,7 @@ public class MainView extends FrameView{
                 }
             }
         });
-        initStatTable();
+        //initStatTable();
     }
     @Action
     public void createFlow(){
@@ -148,6 +151,7 @@ public class MainView extends FrameView{
         statTable = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
+        jXMapKit1 = new org.jdesktop.swingx.JXMapKit();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         logPane = new javax.swing.JTextPane();
@@ -158,6 +162,7 @@ public class MainView extends FrameView{
         openButton = new javax.swing.JButton();
         connectButton = new javax.swing.JToggleButton();
         startButton = new javax.swing.JToggleButton();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openFlowMenuItem = new javax.swing.JMenuItem();
@@ -165,6 +170,10 @@ public class MainView extends FrameView{
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        mapMenu = new javax.swing.JMenu();
+        satRadioButton = new javax.swing.JRadioButtonMenuItem();
+        terRadioButton = new javax.swing.JRadioButtonMenuItem();
+        streetRadioButton = new javax.swing.JRadioButtonMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
@@ -173,6 +182,7 @@ public class MainView extends FrameView{
         statusAnimationLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
         openFlowChooser = new javax.swing.JFileChooser();
+        mapGroup = new javax.swing.ButtonGroup();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -211,18 +221,17 @@ public class MainView extends FrameView{
         });
         statTable.setName("statTable"); // NOI18N
         jScrollPane2.setViewportView(statTable);
+        initStatTable();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(robomagellan.main.MainApp.class).getContext().getResourceMap(MainView.class);
@@ -234,26 +243,32 @@ public class MainView extends FrameView{
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 584, Short.MAX_VALUE)
+            .addGap(0, 678, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 201, Short.MAX_VALUE)
+            .addGap(0, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel2.TabConstraints.tabTitle"), jPanel2); // NOI18N
 
         jPanel3.setName("jPanel3"); // NOI18N
 
+        //jXMapKit1.setDefaultProvider(org.jdesktop.swingx.JXMapKit.DefaultProviders.OpenStreetMaps);
+        jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());
+        //jXMapKit1.setDataProviderCreditShown(true);
+        jXMapKit1.setName("jXMapKit1"); // NOI18N
+        jXMapKit1.setAddressLocation(new GeoPosition(34.138577, -118.125494));
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 584, Short.MAX_VALUE)
+            .addComponent(jXMapKit1, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 201, Short.MAX_VALUE)
+            .addComponent(jXMapKit1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
@@ -269,11 +284,11 @@ public class MainView extends FrameView{
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel4.TabConstraints.tabTitle"), jPanel4); // NOI18N
@@ -316,11 +331,11 @@ public class MainView extends FrameView{
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 584, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel5.TabConstraints.tabTitle"), jPanel5); // NOI18N
@@ -353,19 +368,22 @@ public class MainView extends FrameView{
         startButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(startButton);
 
+        jSeparator2.setName("jSeparator2"); // NOI18N
+        jToolBar1.add(jSeparator2);
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE))
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -395,6 +413,27 @@ public class MainView extends FrameView{
         jMenuItem1.setName("jMenuItem1"); // NOI18N
         toolsMenu.add(jMenuItem1);
 
+        mapMenu.setText(resourceMap.getString("mapMenu.text")); // NOI18N
+        mapMenu.setName("mapMenu"); // NOI18N
+
+        satRadioButton.setAction(actionMap.get("satMapSelected")); // NOI18N
+        satRadioButton.setText(resourceMap.getString("satRadioButton.text")); // NOI18N
+        satRadioButton.setName("satRadioButton"); // NOI18N
+        mapMenu.add(satRadioButton);
+
+        terRadioButton.setAction(actionMap.get("terMapSelected")); // NOI18N
+        terRadioButton.setSelected(true);
+        terRadioButton.setText(resourceMap.getString("terRadioButton.text")); // NOI18N
+        terRadioButton.setName("terRadioButton"); // NOI18N
+        mapMenu.add(terRadioButton);
+
+        streetRadioButton.setAction(actionMap.get("streetMapSelected")); // NOI18N
+        streetRadioButton.setText(resourceMap.getString("streetRadioButton.text")); // NOI18N
+        streetRadioButton.setName("streetRadioButton"); // NOI18N
+        mapMenu.add(streetRadioButton);
+
+        toolsMenu.add(mapMenu);
+
         menuBar.add(toolsMenu);
 
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
@@ -421,11 +460,11 @@ public class MainView extends FrameView{
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 405, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 499, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -443,7 +482,11 @@ public class MainView extends FrameView{
                 .addGap(3, 3, 3))
         );
 
+        openFlowChooser.setFileFilter(new ExtensionFileFilter("XML Files", new String[] { "xml" }));
         openFlowChooser.setName("openFlowChooser"); // NOI18N
+        mapGroup.add(satRadioButton);
+        mapGroup.add(terRadioButton);
+        mapGroup.add(streetRadioButton);
 
         setComponent(mainPanel);
         setMenuBar(menuBar);
@@ -571,6 +614,28 @@ public class MainView extends FrameView{
         }
     }
 
+    @Action
+    public void satMapSelected() {
+        GeoPosition gp = jXMapKit1.getCenterPosition();
+        jXMapKit1.setTileFactory(GoogleMapsTileProvider.getSatTileFactory());
+        jXMapKit1.setCenterPosition(gp);
+    }
+
+    @Action
+    public void terMapSelected() {
+        GeoPosition gp = jXMapKit1.getCenterPosition();
+        jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());
+        jXMapKit1.setCenterPosition(gp);
+    }
+
+    @Action
+    public void streetMapSelected() {
+        GeoPosition gp = jXMapKit1.getCenterPosition();
+        jXMapKit1.setTileFactory(GoogleMapsTileProvider.getStreetTileFactory());
+        jXMapKit1.setCenterPosition(gp);
+    }
+    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton connectButton;
@@ -584,20 +649,27 @@ public class MainView extends FrameView{
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JToolBar jToolBar1;
+    private org.jdesktop.swingx.JXMapKit jXMapKit1;
     private static javax.swing.JTextPane logPane;
     private javax.swing.JPanel mainPanel;
+    private javax.swing.ButtonGroup mapGroup;
+    private javax.swing.JMenu mapMenu;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JButton openButton;
     private javax.swing.JFileChooser openFlowChooser;
     private javax.swing.JMenuItem openFlowMenuItem;
     private javax.swing.JProgressBar progressBar;
+    private javax.swing.JRadioButtonMenuItem satRadioButton;
     private javax.swing.JToggleButton startButton;
-    private javax.swing.JTable statTable;
+    private volatile javax.swing.JTable statTable;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
+    private javax.swing.JRadioButtonMenuItem streetRadioButton;
+    private javax.swing.JRadioButtonMenuItem terRadioButton;
     private javax.swing.JMenu toolsMenu;
     private javax.swing.JTable wpTable;
     // End of variables declaration//GEN-END:variables
@@ -610,4 +682,50 @@ public class MainView extends FrameView{
 
     private JDialog aboutBox;
     private JFrame connectionOptions;
+
+    class ExtensionFileFilter extends FileFilter {
+
+        String description;
+        String extensions[];
+
+        public ExtensionFileFilter(String description, String extension) {
+            this(description, new String[]{extension});
+        }
+
+        public ExtensionFileFilter(String description, String extensions[]) {
+            if (description == null) {
+                this.description = extensions[0];
+            } else {
+                this.description = description;
+            }
+            this.extensions = (String[]) extensions.clone();
+            toLower(this.extensions);
+        }
+
+        private void toLower(String array[]) {
+            for (int i = 0, n = array.length; i < n; i++) {
+                array[i] = array[i].toLowerCase();
+            }
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public boolean accept(File file) {
+            if (file.isDirectory()) {
+                return true;
+            } else {
+                String path = file.getAbsolutePath().toLowerCase();
+                for (int i = 0, n = extensions.length; i < n; i++) {
+                    String extension = extensions[i];
+                    if ((path.endsWith(extension) && (path.charAt(path.length() - extension.length() - 1)) == '.')) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
 }
