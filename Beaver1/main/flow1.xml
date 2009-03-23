@@ -20,8 +20,8 @@
     <node>
         <name>waypoint_check</name>
         <class>robomagellan.main.flowNodes.WaypointCheckFlowNode</class>
-        <true>next_waypoint</true>
-        <false>cone_waypoint_check</false>
+        <true>cone_waypoint_check</true>
+        <false>obstacle_detection</false>
     </node>
     <node>
         <name>alternate_route</name>
@@ -33,7 +33,7 @@
         <name>cone_waypoint_check</name>
         <class>robomagellan.main.flowNodes.ConeWaypointCheckFlowNode</class>
         <true>cone_detect</true>
-        <false>cone_touch</false>
+        <false>next_waypoint</false>
     </node>
     <node>
         <name>next_waypoint</name>
