@@ -47,18 +47,31 @@ public class KalmanFilter implements GPSDataListener, IMUDataListener, CompassDa
         }
     }
     public void processEvent(GPSPacket g) {
+        MainView.wpTableData.setValueAt(g.utmEast, MainView.STATTABLE_GPS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+        MainView.wpTableData.setValueAt(g.utmNorth, MainView.STATTABLE_GPS_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
         process(TYPE_GPS, g, null, null, null);
     }
 
     public void processEvent(IMUPacket p) {
+        MainView.wpTableData.setValueAt(p.accX, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+        MainView.wpTableData.setValueAt(p.accY, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+        MainView.wpTableData.setValueAt(p.accZ, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+        MainView.wpTableData.setValueAt(p.gyroX, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+        MainView.wpTableData.setValueAt(p.gyroY, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+        MainView.wpTableData.setValueAt(p.gyroZ, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+
         process(TYPE_IMU, null, p, null, null);
     }
 
     public void processEvent(CompassPacket c) {
+        MainView.wpTableData.setValueAt(c.heading, MainView.STATTABLE_COMPASS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+
         process(TYPE_COMPASS, null, null, c, null);
     }
 
     public void processEvent(EncoderPacket p) {
+        MainView.wpTableData.setValueAt(p.velLeft, MainView.STATTABLE_ENCODER_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+        MainView.wpTableData.setValueAt(p.velRight, MainView.STATTABLE_ENCODER_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
         process(TYPE_ENCODER, null, null, null, p);
     }
 
