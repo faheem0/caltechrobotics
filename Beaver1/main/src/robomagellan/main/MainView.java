@@ -16,6 +16,9 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -31,6 +34,11 @@ import robomagellan.imu.CristaIMU;
 import robomagellan.motors.Motors;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableModel;
+import org.jdesktop.swingx.mapviewer.WaypointPainter;
+import robomagellan.gps.GPSPacket;
+import uk.me.jstott.jcoord.LatLng;
+import uk.me.jstott.jcoord.OSRef;
 
 /**
  * The application's main frame.
@@ -39,7 +47,24 @@ public class MainView extends FrameView{
 
     private Flow flow;
     public static DefaultTableModel statTableData;
+    public static DefaultTableModel wpTableData;
 
+    public static final int WPTABLE_EAST_COL_LOC = 0;
+    public static final int WPTABLE_NORTH_COL_LOC = 1;
+    public static final int WPTABLE_TYPE_COL_LOC = 2;
+    public static final int WPTABLE_REACHED_COL_LOC = 3;
+
+    public static final int STATTABLE_SENSOR_COL_LOC = 0;
+    public static final int STATTABLE_DEV_COL_LOC = 1;
+    public static final int STATTABLE_X_COL_LOC = 2;
+    public static final int STATTABLE_Y_COL_LOC = 3;
+    public static final int STATTABLE_Z_COL_LOC = 4;
+
+    public static final int STATTABLE_GPS_ROW_LOC = 0;
+    public static final int STATTABLE_ACC_ROW_LOC = 1;
+    public static final int STATTABLE_GYRO_ROW_LOC = 2;
+    public static final int STATTABLE_COMPASS_ROW_LOC = 3;
+    public static final int STATTABLE_ENCODER_ROW_LOC = 4;
 
     public MainView(SingleFrameApplication app) {
         super(app);
@@ -103,9 +128,32 @@ public class MainView extends FrameView{
     }
     @Action
     public void createFlow(){
-        int option = openFlowChooser.showOpenDialog(MainApp.getApplication().getMainFrame());
+        int option = openXMLChooser.showOpenDialog(MainApp.getApplication().getMainFrame());
         if (option == JFileChooser.APPROVE_OPTION){
-            flow = FlowFactory.buildFlow(openFlowChooser.getSelectedFile());
+            flow = FlowFactory.buildFlow(openXMLChooser.getSelectedFile());
+        }
+    }
+    @Action
+    public void importWaypoints() {
+        int option = openXMLChooser.showOpenDialog(MainApp.getApplication().getMainFrame());
+        if (option == JFileChooser.APPROVE_OPTION){
+            ArrayList<Waypoint> importedWpts= WaypointFactory.importWaypoints(openXMLChooser.getSelectedFile());
+            Set<org.jdesktop.swingx.mapviewer.Waypoint> s = new HashSet<org.jdesktop.swingx.mapviewer.Waypoint>();
+            for (int i = 0; i < importedWpts.size(); i++){
+                MainApp.wpts.add(importedWpts.get(i));
+                OSRef os = new OSRef(importedWpts.get(i).coord.utmEast, importedWpts.get(i).coord.utmNorth);
+                LatLng ll = os.toLatLng();
+                s.add(new org.jdesktop.swingx.mapviewer.Waypoint(ll.getLat(), ll.getLng()));
+                jXMapKit1.setCenterPosition(new GeoPosition(ll.getLat(), ll.getLng()));
+
+                GPSPacket pack = importedWpts.get(i).coord;
+                wpTableData.addRow(new Object[]{pack.utmEast, pack.utmNorth,  importedWpts.get(i).type, false});
+            }
+            wpTable.updateUI();
+            WaypointPainter painter = new WaypointPainter();
+            painter.setWaypoints(s);
+            jXMapKit1.getMainMap().setOverlayPainter(painter);
+
         }
     }
 
@@ -166,6 +214,7 @@ public class MainView extends FrameView{
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openFlowMenuItem = new javax.swing.JMenuItem();
+        importMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
@@ -182,7 +231,7 @@ public class MainView extends FrameView{
         statusMessageLabel = new javax.swing.JLabel();
         statusAnimationLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
-        openFlowChooser = new javax.swing.JFileChooser();
+        openXMLChooser = new javax.swing.JFileChooser();
         mapGroup = new javax.swing.ButtonGroup();
 
         mainPanel.setName("mainPanel"); // NOI18N
@@ -228,11 +277,11 @@ public class MainView extends FrameView{
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(robomagellan.main.MainApp.class).getContext().getResourceMap(MainView.class);
@@ -244,11 +293,11 @@ public class MainView extends FrameView{
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 634, Short.MAX_VALUE)
+            .addGap(0, 678, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 265, Short.MAX_VALUE)
+            .addGap(0, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel2.TabConstraints.tabTitle"), jPanel2); // NOI18N
@@ -265,11 +314,11 @@ public class MainView extends FrameView{
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jXMapKit1, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+            .addComponent(jXMapKit1, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jXMapKit1, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+            .addComponent(jXMapKit1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel3.TabConstraints.tabTitle"), jPanel3); // NOI18N
@@ -285,11 +334,11 @@ public class MainView extends FrameView{
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel4.TabConstraints.tabTitle"), jPanel4); // NOI18N
@@ -310,7 +359,7 @@ public class MainView extends FrameView{
                 java.lang.Double.class, java.lang.Double.class, java.lang.String.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true, false, false
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -322,21 +371,23 @@ public class MainView extends FrameView{
             }
         });
         wpTable.setName("wpTable"); // NOI18N
+        wpTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane3.setViewportView(wpTable);
         wpTable.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("wpTable.columnModel.title0")); // NOI18N
         wpTable.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("wpTable.columnModel.title1")); // NOI18N
         wpTable.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("wpTable.columnModel.title2")); // NOI18N
         wpTable.getColumnModel().getColumn(3).setHeaderValue(resourceMap.getString("wpTable.columnModel.title3")); // NOI18N
+        initWPTable();
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 678, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel5.TabConstraints.tabTitle"), jPanel5); // NOI18N
@@ -376,15 +427,15 @@ public class MainView extends FrameView{
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 639, Short.MAX_VALUE)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 639, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE))
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE))
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -396,6 +447,11 @@ public class MainView extends FrameView{
         openFlowMenuItem.setText(resourceMap.getString("openFlowMenuItem.text")); // NOI18N
         openFlowMenuItem.setName("openFlowMenuItem"); // NOI18N
         fileMenu.add(openFlowMenuItem);
+
+        importMenuItem.setAction(actionMap.get("importWaypoints")); // NOI18N
+        importMenuItem.setText(resourceMap.getString("importMenuItem.text")); // NOI18N
+        importMenuItem.setName("importMenuItem"); // NOI18N
+        fileMenu.add(importMenuItem);
 
         jSeparator1.setName("jSeparator1"); // NOI18N
         fileMenu.add(jSeparator1);
@@ -466,11 +522,11 @@ public class MainView extends FrameView{
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 639, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 455, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 499, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -488,8 +544,8 @@ public class MainView extends FrameView{
                 .addGap(3, 3, 3))
         );
 
-        openFlowChooser.setFileFilter(new ExtensionFileFilter("XML Files", new String[] { "xml" }));
-        openFlowChooser.setName("openFlowChooser"); // NOI18N
+        openXMLChooser.setFileFilter(new ExtensionFileFilter("XML Files", new String[] { "xml" }));
+        openXMLChooser.setName("openXMLChooser"); // NOI18N
         mapGroup.add(satRadioButton);
         mapGroup.add(terRadioButton);
         mapGroup.add(streetRadioButton);
@@ -512,6 +568,7 @@ public class MainView extends FrameView{
                     MainApp.gps = new AC12GPS(MainApp.gpsPort);
                     MainApp.gps.addGPSDataListener(MainApp.filter);
                     progressBar.setValue(20);
+                    wpTableData.setValueAt(MainApp.gpsPort, STATTABLE_GPS_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 } catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -522,6 +579,7 @@ public class MainView extends FrameView{
                     MainApp.compass = new Compass(MainApp.compassPort);
                     MainApp.compass.addCompassDataListener(MainApp.filter);
                     progressBar.setValue(40);
+                    wpTableData.setValueAt(MainApp.compassPort, STATTABLE_COMPASS_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -533,6 +591,8 @@ public class MainView extends FrameView{
                     MainApp.imu = new CristaIMU(MainApp.imuPort);
                     MainApp.imu.addIMUDataListener(MainApp.filter);
                     progressBar.setValue(80);
+                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_ACC_ROW_LOC, STATTABLE_DEV_COL_LOC);
+                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_GYRO_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -546,6 +606,7 @@ public class MainView extends FrameView{
                     MainApp.motors.setSpeed(Motors.LEFT, 0);
                     MainApp.motors.setSpeed(Motors.RIGHT, 0);
                     progressBar.setValue(100);
+                    wpTableData.setValueAt(MainApp.motorPort, STATTABLE_ENCODER_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -593,11 +654,14 @@ public class MainView extends FrameView{
 
     private void initStatTable() {
         statTableData = (DefaultTableModel) statTable.getModel();
-        statTableData.setValueAt("GPS", 0, 0);
-        statTableData.setValueAt("IMU Acc", 1, 0);
-        statTableData.setValueAt("IMU Gyro", 2, 0);
-        statTableData.setValueAt("Compass", 3, 0);
-        statTableData.setValueAt("Encoders", 4, 0);
+        statTableData.setValueAt("GPS", STATTABLE_GPS_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
+        statTableData.setValueAt("IMU Acc", STATTABLE_ACC_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
+        statTableData.setValueAt("IMU Gyro", STATTABLE_GYRO_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
+        statTableData.setValueAt("Compass", STATTABLE_COMPASS_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
+        statTableData.setValueAt("Encoders", STATTABLE_ENCODER_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
+    }
+    private void initWPTable(){
+        wpTableData = (DefaultTableModel) wpTable.getModel();
     }
 
     private class StartActionTask extends org.jdesktop.application.Task<Object, Void> {
@@ -653,6 +717,7 @@ public class MainView extends FrameView{
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton connectButton;
+    private javax.swing.JMenuItem importMenuItem;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -673,9 +738,9 @@ public class MainView extends FrameView{
     private javax.swing.JMenu mapMenu;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JButton openButton;
-    private javax.swing.JFileChooser openFlowChooser;
     private javax.swing.JMenuItem openFlowMenuItem;
     private javax.swing.JRadioButtonMenuItem openStreetRadioButton;
+    private javax.swing.JFileChooser openXMLChooser;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JRadioButtonMenuItem satRadioButton;
     private javax.swing.JToggleButton startButton;
@@ -686,7 +751,7 @@ public class MainView extends FrameView{
     private javax.swing.JRadioButtonMenuItem streetRadioButton;
     private javax.swing.JRadioButtonMenuItem terRadioButton;
     private javax.swing.JMenu toolsMenu;
-    private javax.swing.JTable wpTable;
+    private volatile javax.swing.JTable wpTable;
     // End of variables declaration//GEN-END:variables
 
     private final Timer messageTimer;

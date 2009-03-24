@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : testWaypoints.xml
+    Created on : March 23, 2009, 4:14 PM
+    Author     : robomagellan
+    Description:
+        Purpose of the document follows.
+-->
+
+<root>
+    <wpt>
+        <number>0</number>
+        <east>0</east>
+        <north>0</north>
+        <type>0</type>
+    </wpt>
+    <wpt>
+        <number>4</number>
+        <east>5000</east>
+        <north>2543</north>
+        <type>1</type>
+    </wpt>
+    <wpt>
+        <number>1</number>
+        <east>3984.4</east>
+        <north>543.3</north>
+        <type>0</type>
+    </wpt>
+</root>

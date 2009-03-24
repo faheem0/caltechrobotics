@@ -5,6 +5,7 @@
 
 package robomagellan.main.flowNodes;
 
+import javax.swing.table.DefaultTableModel;
 import robomagellan.flow.FlowNode;
 import robomagellan.main.MainApp;
 import robomagellan.main.MainView;
@@ -17,6 +18,7 @@ import robomagellan.main.MainView;
  */
 public class NextWaypointFlowNode extends FlowNode{
 
+    private static int reached = 0;
     @Override
     public boolean test() {
         if (MainApp.wpts.isEmpty()) return false;
@@ -29,6 +31,8 @@ public class NextWaypointFlowNode extends FlowNode{
      */
     @Override
     public void actionTrue() {
+        MainView.wpTableData.setValueAt(true, reached, MainView.WPTABLE_REACHED_COL_LOC);
+        reached++;
         MainApp.currentWpt = MainApp.wpts.poll();
         MainView.log(getName() + ": True, New Waypoint Acquired");
     }
