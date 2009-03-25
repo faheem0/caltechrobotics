@@ -8,9 +8,6 @@ package robomagellan.conerecon;
 import au.edu.jcu.v4l4j.FrameGrabber;
 import au.edu.jcu.v4l4j.exceptions.StateException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGDecodeParam;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,7 +15,6 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import sun.awt.image.ImageFormatException;
 
 /**
  *
@@ -30,10 +26,13 @@ public class Webcam {
     private ByteBuffer bb;
     private byte[] b;
 
+    public static final int IMAGE_WIDTH = 320;
+    public static final int IMAGE_HEIGHT = 240;
+
     public Webcam(String dev) throws Exception{
         int w, h, std, ch;
-        w = 320;
-        h = 240;
+        w = IMAGE_WIDTH;
+        h = IMAGE_HEIGHT;
         std = 0;
         ch =  0;
         fg = new FrameGrabber(dev, w, h, ch, std, initialQuality);
