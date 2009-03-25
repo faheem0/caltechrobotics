@@ -5,7 +5,6 @@
 
 package robomagellan.main.flowNodes;
 
-import javax.swing.table.DefaultTableModel;
 import robomagellan.flow.FlowNode;
 import robomagellan.main.MainApp;
 import robomagellan.main.MainView;

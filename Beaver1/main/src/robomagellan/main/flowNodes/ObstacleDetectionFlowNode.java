@@ -8,7 +8,7 @@ package robomagellan.main.flowNodes;
 import robomagellan.flow.FlowNode;
 
 /**
- *
+ * This class checks to see if there are obstacles near by and acts accordingly.
  * @author robomagellan
  */
 public class ObstacleDetectionFlowNode extends FlowNode{

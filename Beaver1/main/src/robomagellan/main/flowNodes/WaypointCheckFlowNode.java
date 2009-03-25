@@ -9,7 +9,6 @@ import robomagellan.flow.FlowNode;
 import robomagellan.gps.GPSPacket;
 import robomagellan.main.MainApp;
 import robomagellan.main.MainView;
-import robomagellan.main.Waypoint;
 
 /**
  * This flow node checks to see if the robot is at the current waypoint.
