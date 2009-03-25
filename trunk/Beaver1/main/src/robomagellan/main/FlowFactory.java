@@ -19,7 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Helper class to generate a flow from an XML File.
  * @author robomagellan
  */
 public class FlowFactory {
@@ -33,6 +33,11 @@ public class FlowFactory {
 
     private FlowFactory(){};
 
+    /**
+     * Parses the XML File and generates a flow from the file.
+     * @param xmlFile The Input XML File
+     * @return The Flow object generated
+     */
     public static Flow buildFlow(File xmlFile){
 
         MainView.log("Flow Build Started");

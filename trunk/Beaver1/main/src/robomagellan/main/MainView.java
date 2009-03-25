@@ -45,13 +45,34 @@ import uk.me.jstott.jcoord.OSRef;
  */
 public class MainView extends FrameView{
 
+    /**
+     * The Current Flow
+     */
     private Flow flow;
+    /**
+     * Statistics Table Data
+     */
     public static DefaultTableModel statTableData;
+    /**
+     * Waypoint Table Data
+     */
     public static DefaultTableModel wpTableData;
 
+    /**
+     * Waypoint Table UTM Easting Column Location
+     */
     public static final int WPTABLE_EAST_COL_LOC = 0;
+    /**
+     * Waypoint Table UTM Northing Column Location
+     */
     public static final int WPTABLE_NORTH_COL_LOC = 1;
+    /**
+     * Waypoint Table Waypoint Type Column Location
+     */
     public static final int WPTABLE_TYPE_COL_LOC = 2;
+    /**
+     * Waypoint Table Reached Indicator Column Location
+     */
     public static final int WPTABLE_REACHED_COL_LOC = 3;
 
     public static final int STATTABLE_SENSOR_COL_LOC = 0;
@@ -270,6 +291,7 @@ public class MainView extends FrameView{
             }
         });
         statTable.setName("statTable"); // NOI18N
+        statTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(statTable);
         initStatTable();
 

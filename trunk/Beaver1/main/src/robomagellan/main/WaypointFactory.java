@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
-import robomagellan.flow.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +20,7 @@ import org.xml.sax.SAXException;
 import robomagellan.gps.GPSPacket;
 
 /**
- *
+ * This class is a helper class that creates waypoints from a file.
  * @author robomagellan
  */
 public class WaypointFactory {
@@ -34,6 +33,11 @@ public class WaypointFactory {
 
     private WaypointFactory(){};
 
+    /**
+     * Parses an XML File and generates a list of waypoints
+     * @param xmlFile The XML File to be parsed
+     * @return The list of waypoints
+     */
     public static ArrayList<Waypoint> importWaypoints(File xmlFile){
 
         MainView.log("Waypoint Import Started");

@@ -8,7 +8,7 @@ package robomagellan.main;
 import robomagellan.flow.FlowNode;
 
 /**
- *
+ * This is a helper class for the Flow Factory.
  * @author robomagellan
  */
 public class FlowNodeStruct {
