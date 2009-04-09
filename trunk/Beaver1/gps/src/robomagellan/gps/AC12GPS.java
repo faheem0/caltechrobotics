@@ -100,24 +100,24 @@ public class AC12GPS {
 			String[] params;
 			Matcher m;
 
-			public void serialEvent(SerialPortEvent arg0) {
-				if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-					try {
-						bytesRead = in.read(buffer);
-						str = str.concat(new String(buffer, 0, bytesRead, "ASCII"));
-						//str = new String(buffer, 0, bytesRead, "ASCII");
-						strs = str.split("\r\n");
-						str = strs[strs.length - 1];
-						for (int i = 0; i < strs.length - 1; i++) {
-							m = utm.matcher(strs[i]);
-							if (m.find()) {
-								GPSPacket packet = getPacket(strs[i]);
-								listener.processEvent(packet);
-							}
-
-						}
-						System.out.print(str);
-
+            public void serialEvent(SerialPortEvent arg0) {
+                if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE){
+                    try {
+                        bytesRead = in.read(buffer);
+                        str = str.concat(new String(buffer, 0, bytesRead, "ASCII"));
+                        //str = new String(buffer, 0, bytesRead, "ASCII");
+                        //System.out.print(new String(buffer, 0, bytesRead, "ASCII"));
+                        strs = str.split("\r\n", -2);
+                        str = strs[strs.length-1];
+                        for (int i = 0; i < strs.length-1; i++){
+                            //System.out.println(strs[i]);
+                            m = utm.matcher(strs[i]);
+                            if (m.find()){    
+                                GPSPacket packet = getPacket(strs[i]);
+                                listener.processEvent(packet);
+                                //System.out.println("Got It");
+                            }
+                        }
 					//listener.processEvent(null);
 					} catch (IOException ex) {
 						Logger.getLogger(AC12GPS.class.getName()).log(Level.SEVERE, "Could not read from InputStream", ex);
@@ -125,7 +125,6 @@ public class AC12GPS {
 				}
 			}
 		});
-
 		hasListener = true;
 	}
 
