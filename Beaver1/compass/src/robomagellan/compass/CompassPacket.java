@@ -14,5 +14,5 @@ public class CompassPacket {
 	 * The heading read by the compass ranging from 0 to 359 degrees. 0 is north.
 	 * Ignore the default value.
 	 */
-    public int heading = 0xFF;
+    public double heading = 0xFF;
 }
