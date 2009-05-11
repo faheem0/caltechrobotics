@@ -34,6 +34,7 @@ public class CristaIMU {
     private static final byte SYNC_SER_0 = (byte) 0x55;
     private static final byte SYNC_SER_1 = (byte) 0xAA;
     private static final byte HS_SERIAL_IMU_MSG = (byte) 0xFF;
+    private static final byte MAX_MESSAGE_LEN = 18;
 
 
     public CristaIMU(String dev){
@@ -52,7 +53,7 @@ public class CristaIMU {
 
         Runnable runnable = new Runnable(){
             byte[] buf = new byte[1];
-            byte[] data = new byte[18];
+            byte[] data = new byte[MAX_MESSAGE_LEN + 100];
             int state = 0;
             int index = 0;
 
@@ -139,7 +140,7 @@ public class CristaIMU {
                                     data[index++] = buf[0];
                                     state = 0;
                                     index = 0;
-
+                                    
                                     IMUPacket packet = new IMUPacket();
                                     packet.gyroX = (((int)data[4] << 8) | (int)data[5])/CONV_GYRO_RESOLUTION;
                                     packet.gyroY = (((int)data[6] << 8) | (int)data[7])/CONV_GYRO_RESOLUTION;
@@ -152,6 +153,7 @@ public class CristaIMU {
                                     break;
                                 default:
                                     state = 0;
+                                    index = 0;
                                     break;
                             }
                         }
