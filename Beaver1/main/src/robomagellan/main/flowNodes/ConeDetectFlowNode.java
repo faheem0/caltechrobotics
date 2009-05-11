@@ -23,7 +23,7 @@ public class ConeDetectFlowNode extends FlowNode{
     private ConeInfo info;
 
     private static final int BANDWIDTH = 5;
-    private static final int TURN_SPEED = 5;
+    private static final int TURN_SPEED = 2;
     
     @Override
     public boolean test() {

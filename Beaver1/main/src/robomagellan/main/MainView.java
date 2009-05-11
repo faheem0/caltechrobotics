@@ -86,6 +86,7 @@ public class MainView extends FrameView{
     public static final int STATTABLE_GYRO_ROW_LOC = 2;
     public static final int STATTABLE_COMPASS_ROW_LOC = 3;
     public static final int STATTABLE_ENCODER_ROW_LOC = 4;
+    public static final int STATTABLE_KALMAN_ROW_LOC = 5;
 
     public MainView(SingleFrameApplication app) {
         super(app);
@@ -269,6 +270,7 @@ public class MainView extends FrameView{
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
+                {null, null, null, null, null},
                 {null, null, null, null, null}
             },
             new String [] {
@@ -293,6 +295,12 @@ public class MainView extends FrameView{
         statTable.setName("statTable"); // NOI18N
         statTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(statTable);
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(robomagellan.main.MainApp.class).getContext().getResourceMap(MainView.class);
+        statTable.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("statTable.columnModel.title0")); // NOI18N
+        statTable.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("statTable.columnModel.title1")); // NOI18N
+        statTable.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("statTable.columnModel.title2")); // NOI18N
+        statTable.getColumnModel().getColumn(3).setHeaderValue(resourceMap.getString("statTable.columnModel.title3")); // NOI18N
+        statTable.getColumnModel().getColumn(4).setHeaderValue(resourceMap.getString("statTable.columnModel.title4")); // NOI18N
         initStatTable();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -306,7 +314,6 @@ public class MainView extends FrameView{
             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
         );
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(robomagellan.main.MainApp.class).getContext().getResourceMap(MainView.class);
         jTabbedPane1.addTab(resourceMap.getString("jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
         jPanel2.setName("jPanel2"); // NOI18N
@@ -581,7 +588,11 @@ public class MainView extends FrameView{
     @Action
     public void connectAction() {
         if (connectButton.isSelected()){
-            MainApp.filter = new KalmanFilter();
+            try {
+                MainApp.filter = new KalmanFilter();
+            } catch (Exception ex) {
+                Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+            }
             progressBar.setIndeterminate(false);
             progressBar.setStringPainted(true);
             if (MainApp.gpsPort != null){
@@ -590,7 +601,7 @@ public class MainView extends FrameView{
                     MainApp.gps = new AC12GPS(MainApp.gpsPort);
                     MainApp.gps.addGPSDataListener(MainApp.filter);
                     progressBar.setValue(20);
-                    wpTableData.setValueAt(MainApp.gpsPort, STATTABLE_GPS_ROW_LOC, STATTABLE_DEV_COL_LOC);
+//                    wpTableData.setValueAt(MainApp.gpsPort, STATTABLE_GPS_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 } catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -601,7 +612,7 @@ public class MainView extends FrameView{
                     MainApp.compass = new Compass(MainApp.compassPort);
                     MainApp.compass.addCompassDataListener(MainApp.filter);
                     progressBar.setValue(40);
-                    wpTableData.setValueAt(MainApp.compassPort, STATTABLE_COMPASS_ROW_LOC, STATTABLE_DEV_COL_LOC);
+//                    wpTableData.setValueAt(MainApp.compassPort, STATTABLE_COMPASS_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -613,8 +624,8 @@ public class MainView extends FrameView{
                     MainApp.imu = new CristaIMU(MainApp.imuPort);
                     MainApp.imu.addIMUDataListener(MainApp.filter);
                     progressBar.setValue(80);
-                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_ACC_ROW_LOC, STATTABLE_DEV_COL_LOC);
-                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_GYRO_ROW_LOC, STATTABLE_DEV_COL_LOC);
+//                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_ACC_ROW_LOC, STATTABLE_DEV_COL_LOC);
+//                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_GYRO_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -628,7 +639,7 @@ public class MainView extends FrameView{
                     MainApp.motors.setSpeed(Motors.LEFT, 0);
                     MainApp.motors.setSpeed(Motors.RIGHT, 0);
                     progressBar.setValue(100);
-                    wpTableData.setValueAt(MainApp.motorPort, STATTABLE_ENCODER_ROW_LOC, STATTABLE_DEV_COL_LOC);
+//                    wpTableData.setValueAt(MainApp.motorPort, STATTABLE_ENCODER_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -681,6 +692,7 @@ public class MainView extends FrameView{
         statTableData.setValueAt("IMU Gyro", STATTABLE_GYRO_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
         statTableData.setValueAt("Compass", STATTABLE_COMPASS_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
         statTableData.setValueAt("Encoders", STATTABLE_ENCODER_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
+        statTableData.setValueAt("Kalman Filter", STATTABLE_KALMAN_ROW_LOC, STATTABLE_SENSOR_COL_LOC);
     }
     private void initWPTable(){
         wpTableData = (DefaultTableModel) wpTable.getModel();

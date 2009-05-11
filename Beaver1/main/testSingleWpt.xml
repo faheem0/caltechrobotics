@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : testSingleWpt.xml
+    Created on : March 23, 2009, 4:14 PM
+    Author     : robomagellan
+    Location   : West Moore Walk, Caltech, CA
+    Description:
+        Purpose of the document follows.
+-->
+
+<root>
+    <wpt>
+        <number>0</number>
+        <east>396405.6</east>
+        <north>3778248.28</north>
+        <type>0</type>
+    </wpt>
+        <wpt>
+        <number>1</number>
+        <east>396405.6</east>
+        <north>3778248.28</north>
+        <type>0</type>
+    </wpt>
+</root>
