@@ -141,6 +141,7 @@ public class Motors {
 
 	/**
 	 * Starts reading from serial port and feeds encoder data to the specified EncoderDataListener
+     * @deprecated Disabled encoder data getting as it is not needed.
 	 * @param d the object the encoder data will be fed to. 
 	 * @throws java.util.TooManyListenersException
 	 */
@@ -148,7 +149,7 @@ public class Motors {
 		if (hasListener) {
 			throw new TooManyListenersException("There's already a listener on " + port.getName());
 		}
-		listener = d;
+		/*listener = d;
 		port.notifyOnDataAvailable(true);
 		port.addEventListener(new SerialPortEventListener() {
 
@@ -181,7 +182,7 @@ public class Motors {
 									/*
 									if (readBuffer[i] == ASCII_NEG) {
 									sign = -1;
-									}*/
+									}*\\
 									if (byteCnt != 0) {
 										data[0] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 									}
@@ -196,7 +197,7 @@ public class Motors {
 								case 2:
 									/*if (readBuffer[i] == ASCII_NEG) {
 									sign = -1;
-									}*/
+									}*\\
 									if (byteCnt != 0) {
 										data[1] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 									}
@@ -211,7 +212,7 @@ public class Motors {
 								case 3:
 									/*if (readBuffer[i] == ASCII_NEG) {
 									sign = -1;
-									}*/
+									}*\\
 									if (byteCnt != 0) {
 										data[2] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 									}
@@ -228,7 +229,7 @@ public class Motors {
 								case 4:
 									/*if (readBuffer[i] == ASCII_NEG) {
 									sign = -1;
-									}*/
+									}*\\
 									if (byteCnt != 0) {
 										data[3] += (int) Math.pow(10, BYTES_PER_SEGMENT - byteCnt - 1) * (readBuffer[i] - ASCII_ZERO);
 									}
@@ -254,7 +255,7 @@ public class Motors {
 				}
 			}
 		});
-
+        */
 		hasListener = true;
 	}
 
