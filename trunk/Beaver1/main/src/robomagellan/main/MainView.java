@@ -4,6 +4,7 @@
 
 package robomagellan.main;
 
+import java.awt.Rectangle;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -148,6 +149,7 @@ public class MainView extends FrameView{
         });
         //initStatTable();
     }
+
     @Action
     public void createFlow(){
         int option = openXMLChooser.showOpenDialog(MainApp.getApplication().getMainFrame());
@@ -203,6 +205,7 @@ public class MainView extends FrameView{
      */
     public static synchronized void log(String s){
         logPane.setText(logPane.getText() + "\n" + s);
+        logPane.scrollRectToVisible(new Rectangle(0,logPane.getHeight()-2,1,1));
     }
 
     /** This method is called from within the constructor to
@@ -601,7 +604,7 @@ public class MainView extends FrameView{
                     MainApp.gps = new AC12GPS(MainApp.gpsPort);
                     MainApp.gps.addGPSDataListener(MainApp.filter);
                     progressBar.setValue(20);
-//                    wpTableData.setValueAt(MainApp.gpsPort, STATTABLE_GPS_ROW_LOC, STATTABLE_DEV_COL_LOC);
+                    statTableData.setValueAt(MainApp.gpsPort, STATTABLE_GPS_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 } catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -612,7 +615,7 @@ public class MainView extends FrameView{
                     MainApp.compass = new Compass(MainApp.compassPort);
                     MainApp.compass.addCompassDataListener(MainApp.filter);
                     progressBar.setValue(40);
-//                    wpTableData.setValueAt(MainApp.compassPort, STATTABLE_COMPASS_ROW_LOC, STATTABLE_DEV_COL_LOC);
+                    statTableData.setValueAt(MainApp.compassPort, STATTABLE_COMPASS_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -624,8 +627,8 @@ public class MainView extends FrameView{
                     MainApp.imu = new CristaIMU(MainApp.imuPort);
                     MainApp.imu.addIMUDataListener(MainApp.filter);
                     progressBar.setValue(80);
-//                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_ACC_ROW_LOC, STATTABLE_DEV_COL_LOC);
-//                    wpTableData.setValueAt(MainApp.imuPort, STATTABLE_GYRO_ROW_LOC, STATTABLE_DEV_COL_LOC);
+                    statTableData.setValueAt(MainApp.imuPort, STATTABLE_ACC_ROW_LOC, STATTABLE_DEV_COL_LOC);
+                    statTableData.setValueAt(MainApp.imuPort, STATTABLE_GYRO_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -639,7 +642,7 @@ public class MainView extends FrameView{
                     MainApp.motors.setSpeed(Motors.LEFT, 0);
                     MainApp.motors.setSpeed(Motors.RIGHT, 0);
                     progressBar.setValue(100);
-//                    wpTableData.setValueAt(MainApp.motorPort, STATTABLE_ENCODER_ROW_LOC, STATTABLE_DEV_COL_LOC);
+                    statTableData.setValueAt(MainApp.motorPort, STATTABLE_ENCODER_ROW_LOC, STATTABLE_DEV_COL_LOC);
                 }  catch (TooManyListenersException ex) {
                     Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
                 }

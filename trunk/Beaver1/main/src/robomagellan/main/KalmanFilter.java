@@ -6,6 +6,7 @@
 package robomagellan.main;
 
 import jama.Matrix;
+import java.awt.EventQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jkalman.JKalman;
@@ -174,8 +175,14 @@ public class KalmanFilter
      * @param g Input GPS Packet
      */
     public void processEvent(GPSPacket g) {
-        //MainView.wpTableData.setValueAt(g.utmEast, MainView.STATTABLE_GPS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
-        //MainView.wpTableData.setValueAt(g.utmNorth, MainView.STATTABLE_GPS_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+        final GPSPacket p = g;
+        EventQueue.invokeLater(new Runnable(){
+            public void run() {
+                MainView.statTableData.setValueAt(p.utmEast, MainView.STATTABLE_GPS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                MainView.statTableData.setValueAt(p.utmNorth, MainView.STATTABLE_GPS_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+            }
+        });
+
         MainView.log("GPS Update: " + g.utmEast + " " + g.utmNorth);
         process(TYPE_GPS, g, null, null, null);
     }
@@ -185,12 +192,18 @@ public class KalmanFilter
      * @param p Input IMU Packet
      */
     public void processEvent(IMUPacket p) {
-        //MainView.wpTableData.setValueAt(p.accX, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
-        //MainView.wpTableData.setValueAt(p.accY, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
-        //MainView.wpTableData.setValueAt(p.accZ, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
-        //MainView.wpTableData.setValueAt(p.gyroX, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
-        //MainView.wpTableData.setValueAt(p.gyroY, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
-        //MainView.wpTableData.setValueAt(p.gyroZ, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+        final IMUPacket i = p;
+        EventQueue.invokeLater(new Runnable(){
+            public void run() {
+                MainView.statTableData.setValueAt(i.accX, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                MainView.statTableData.setValueAt(i.accY, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+                MainView.statTableData.setValueAt(i.accZ, MainView.STATTABLE_ACC_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+                MainView.statTableData.setValueAt(i.gyroX, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                MainView.statTableData.setValueAt(i.gyroY, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+                MainView.statTableData.setValueAt(i.gyroZ, MainView.STATTABLE_GYRO_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+            }
+        });
+       
 
         //MainView.log("IMU Update");
         process(TYPE_IMU, null, p, null, null);
@@ -200,9 +213,15 @@ public class KalmanFilter
      * @param c Input Compass Packet
      */
     public void processEvent(CompassPacket c) {
-        //MainView.wpTableData.setValueAt(c.heading, MainView.STATTABLE_COMPASS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+        final CompassPacket p = c;
+        EventQueue.invokeLater(new Runnable(){
 
-        //MainView.log("Compass Update: " + c.heading);
+            public void run() {
+                MainView.statTableData.setValueAt(p.heading, MainView.STATTABLE_COMPASS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+            }
+        });
+
+        MainView.log("Compass Update: " + c.heading);
         process(TYPE_COMPASS, null, null, c, null);
     }
 
@@ -211,8 +230,8 @@ public class KalmanFilter
      * @param p Input Encoder Packet
      */
     public void processEvent(EncoderPacket p) {
-        //MainView.wpTableData.setValueAt(p.velLeft, MainView.STATTABLE_ENCODER_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
-        //MainView.wpTableData.setValueAt(p.velRight, MainView.STATTABLE_ENCODER_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+        //MainView.statTableData.setValueAt(p.velLeft, MainView.STATTABLE_ENCODER_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+        //MainView.statTableData.setValueAt(p.velRight, MainView.STATTABLE_ENCODER_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
         process(TYPE_ENCODER, null, null, null, p);
     }
 
