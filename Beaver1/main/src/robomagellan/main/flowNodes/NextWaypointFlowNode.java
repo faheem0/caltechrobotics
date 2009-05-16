@@ -5,6 +5,7 @@
 
 package robomagellan.main.flowNodes;
 
+import java.awt.EventQueue;
 import robomagellan.flow.FlowNode;
 import robomagellan.main.MainApp;
 import robomagellan.main.MainView;
@@ -30,7 +31,11 @@ public class NextWaypointFlowNode extends FlowNode{
      */
     @Override
     public void actionTrue() {
-        MainView.wpTableData.setValueAt(true, reached, MainView.WPTABLE_REACHED_COL_LOC);
+        EventQueue.invokeLater(new Runnable(){
+            public void run() {
+                MainView.wpTableData.setValueAt(true, reached, MainView.WPTABLE_REACHED_COL_LOC);
+            }
+        });
         reached++;
         MainApp.currentWpt = MainApp.wpts.poll();
         MainView.log(getName() + ": True, New Waypoint Acquired");
