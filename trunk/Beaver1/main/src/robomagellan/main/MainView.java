@@ -5,6 +5,7 @@
 package robomagellan.main;
 
 import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +17,10 @@ import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,8 +93,19 @@ public class MainView extends FrameView{
     public static final int STATTABLE_ENCODER_ROW_LOC = 4;
     public static final int STATTABLE_KALMAN_ROW_LOC = 5;
 
+    private static final String LOG_FILE_NAME = "/home/robomagellan/logs/run";
+    private static BufferedWriter fileOut;
+
     public MainView(SingleFrameApplication app) {
         super(app);
+        FileWriter fstream;
+        try {
+            fstream = new FileWriter(LOG_FILE_NAME + System.currentTimeMillis() + ".txt");
+            fileOut = new BufferedWriter(fstream);
+        } catch (IOException ex) {
+            Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         MainApp.serialPortList = SerialPortFactory.getPortList();
         initComponents();
 
@@ -206,6 +221,12 @@ public class MainView extends FrameView{
     public static synchronized void log(String s){
         logPane.setText(logPane.getText() + "\n" + s);
         logPane.scrollRectToVisible(new Rectangle(0,logPane.getHeight()-2,1,1));
+        try {
+            fileOut.write(s + "\n");
+            fileOut.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /** This method is called from within the constructor to

@@ -102,6 +102,15 @@ public class KalmanFilter
         GPSPacket packet = new GPSPacket();
         packet.utmEast = currentEast;
         packet.utmNorth = currentNorth;
+
+        final GPSPacket p = packet;
+        EventQueue.invokeLater(new Runnable(){
+            public void run() {
+                MainView.statTableData.setValueAt(p.utmEast, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                MainView.statTableData.setValueAt(p.utmNorth, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+            }
+        });
+
         return packet;
         /*GPSPacket p = new GPSPacket();
         Matrix state;
@@ -126,7 +135,15 @@ public class KalmanFilter
                 Logger.getLogger(KalmanFilter.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return Math.toDegrees(currentHeading);
+
+        final double deg = Math.toDegrees(currentHeading);
+         EventQueue.invokeLater(new Runnable(){
+            public void run() {
+                MainView.statTableData.setValueAt(deg, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+            }
+        });
+
+        return deg;
         /*Matrix state;
         if (compass_corrected) {
             state = this.getState_post();
@@ -144,27 +161,27 @@ public class KalmanFilter
 
         switch (type){
             case TYPE_GPS:
-                if (!gps_connected) gps_connected = true;
                 currentNorth = (1-gRatio)*currentNorth + gRatio*g.utmNorth;
                 currentEast = (1-gRatio)*currentEast + gRatio*g.utmEast;
                 gps_corrected = true;
                 gps_connected = true;
                 break;
             case TYPE_IMU:
-                double northAcc = (i.accX*Math.cos(currentHeading) - i.accY*Math.sin(currentHeading));
+                /*double northAcc = (i.accX*Math.cos(currentHeading) - i.accY*Math.sin(currentHeading));
                 double eastAcc = (i.accX*Math.sin(currentHeading) + i.accY*Math.cos(currentHeading));
                 currentNorth += currentNorthVel*dt;
                 currentEast += currentEastVel*dt;
                 currentNorthVel += northAcc*dt;
                 currentEastVel += eastAcc*dt;
-                currentHeading -= i.gyroZ*dt;
+                currentHeading -= i.gyroZ*dt;*/
                 gps_corrected = false;
                 compass_corrected = false;
                 break;
             case TYPE_COMPASS:
-                if (!compass_connected) compass_connected = true;
                 currentHeading = (1-cRatio)*Math.toRadians(c.heading) + cRatio*currentHeading;
+                compass_connected = true;
                 compass_corrected = true;
+                //System.out.println("Current Heading:" + currentHeading);
                 break;
             case TYPE_ENCODER:
                 break;
@@ -221,7 +238,7 @@ public class KalmanFilter
             }
         });
 
-        MainView.log("Compass Update: " + c.heading);
+        //MainView.log("Compass Update: " + c.heading);
         process(TYPE_COMPASS, null, null, c, null);
     }
 

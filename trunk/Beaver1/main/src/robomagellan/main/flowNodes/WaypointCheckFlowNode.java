@@ -20,7 +20,7 @@ public class WaypointCheckFlowNode extends FlowNode{
     private static final double DIST_THRESHOLD = 2.0;
     private static final double TURN_THRESHOLD = 5.0;
     private static final int FORWARD_SPEED = 5;
-    private static final int TURN_SPEED = 2;
+    private static final int TURN_SPEED = 3;
 
     private static boolean first = true;
     
@@ -49,7 +49,7 @@ public class WaypointCheckFlowNode extends FlowNode{
 
     @Override
     public void actionFalse() {
-        System.out.println("Got Here");
+        System.out.println("Got Here: Checking Position");
         //if (MainApp.currentWpt == null) return;
         GPSPacket currentWpt = MainApp.currentWpt.coord;
         GPSPacket here = MainApp.filter.getHorizPosition();
@@ -57,6 +57,7 @@ public class WaypointCheckFlowNode extends FlowNode{
         offset.utmEast = currentWpt.utmEast - here.utmEast;
         offset.utmNorth = currentWpt.utmNorth - here.utmNorth;
         double bearing = MainApp.filter.getHeading();
+
         //double bearing_i = //Figure out how to turn
 
 
@@ -64,24 +65,27 @@ public class WaypointCheckFlowNode extends FlowNode{
         double phi = Math.atan2(offset.utmNorth, offset.utmEast);
         if (phi < 0) phi += 2*Math.PI;
         phi = 90 - Math.toDegrees(phi);
+        while (phi < 0) phi += 360;
 
+        System.out.println("Bearing: " + bearing);
+        System.out.println("Phi: " + phi);
         double delta = bearing - phi;
         if(delta < 0) delta += 360;
-        System.out.println(delta);
+        System.out.println("Need to Turn: " + delta + " Degrees");
 
         if (delta <= TURN_THRESHOLD || delta > 360-TURN_THRESHOLD){
             //Move forward
-            MainView.log("Waypoint is ahead, Moving Forward");
+            //MainView.log("Waypoint is ahead, Moving Forward");
             MainApp.motors.setSpeed(Motors.LEFT, FORWARD_SPEED);
             MainApp.motors.setSpeed(Motors.RIGHT, FORWARD_SPEED);
         } else if (delta > 0 && delta <= 180){
             //Turn right
-            MainView.log("Waypoint is to the Right, turning Right");
+            //MainView.log("Waypoint is to the Right, turning Right");
             MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED);
             MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED);
         } else if (delta > 180 && delta < 360) {
             //Turn left
-            MainView.log("Waypoint is to the Left, turning Left");
+            //MainView.log("Waypoint is to the Left, turning Left");
             MainApp.motors.setSpeed(Motors.LEFT, -TURN_SPEED);
             MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED);
         }
