@@ -5,6 +5,9 @@
 
 package robomagellan.flow;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author robomagellan
@@ -31,6 +34,11 @@ public class Flow {
             else {
                 flowNode.actionFalse();
                 flowNode = flowNode.getFalseNode();
+            }
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Flow.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     } 
