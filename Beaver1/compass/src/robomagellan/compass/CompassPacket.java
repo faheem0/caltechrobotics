@@ -15,4 +15,5 @@ public class CompassPacket {
 	 * Ignore the default value.
 	 */
     public double heading = 0xFF;
+    public boolean obstacle = false;
 }
