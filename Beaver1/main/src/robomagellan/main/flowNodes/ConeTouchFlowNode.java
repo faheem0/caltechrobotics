@@ -5,7 +5,13 @@
 
 package robomagellan.main.flowNodes;
 
+import java.awt.EventQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import robomagellan.flow.FlowNode;
+import robomagellan.main.MainApp;
+import robomagellan.main.MainView;
+import robomagellan.motors.Motors;
 
 /**
  * This class checks to see if the robot has touched the cone and acts accordingly.
@@ -13,19 +19,39 @@ import robomagellan.flow.FlowNode;
  */
 public class ConeTouchFlowNode extends FlowNode{
 
+    public static final int backSpeed = -5;
     @Override
     public boolean test() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return MainApp.filter.getObstacle();
     }
 
     @Override
     public void actionTrue() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                MainView.log("ConeTouchFlowNode: Found Cone");
+            }
+        });
+        
+        MainApp.motors.setSpeed(Motors.LEFT, backSpeed);
+        MainApp.motors.setSpeed(Motors.RIGHT, backSpeed);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ConeTouchFlowNode.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        MainApp.motors.setSpeed(Motors.LEFT, 0);
+        MainApp.motors.setSpeed(Motors.RIGHT, 0);
     }
 
     @Override
     public void actionFalse() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ConeTouchFlowNode.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

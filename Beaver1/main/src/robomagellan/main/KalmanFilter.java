@@ -67,10 +67,13 @@ public class KalmanFilter
     private long last_time;
     private double currentEast, currentEastVel;
     private double currentNorth, currentNorthVel;
+    private boolean obstacle;
     private double currentHeading;
     private volatile boolean gps_connected, compass_connected;
     private static double gRatio = 0.80;
     private static double cRatio = 0.80;
+    private boolean firstIMUUpdate = true;
+    private IMUPacket oldIMUPacket;
 
 
     public KalmanFilter() throws Exception{
@@ -84,8 +87,11 @@ public class KalmanFilter
         currentEastVel = 0;
         currentNorthVel = 0;
         currentHeading = 0;
+        obstacle = false;
         gps_connected = false;
         compass_connected = false;
+        firstIMUUpdate = true;
+        oldIMUPacket = null;
     }
     /**
      * Retrieves the current, filtered coordinates of the robot
@@ -104,12 +110,12 @@ public class KalmanFilter
         packet.utmNorth = currentNorth;
 
         final GPSPacket p = packet;
-        EventQueue.invokeLater(new Runnable(){
+        /*EventQueue.invokeLater(new Runnable(){
             public void run() {
                 MainView.statTableData.setValueAt(p.utmEast, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
                 MainView.statTableData.setValueAt(p.utmNorth, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
             }
-        });
+        });*/
 
         return packet;
         /*GPSPacket p = new GPSPacket();
@@ -122,6 +128,10 @@ public class KalmanFilter
         p.utmEast = state.get(STATE_POS_X, 0);
         p.utmNorth = state.get(STATE_POS_Y, 0);
         return p;*/
+    }
+
+    public boolean getObstacle(){
+        return obstacle;
     }
     /**
      * Retrieves the current heading of the robot. 0 being North, rotating clockwise.
@@ -137,11 +147,11 @@ public class KalmanFilter
         }
 
         final double deg = Math.toDegrees(currentHeading);
-         EventQueue.invokeLater(new Runnable(){
+        /* EventQueue.invokeLater(new Runnable(){
             public void run() {
                 MainView.statTableData.setValueAt(deg, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
             }
-        });
+        });*/
 
         return deg;
         /*Matrix state;
@@ -155,9 +165,18 @@ public class KalmanFilter
 
     //Helper Function
     private synchronized void process(int type, GPSPacket g, IMUPacket i, CompassPacket c, EncoderPacket p){
-        long current_time = System.nanoTime();
-        double dt = (current_time - last_time)*10^-9;
-        last_time = current_time;
+        double dt;
+        
+        if (firstIMUUpdate){
+            dt = 0;
+            last_time = System.nanoTime();
+            firstIMUUpdate = false;
+        }
+        else {
+            long current_time = System.nanoTime();
+            dt = (current_time - last_time)*(0.000000001);
+            last_time = current_time;
+        }
 
         switch (type){
             case TYPE_GPS:
@@ -172,13 +191,28 @@ public class KalmanFilter
                 currentNorth += currentNorthVel*dt;
                 currentEast += currentEastVel*dt;
                 currentNorthVel += northAcc*dt;
-                currentEastVel += eastAcc*dt;
-                currentHeading -= i.gyroZ*dt;*/
+                currentEastVel += eastAcc*dt;*/
+                /*double  filteredGyroZ;
+                if (oldIMUPacket != null){
+                    if (Math.abs(oldIMUPacket.gyroZ - i.gyroZ) < 20.0 ){
+                        filteredGyroZ = (1-0.90)*i.gyroZ + 0.90*oldIMUPacket.gyroZ;
+                        oldIMUPacket = new IMUPacket();
+                        oldIMUPacket.gyroZ = filteredGyroZ;
+                    } else filteredGyroZ = oldIMUPacket.gyroZ;
+                } else {
+                    filteredGyroZ = i.gyroZ;
+                    oldIMUPacket = new IMUPacket();
+                    oldIMUPacket.gyroZ = i.gyroZ;
+                }
+                currentHeading += filteredGyroZ*dt;
+                while (currentHeading > 2*Math.PI) currentHeading -= 2*Math.PI;
+                while (currentHeading < 0) currentHeading += 2*Math.PI;*/
                 gps_corrected = false;
                 compass_corrected = false;
                 break;
             case TYPE_COMPASS:
                 currentHeading = (1-cRatio)*Math.toRadians(c.heading) + cRatio*currentHeading;
+                obstacle = c.obstacle;
                 compass_connected = true;
                 compass_corrected = true;
                 //System.out.println("Current Heading:" + currentHeading);
@@ -186,6 +220,17 @@ public class KalmanFilter
             case TYPE_ENCODER:
                 break;
         }
+
+        final double t = dt;
+         EventQueue.invokeLater(new Runnable(){
+            public void run() {
+                MainView.statTableData.setValueAt(currentEast, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                //MainView.statTableData.setValueAt(t, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                MainView.statTableData.setValueAt(currentNorth, MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+                MainView.statTableData.setValueAt(Math.round(Math.toDegrees(currentHeading)), MainView.STATTABLE_KALMAN_ROW_LOC, MainView.STATTABLE_Z_COL_LOC);
+            }
+        });
+
     }
     /**
      * GPS Calls this function
@@ -235,6 +280,10 @@ public class KalmanFilter
 
             public void run() {
                 MainView.statTableData.setValueAt(p.heading, MainView.STATTABLE_COMPASS_ROW_LOC, MainView.STATTABLE_X_COL_LOC);
+                if (p.obstacle)
+                    MainView.statTableData.setValueAt(1, MainView.STATTABLE_COMPASS_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
+                else
+                    MainView.statTableData.setValueAt(0, MainView.STATTABLE_COMPASS_ROW_LOC, MainView.STATTABLE_Y_COL_LOC);
             }
         });
 

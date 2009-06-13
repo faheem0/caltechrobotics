@@ -18,7 +18,7 @@ import robomagellan.main.MainView;
  */
 public class NextWaypointFlowNode extends FlowNode{
 
-    private static int reached = 0;
+    private static int reached = -1;
     @Override
     public boolean test() {
         if (MainApp.wpts.isEmpty()) return false;
@@ -31,12 +31,14 @@ public class NextWaypointFlowNode extends FlowNode{
      */
     @Override
     public void actionTrue() {
+
+        reached++;
         EventQueue.invokeLater(new Runnable(){
+            final int n = reached;
             public void run() {
-                MainView.wpTableData.setValueAt(true, reached, MainView.WPTABLE_REACHED_COL_LOC);
+                MainView.wpTableData.setValueAt(true, n, MainView.WPTABLE_REACHED_COL_LOC);
             }
         });
-        reached++;
         MainApp.currentWpt = MainApp.wpts.poll();
         MainView.log(getName() + ": True, New Waypoint Acquired");
     }

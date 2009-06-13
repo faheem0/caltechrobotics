@@ -29,7 +29,7 @@ import robomagellan.motors.Motors;
 public class MainApp extends SingleFrameApplication {
     public static List<String> serialPortList;
 
-    public static String motorPort, gpsPort, imuPort, compassPort, webcamPort;
+    public static String motorPort = "/dev/ttyUSB1", gpsPort = "/dev/ttyUSB3", imuPort = "/dev/ttyUSB2", compassPort = "/dev/ttyUSB0", webcamPort;
     public static Compass compass;
     public static AC12GPS gps;
     public static CristaIMU imu;

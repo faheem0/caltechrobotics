@@ -4,6 +4,12 @@
 
 package robomagellan.main;
 
+import com.bbn.openmap.LatLonPoint;
+import com.bbn.openmap.proj.Ellipsoid;
+import com.bbn.openmap.proj.Ellipsoid;
+import com.bbn.openmap.proj.coords.UTMPoint;
+import java.awt.Color;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.TooManyListenersException;
@@ -17,6 +23,7 @@ import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,9 +33,12 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.swing.Timer;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import robomagellan.compass.Compass;
 import robomagellan.conerecon.ConeRecon;
@@ -41,6 +51,7 @@ import org.jdesktop.swingx.mapviewer.GeoPosition;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableModel;
 import org.jdesktop.swingx.mapviewer.WaypointPainter;
+import robomagellan.conerecon.ConeRecon.ConeInfo;
 import robomagellan.gps.GPSPacket;
 import uk.me.jstott.jcoord.LatLng;
 import uk.me.jstott.jcoord.OSRef;
@@ -95,6 +106,10 @@ public class MainView extends FrameView{
 
     private static final String LOG_FILE_NAME = "/home/robomagellan/logs/run";
     private static BufferedWriter fileOut;
+
+    public static final String UTM_ZONE = "11S";
+
+    private static Thread camUpdateThread;
 
     public MainView(SingleFrameApplication app) {
         super(app);
@@ -180,10 +195,11 @@ public class MainView extends FrameView{
             Set<org.jdesktop.swingx.mapviewer.Waypoint> s = new HashSet<org.jdesktop.swingx.mapviewer.Waypoint>();
             for (int i = 0; i < importedWpts.size(); i++){
                 MainApp.wpts.add(importedWpts.get(i));
-                OSRef os = new OSRef(importedWpts.get(i).coord.utmEast, importedWpts.get(i).coord.utmNorth);
-                LatLng ll = os.toLatLng();
-                s.add(new org.jdesktop.swingx.mapviewer.Waypoint(ll.getLat(), ll.getLng()));
-                jXMapKit1.setCenterPosition(new GeoPosition(ll.getLat(), ll.getLng()));
+                System.out.println((float)importedWpts.get(i).coord.utmEast + " " + (float)importedWpts.get(i).coord.utmNorth);
+                LatLonPoint ll = UTMPoint.UTMtoLL(Ellipsoid.WGS_84, (float)importedWpts.get(i).coord.utmNorth, (float)importedWpts.get(i).coord.utmEast, UTM_ZONE, null);
+                System.out.println(ll.getLatitude()+90.26957 + " " + (ll.getLongitude()+0.542945));
+                s.add(new org.jdesktop.swingx.mapviewer.Waypoint(ll.getLatitude()+90.26957, ll.getLongitude()+0.542945));
+                jXMapKit1.setCenterPosition(new GeoPosition(ll.getLatitude()+90.26957, ll.getLongitude()+0.542945));
 
                 GPSPacket pack = importedWpts.get(i).coord;
                 wpTableData.addRow(new Object[]{pack.utmEast, pack.utmNorth,  importedWpts.get(i).type, false});
@@ -243,7 +259,8 @@ public class MainView extends FrameView{
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         statTable = new javax.swing.JTable();
-        jPanel2 = new javax.swing.JPanel();
+        camPanel = new javax.swing.JPanel();
+        camIcon = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jXMapKit1 = new org.jdesktop.swingx.JXMapKit();
         jPanel4 = new javax.swing.JPanel();
@@ -340,26 +357,33 @@ public class MainView extends FrameView{
 
         jTabbedPane1.addTab(resourceMap.getString("jPanel1.TabConstraints.tabTitle"), jPanel1); // NOI18N
 
-        jPanel2.setName("jPanel2"); // NOI18N
+        camPanel.setName("camPanel"); // NOI18N
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 678, Short.MAX_VALUE)
+        camIcon.setText(resourceMap.getString("camIcon.text")); // NOI18N
+        camIcon.setName("camIcon"); // NOI18N
+
+        javax.swing.GroupLayout camPanelLayout = new javax.swing.GroupLayout(camPanel);
+        camPanel.setLayout(camPanelLayout);
+        camPanelLayout.setHorizontalGroup(
+            camPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(camPanelLayout.createSequentialGroup()
+                .addComponent(camIcon)
+                .addContainerGap(678, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 198, Short.MAX_VALUE)
+        camPanelLayout.setVerticalGroup(
+            camPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(camPanelLayout.createSequentialGroup()
+                .addComponent(camIcon)
+                .addContainerGap(198, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab(resourceMap.getString("jPanel2.TabConstraints.tabTitle"), jPanel2); // NOI18N
+        jTabbedPane1.addTab(resourceMap.getString("camPanel.TabConstraints.tabTitle"), camPanel); // NOI18N
 
         jPanel3.setName("jPanel3"); // NOI18N
 
-        //jXMapKit1.setDefaultProvider(org.jdesktop.swingx.JXMapKit.DefaultProviders.OpenStreetMaps);
-        jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());
-        //jXMapKit1.setDataProviderCreditShown(true);
+        jXMapKit1.setDefaultProvider(org.jdesktop.swingx.JXMapKit.DefaultProviders.OpenStreetMaps);
+        //jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());
+        jXMapKit1.setDataProviderCreditShown(true);
         jXMapKit1.setName("jXMapKit1"); // NOI18N
         jXMapKit1.setAddressLocation(new GeoPosition(34.138577, -118.125494));
 
@@ -532,7 +556,6 @@ public class MainView extends FrameView{
         mapMenu.add(satRadioButton);
 
         terRadioButton.setAction(actionMap.get("terMapSelected")); // NOI18N
-        terRadioButton.setSelected(true);
         terRadioButton.setText(resourceMap.getString("terRadioButton.text")); // NOI18N
         terRadioButton.setName("terRadioButton"); // NOI18N
         mapMenu.add(terRadioButton);
@@ -543,6 +566,7 @@ public class MainView extends FrameView{
         mapMenu.add(streetRadioButton);
 
         openStreetRadioButton.setAction(actionMap.get("openStreetMapSelected")); // NOI18N
+        openStreetRadioButton.setSelected(true);
         openStreetRadioButton.setText(resourceMap.getString("openStreetRadioButton.text")); // NOI18N
         openStreetRadioButton.setName("openStreetRadioButton"); // NOI18N
         mapMenu.add(openStreetRadioButton);
@@ -674,8 +698,39 @@ public class MainView extends FrameView{
                 MainApp.cam = new ConeRecon(MainApp.webcamPort);
                 MainApp.cam.start();
             }
-            // TODO: Display Webcam in Window
 
+            camUpdateThread= new Thread(new Runnable(){
+                final ConeRecon cam = MainApp.cam;
+                final JLabel icon = camIcon;
+                public void run() {
+
+                    while (!Thread.currentThread().isInterrupted()){
+                        if (cam != null) {
+                            ConeInfo info = cam.getInfo();
+                            Image im = info.image;
+                            if (im != null) {
+                                if (info.detected) {
+                                    BufferedImage bi = (BufferedImage) im;
+                                    im.getGraphics().setColor(Color.BLACK);
+                                    im.getGraphics().drawLine(info.x, 0, info.x, bi.getHeight());
+                                    im.getGraphics().drawLine(0, info.y, bi.getWidth(), info.y);
+                                    im.getGraphics().fillOval(info.x - 5, info.y - 5, 10, 10);
+                                }
+                                icon.setIcon(new ImageIcon(cam.getInfo().image));
+                            }
+                        }
+                            try {
+                                Thread.sleep(33);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        
+                    }
+
+                }
+            });
+            camUpdateThread.start();
+            
             statusMessageLabel.setText("Connected");
             progressBar.setValue(0);
             progressBar.setStringPainted(false);
@@ -690,6 +745,15 @@ public class MainView extends FrameView{
                 MainApp.gps.stop();
             if (MainApp.cam != null)
                 MainApp.cam.stop();
+            if (camUpdateThread != null){
+                camUpdateThread.interrupt();
+                try {
+                    MainApp.cam.stop();
+                    camUpdateThread.join();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             progressBar.setIndeterminate(false);
             progressBar.setValue(0);
             progressBar.setStringPainted(false);
@@ -774,11 +838,12 @@ public class MainView extends FrameView{
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel camIcon;
+    private javax.swing.JPanel camPanel;
     private javax.swing.JToggleButton connectButton;
     private javax.swing.JMenuItem importMenuItem;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
