@@ -4,7 +4,6 @@
  */
 
 package datacollector;
-import datacollector.Main.CompassLogger;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,10 +11,7 @@ import java.util.Scanner;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import robomagellan.compass.*;
 import robomagellan.gps.*;
-import robomagellan.imu.*;
-import robomagellan.motors.*;
 /**
  *
  * @author robomagellan
@@ -25,46 +21,45 @@ public class Main {
     private FileWriter fstream;
     private BufferedWriter out;
     private static final String directory = "/home/robomagellan/logs/data_captures/";
-    private Compass compass;
     private AC12GPS gps;
-    private CristaIMU imu;
-    private Motors motors;
+    private static GPSPacket lastPacket = null;
+    private static int number = 0;
     
-    public synchronized void log(String s){
+    public synchronized void log(double east, double north, int type){
         try {
-            out.write(System.currentTimeMillis() + s);
+            out.write("<wpt>\n\t<number>" + number + "</number>\n\t<east>" + east + "</east>\n\t<north>" + north + "</north>\t\n<type>" + type + "</type>\n</wpt>\n");
+            number++;
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Could not write to file", ex);
         }
     }
     public Main(){
         try {
-            fstream = new FileWriter(directory + System.currentTimeMillis() + ".txt");
+            fstream = new FileWriter(directory + "Waypoints_" + System.currentTimeMillis() + ".txt");
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Couldn't Create File", ex);
         }
         out = new BufferedWriter(fstream);
-
-        compass = new Compass("/dev/ttyUSB0");
-        gps = new AC12GPS("/dev/ttyUSB1");
-        imu = new CristaIMU("/dev/ttyUSB2");
-        motors = new Motors("/dev/ttyUSB3");
+        try {
+            out.write("<root>\n");
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        gps = new AC12GPS("/dev/ttyUSB2");
     }
     public void addListeners(){
         try {
-            compass.addCompassDataListener(new CompassLogger(this));
             gps.addGPSDataListener(new GPSLogger(this));
-            imu.addIMUDataListener(new IMULogger(this));
-            motors.addEncoderDataListener(new EncoderLogger(this));
+            //imu.addIMUDataListener(new IMULogger(this));
+            //motors.addEncoderDataListener(new EncoderLogger(this));
         } catch (TooManyListenersException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Too Many Listeners", ex);
         }
     }
     public void stop(){
-        compass.stop();
         gps.stop();
-        imu.stop();
-        motors.stop();
+        //imu.stop();
+        //motors.stop();
         try {
             out.close();
         } catch (IOException ex) {
@@ -77,21 +72,31 @@ public class Main {
 
     public static void main(String[] args) {
          Main main = new Main();
+         main.addListeners();
          Scanner scanner = new Scanner(System.in);
-         while(!scanner.nextLine().equals("STOP")){
-
+         String scanned;
+         scanned = scanner.nextLine();
+         while(!scanned.equals("STOP")){
+            if (scanned.equals("")){
+                System.out.println("Recorded");
+                main.log(lastPacket.utmEast, lastPacket.utmNorth, 1);
+            } else if (scanned.equalsIgnoreCase("c")){
+                main.log(lastPacket.utmEast, lastPacket.utmNorth, 0);
+            }
+            scanned = scanner.nextLine();
          }
+        try {
+            main.out.write("</root>");
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         scanner.close();
+        try {
+            main.out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
          main.stop();
-    }
-
-    public class CompassLogger implements CompassDataListener{
-        Main main;
-        public CompassLogger(Main m){
-            main = m;
-        }
-        public void processEvent(CompassPacket c) {
-            main.log("<Compass>" + c.heading + "</Compass>");
-        }
     }
 
     public class GPSLogger implements GPSDataListener{
@@ -100,25 +105,8 @@ public class Main {
             main = m;
         }
         public void processEvent(GPSPacket p) {
-            main.log("<GPS>" + p.utmEast + ":" + p.utmNorth + ":" + p.precision + ":" + p.time + "</GPS>");
-        }
-    }
-    public class IMULogger implements IMUDataListener{
-        Main main;
-        public IMULogger(Main m){
-            main = m;
-        }
-        public void processEvent(IMUPacket p) {
-            main.log("<IMU>" + p.gyroX + ":" + p.gyroY + ":" + p.gyroZ + ":" + p.accX + ":" + p.accY + ":" + p.accZ + ":" + "</IMU>");
-        }
-    }
-    public class EncoderLogger implements EncoderDataListener{
-         Main main;
-        public EncoderLogger(Main m){
-            main = m;
-        }
-        public void processEvent(EncoderPacket p) {
-            main.log("<Encoder>" +  "</Encoder>");
+            lastPacket = p;
+            System.out.println("GPS: " + p.utmEast + " " + p.utmNorth);
         }
     }
 }
