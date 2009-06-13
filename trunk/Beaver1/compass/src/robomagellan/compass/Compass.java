@@ -85,6 +85,7 @@ public class Compass {
 
             int bytesRead;
             int heading;
+            boolean obstacle;
             int state = 0;
             byte[] buffer = new byte[BUFFER_SIZE];
 
@@ -109,9 +110,20 @@ public class Compass {
                                     break;
                                 case 3:
                                     heading += buffer[i] - ASCII_ZERO;
+                                    state = 4;
+                                    break;
+                                case 4:
+                                    if (buffer[i] == 0){
+                                        //System.out.println("False");
+                                        obstacle = false;
+                                    } else {
+                                        //System.out.println("True");
+                                        obstacle = true;
+                                    }
                                     state = 0;
                                     CompassPacket packet = new CompassPacket();
                                     packet.heading = fixHeading(heading);
+                                    packet.obstacle = obstacle;
                                     listener.processEvent(packet);
                                     break;
                                 default:
