@@ -120,14 +120,14 @@
                 </Container>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JPanel" name="jPanel2">
+            <Container class="javax.swing.JPanel" name="camPanel">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jPanel2" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="camPanel" noResource="true"/>
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Webcam">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jPanel2.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="camPanel.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -135,15 +135,29 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="678" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="camIcon" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="678" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="198" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="camIcon" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="198" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="camIcon">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" resourceKey="camIcon.text"/>
+                    <Property name="name" type="java.lang.String" value="camIcon" noResource="true"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel3">
               <Properties>
@@ -172,7 +186,7 @@
               <SubComponents>
                 <Component class="org.jdesktop.swingx.JXMapKit" name="jXMapKit1">
                   <Properties>
-                    <Property name="name" type="java.lang.String" value="jXMapKit1" noResource="true" preCode="//jXMapKit1.setDefaultProvider(org.jdesktop.swingx.JXMapKit.DefaultProviders.OpenStreetMaps);&#xa;jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());&#xa;//jXMapKit1.setDataProviderCreditShown(true);" postCode="jXMapKit1.setAddressLocation(new GeoPosition(34.138577, -118.125494));"/>
+                    <Property name="name" type="java.lang.String" value="jXMapKit1" noResource="true" preCode="jXMapKit1.setDefaultProvider(org.jdesktop.swingx.JXMapKit.DefaultProviders.OpenStreetMaps);&#xa;//jXMapKit1.setTileFactory(GoogleMapsTileProvider.getDefaultTileFactory());&#xa;jXMapKit1.setDataProviderCreditShown(true);" postCode="jXMapKit1.setAddressLocation(new GeoPosition(34.138577, -118.125494));"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -452,7 +466,6 @@
                     <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                       <action class="robomagellan.main.MainView" id="terMapSelected" methodName="terMapSelected"/>
                     </Property>
-                    <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" resourceKey="terRadioButton.text"/>
                     <Property name="name" type="java.lang.String" value="terRadioButton" noResource="true"/>
                   </Properties>
@@ -471,6 +484,7 @@
                     <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                       <action class="robomagellan.main.MainView" id="openStreetMapSelected" methodName="openStreetMapSelected"/>
                     </Property>
+                    <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" resourceKey="openStreetRadioButton.text"/>
                     <Property name="name" type="java.lang.String" value="openStreetRadioButton" noResource="true"/>
                   </Properties>

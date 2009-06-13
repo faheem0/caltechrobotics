@@ -18,9 +18,11 @@ import robomagellan.motors.Motors;
 public class WaypointCheckFlowNode extends FlowNode{
 
     private static final double DIST_THRESHOLD = 2.0;
-    private static final double TURN_THRESHOLD = 5.0;
-    private static final int FORWARD_SPEED = 5;
-    private static final int TURN_SPEED = 3;
+    private static final double TURN_THRESHOLD = 15.0;
+    private static final int FORWARD_SPEED = 6;
+    private static final int TURN_SPEED = 2;
+    private static final int SLOW_TURN_SPEED = 1;
+    private static final double SLOW_TURN_THRESHOLD = 30.0;
 
     private static boolean first = true;
     
@@ -49,7 +51,7 @@ public class WaypointCheckFlowNode extends FlowNode{
 
     @Override
     public void actionFalse() {
-        System.out.println("Got Here: Checking Position");
+        //System.out.println("Got Here: Checking Position");
         //if (MainApp.currentWpt == null) return;
         GPSPacket currentWpt = MainApp.currentWpt.coord;
         GPSPacket here = MainApp.filter.getHorizPosition();
@@ -58,20 +60,27 @@ public class WaypointCheckFlowNode extends FlowNode{
         offset.utmNorth = currentWpt.utmNorth - here.utmNorth;
         double bearing = MainApp.filter.getHeading();
 
-        //double bearing_i = //Figure out how to turn
 
-
-        //TODO: FIGURE OUT HOW TO TURN!!!1
         double phi = Math.atan2(offset.utmNorth, offset.utmEast);
         if (phi < 0) phi += 2*Math.PI;
         phi = 90 - Math.toDegrees(phi);
         while (phi < 0) phi += 360;
 
-        System.out.println("Bearing: " + bearing);
-        System.out.println("Phi: " + phi);
+        //System.out.println("Bearing: " + bearing);
+        //System.out.println("Phi: " + phi);
         double delta = bearing - phi;
         if(delta < 0) delta += 360;
-        System.out.println("Need to Turn: " + delta + " Degrees");
+        //System.out.println("Need to Turn: " + delta + " Degrees");
+
+        int turnSpeed;
+
+        if (delta <= SLOW_TURN_THRESHOLD || delta > 360-SLOW_TURN_THRESHOLD){
+            turnSpeed = SLOW_TURN_SPEED;
+            //System.out.println("Turning Slowly");
+        } else {
+            turnSpeed = TURN_SPEED;
+            //System.out.println("Turning Fast");
+        }
 
         if (delta <= TURN_THRESHOLD || delta > 360-TURN_THRESHOLD){
             //Move forward
@@ -81,13 +90,13 @@ public class WaypointCheckFlowNode extends FlowNode{
         } else if (delta > 0 && delta <= 180){
             //Turn right
             //MainView.log("Waypoint is to the Right, turning Right");
-            MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED);
-            MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED);
+            MainApp.motors.setSpeed(Motors.LEFT, turnSpeed);
+            MainApp.motors.setSpeed(Motors.RIGHT, -turnSpeed);
         } else if (delta > 180 && delta < 360) {
             //Turn left
             //MainView.log("Waypoint is to the Left, turning Left");
-            MainApp.motors.setSpeed(Motors.LEFT, -TURN_SPEED);
-            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED);
+            MainApp.motors.setSpeed(Motors.LEFT, -turnSpeed);
+            MainApp.motors.setSpeed(Motors.RIGHT, turnSpeed);
         }
 
     }

@@ -5,6 +5,9 @@
 
 package robomagellan.main.flowNodes;
 
+import java.awt.EventQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import robomagellan.conerecon.ConeRecon.ConeInfo;
 import robomagellan.conerecon.Webcam;
 import robomagellan.flow.FlowNode;
@@ -22,8 +25,8 @@ public class ConeDetectFlowNode extends FlowNode{
 
     private ConeInfo info;
 
-    private static final int BANDWIDTH = 5;
-    private static final int TURN_SPEED = 2;
+    private static final int BANDWIDTH = 100;
+    private static final int TURN_SPEED = 1;
     
     @Override
     public boolean test() {
@@ -34,27 +37,47 @@ public class ConeDetectFlowNode extends FlowNode{
 
     @Override
     public void actionTrue() {
-        int center = Webcam.IMAGE_WIDTH/2;
-        if (info.x < center - BANDWIDTH){
+        int center = Webcam.IMAGE_WIDTH / 2;
+        if (info.x < center - BANDWIDTH/2) {
             MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED);
             MainApp.motors.setSpeed(Motors.LEFT, -TURN_SPEED);
-            MainView.log(getName() + ": True, Cone to Left, Turning");
-        } else if (info.x > center + BANDWIDTH){
+            //System.out.println("True, Cone to Left, Turning");
+        } else if (info.x > center + BANDWIDTH/2) {
             MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED);
             MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED);
-            MainView.log(getName() + ": True, Cone to Right, Turning");
+            //System.out.println("True, Cone to Right, Turning");
         } else {
-            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED);
-            MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED);
-            MainView.log(getName() + ": True, Cone to Ahead, Moving Foward");
+            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED+3);
+            MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+3);
+//            EventQueue.invokeLater(new Runnable() {
+//
+//                public void run() {
+//                    MainView.log(getName() + ": True, Cone to Ahead, Moving Foward");
+//                }
+//            });
+//            System.out.println("True, Cone Ahead, Moving Forward");
         }
     }
 
     @Override
     public void actionFalse() {
-        MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED);
-        MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED);
-        MainView.log(getName() + ": False, Turning Right");
+        MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED-1);
+        MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+1);
+        try {
+            Thread.sleep(500);
+            //System.out.println("False, Turning Right");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ConeDetectFlowNode.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        MainApp.motors.setSpeed(Motors.RIGHT, 0);
+        MainApp.motors.setSpeed(Motors.LEFT, 0);
+        try {
+            Thread.sleep(500);
+            //System.out.println("False, Turning Right");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ConeDetectFlowNode.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //System.out.println("False, Turning Right");
     }
 
 }
