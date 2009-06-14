@@ -119,6 +119,7 @@ public class Motors {
 				while (!stopHelper) {
 					try {
 						out.write(cmd.getBytes("ASCII"));
+                        out.flush();
 					} catch (IOException ex) {
 						Logger.getLogger(Motors.class.getName()).log(Level.SEVERE, "Could not write to OutputStream", ex);
 					}
