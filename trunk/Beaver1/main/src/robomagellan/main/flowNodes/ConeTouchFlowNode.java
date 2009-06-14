@@ -19,7 +19,7 @@ import robomagellan.motors.Motors;
  */
 public class ConeTouchFlowNode extends FlowNode{
 
-    public static final int backSpeed = -5;
+    public static final int backSpeed = -8;
     @Override
     public boolean test() {
         return MainApp.filter.getObstacle();
@@ -27,6 +27,7 @@ public class ConeTouchFlowNode extends FlowNode{
 
     @Override
     public void actionTrue() {
+        ConeDetectFlowNode.updateSpiral();
         EventQueue.invokeLater(new Runnable() {
 
             public void run() {

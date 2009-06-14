@@ -9,6 +9,7 @@ import robomagellan.flow.FlowNode;
 import robomagellan.gps.GPSPacket;
 import robomagellan.main.MainApp;
 import robomagellan.main.MainView;
+import robomagellan.main.Waypoint;
 import robomagellan.motors.Motors;
 
 /**
@@ -18,10 +19,11 @@ import robomagellan.motors.Motors;
 public class WaypointCheckFlowNode extends FlowNode{
 
     private static final double DIST_THRESHOLD = 2.0;
+    private static final double DIST_THRESHOLD_CONE = 1.0;
     private static final double TURN_THRESHOLD = 15.0;
-    private static final int FORWARD_SPEED = 6;
+    private static final int FORWARD_SPEED = 10;
     private static final int TURN_SPEED = 2;
-    private static final int SLOW_TURN_SPEED = 1;
+    private static final int SLOW_TURN_SPEED =1;
     private static final double SLOW_TURN_THRESHOLD = 30.0;
 
     private static boolean first = true;
@@ -33,7 +35,11 @@ public class WaypointCheckFlowNode extends FlowNode{
             return true;
         }
         if (MainApp.currentWpt != null){
-            if (getDistanceFromWpt(MainApp.currentWpt.coord, MainApp.filter.getHorizPosition()) < DIST_THRESHOLD)
+            double thres = DIST_THRESHOLD;
+            if (MainApp.currentWpt.type == Waypoint.TYPE_CONE){
+               thres = DIST_THRESHOLD_CONE;
+            }
+            if (getDistanceFromWpt(MainApp.currentWpt.coord, MainApp.filter.getHorizPosition()) < thres)
                 return true;
         }
         return false;

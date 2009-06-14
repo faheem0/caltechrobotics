@@ -54,7 +54,7 @@ public class MainApp extends SingleFrameApplication {
      */
     @Override protected void startup() {
         try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
