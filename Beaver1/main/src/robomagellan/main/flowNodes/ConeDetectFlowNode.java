@@ -27,6 +27,11 @@ public class ConeDetectFlowNode extends FlowNode{
 
     private static final int BANDWIDTH = 100;
     private static final int TURN_SPEED = 1;
+    private static final double SPIRAL_INC = 0.5;
+    private static final double TURN_SPIRAL_MAX = TURN_SPEED+2;
+    private static final double TURN_SPIRAL_MIN = -TURN_SPEED - 2;
+    private static double SPIRAL = TURN_SPIRAL_MIN;
+    private static int MULT = +1;
     
     @Override
     public boolean test() {
@@ -35,20 +40,25 @@ public class ConeDetectFlowNode extends FlowNode{
         else return false;
     }
 
+    public static void updateSpiral(){
+        SPIRAL = TURN_SPIRAL_MIN;
+    }
     @Override
     public void actionTrue() {
         int center = Webcam.IMAGE_WIDTH / 2;
         if (info.x < center - BANDWIDTH/2) {
-            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED);
-            MainApp.motors.setSpeed(Motors.LEFT, -TURN_SPEED);
-            //System.out.println("True, Cone to Left, Turning");
-        } else if (info.x > center + BANDWIDTH/2) {
+            System.out.println("Left: " + info.x);
             MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED);
             MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED);
+            //System.out.println("True, Cone to Left, Turning");
+        } else if (info.x > center + BANDWIDTH/2) {
+            System.out.println("Right: " + info.x);
+            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED);
+            MainApp.motors.setSpeed(Motors.LEFT, -TURN_SPEED);
             //System.out.println("True, Cone to Right, Turning");
         } else {
-            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED+3);
-            MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+3);
+            MainApp.motors.setSpeed(Motors.RIGHT, TURN_SPEED+4);
+            MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+4);
 //            EventQueue.invokeLater(new Runnable() {
 //
 //                public void run() {
@@ -57,17 +67,24 @@ public class ConeDetectFlowNode extends FlowNode{
 //            });
 //            System.out.println("True, Cone Ahead, Moving Forward");
         }
+        try {
+            Thread.sleep(30);
+        } catch (InterruptedException ex) {
+        }
     }
 
     @Override
     public void actionFalse() {
-        MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED-1);
-        MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+1);
+        if (SPIRAL >= TURN_SPIRAL_MAX) MULT = -1;
+        else if (SPIRAL <= TURN_SPIRAL_MIN) MULT += +1;
+        SPIRAL += SPIRAL_INC * MULT;
+        System.out.println("Spiral: " + SPIRAL);
+        MainApp.motors.setSpeed(Motors.RIGHT, (int)Math.round(SPIRAL));
+        MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+2);
         try {
             Thread.sleep(500);
             //System.out.println("False, Turning Right");
         } catch (InterruptedException ex) {
-            Logger.getLogger(ConeDetectFlowNode.class.getName()).log(Level.SEVERE, null, ex);
         }
         MainApp.motors.setSpeed(Motors.RIGHT, 0);
         MainApp.motors.setSpeed(Motors.LEFT, 0);
@@ -75,7 +92,6 @@ public class ConeDetectFlowNode extends FlowNode{
             Thread.sleep(500);
             //System.out.println("False, Turning Right");
         } catch (InterruptedException ex) {
-            Logger.getLogger(ConeDetectFlowNode.class.getName()).log(Level.SEVERE, null, ex);
         }
         //System.out.println("False, Turning Right");
     }

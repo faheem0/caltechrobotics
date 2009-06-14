@@ -526,6 +526,7 @@ public class MainView extends FrameView{
         fileMenu.add(openFlowMenuItem);
 
         importMenuItem.setAction(actionMap.get("importWaypoints")); // NOI18N
+        importMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.event.InputEvent.CTRL_MASK));
         importMenuItem.setText(resourceMap.getString("importMenuItem.text")); // NOI18N
         importMenuItem.setName("importMenuItem"); // NOI18N
         fileMenu.add(importMenuItem);
@@ -543,6 +544,7 @@ public class MainView extends FrameView{
         toolsMenu.setName("toolsMenu"); // NOI18N
 
         jMenuItem1.setAction(actionMap.get("openConnections")); // NOI18N
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
         jMenuItem1.setName("jMenuItem1"); // NOI18N
         toolsMenu.add(jMenuItem1);

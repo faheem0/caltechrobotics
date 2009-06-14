@@ -408,6 +408,9 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="robomagellan.main.MainView" id="importWaypoints" methodName="importWaypoints"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+I"/>
+                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="importMenuItem.text"/>
                 <Property name="name" type="java.lang.String" value="importMenuItem" noResource="true"/>
               </Properties>
@@ -441,6 +444,9 @@
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="robomagellan.main.MainView" id="openConnections" methodName="openConnections"/>
+                </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+T"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="jMenuItem1.text"/>
                 <Property name="name" type="java.lang.String" value="jMenuItem1" noResource="true"/>
