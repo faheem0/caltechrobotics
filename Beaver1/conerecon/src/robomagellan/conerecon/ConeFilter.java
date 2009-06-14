@@ -21,8 +21,8 @@ import org.generation5.vision.InvertFilter;
  * @author tonyfwu
  */
 public class ConeFilter extends Filter{
-	private static final int DENSITY_CHECK_SIZE = 20;
-	private static final float DENSITY_THRESHOLD = 0.80f;
+	private static final int DENSITY_CHECK_SIZE = 17;
+	private static final float DENSITY_THRESHOLD = 0.60f;
 
 	private static InvertFilter invert = new InvertFilter();
 	private static NormalizeFilter normalize = new NormalizeFilter();
@@ -81,9 +81,10 @@ public class ConeFilter extends Filter{
 				out_pixels.setSample(i, j, 0, value);
 			}
 		}
+        if (mass != 0){
 		x /= mass;
 		y /= mass;
-		
+        }
 		if (density(out_pixels, x, y, DENSITY_CHECK_SIZE) > DENSITY_THRESHOLD){
 			/*Graphics g = output.getGraphics();
 			g.setColor(Color.ORANGE);
