@@ -38,7 +38,7 @@ public class Flow {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ex) {
-                Logger.getLogger(Flow.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(Flow.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     } 
