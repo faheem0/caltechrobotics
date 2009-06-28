@@ -79,7 +79,7 @@ public class ConeDetectFlowNode extends FlowNode{
         else if (SPIRAL <= TURN_SPIRAL_MIN) MULT += +1;
         SPIRAL += SPIRAL_INC * MULT;
         System.out.println("Spiral: " + SPIRAL);
-        MainApp.motors.setSpeed(Motors.RIGHT, (int)Math.round(SPIRAL));
+        MainApp.motors.setSpeed(Motors.RIGHT, -TURN_SPEED - 2);
         MainApp.motors.setSpeed(Motors.LEFT, TURN_SPEED+2);
         try {
             Thread.sleep(500);
