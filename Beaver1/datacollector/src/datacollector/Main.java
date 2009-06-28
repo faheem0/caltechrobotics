@@ -45,7 +45,7 @@ public class Main {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        gps = new AC12GPS("/dev/ttyUSB2");
+        gps = new AC12GPS("/dev/ttyUSB0");
     }
     public void addListeners(){
         try {
