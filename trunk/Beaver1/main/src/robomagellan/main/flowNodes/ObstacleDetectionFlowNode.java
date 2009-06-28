@@ -21,12 +21,12 @@ public class ObstacleDetectionFlowNode extends FlowNode{
 
     @Override
     public void actionTrue() {
-        System.out.println(getName() + ": True, Obstacle Detected");
+        //System.out.println(getName() + ": True, Obstacle Detected");
     }
 
     @Override
     public void actionFalse() {
-        System.out.println(getName() + ": False, No Obstacle");
+        //System.out.println(getName() + ": False, No Obstacle");
     }
 
 }
