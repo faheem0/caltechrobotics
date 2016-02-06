@@ -1,0 +1,1 @@
+Visit the Groups site for discussions and more information: http://groups.google.com/group/caltechrobotics
